@@ -4,9 +4,6 @@ const nextConfig = {
     // Mobile React Native components share the repository with the Next.js web showcase
     ignoreBuildErrors: true,
   },
-  experimental: {
-    agentRules: false,
-  },
 };
 
 export default nextConfig;
