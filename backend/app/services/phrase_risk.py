@@ -5,11 +5,16 @@ from app.services.safety_loader import load_safety_json
 
 PhraseMethod = Literal["phrase", "none"]
 
-_DIACRITICS = re.compile(r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]")
+# Must stay identical to safety/lib/normalize.mjs (Person 3), so the evaluation
+# scripts and the live API match text in exactly the same way.
+_DIACRITICS = re.compile(r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]")  # marks + tatweel
 _ALEF = re.compile("[أإآٱ]")
+_APOSTROPHES = re.compile(r"[’'`]")
+_NON_WORD = re.compile(r"[^\w\s]|_")  # punctuation and emoji -> space
 _WHITESPACE = re.compile(r"\s+")
-_LAUGHTER_TAIL = "من الضحك"
-_LAUGHTER_STEMS = frozenset({"نبي نموت", "ابي اموت"})
+
+# Used only if crisis-phrases.json has no "benign_idioms" list (e.g. old placeholder files).
+_DEFAULT_BENIGN_IDIOMS = ("نموت من الضحك",)
 
 
 class PhraseRiskResult(TypedDict):
@@ -18,37 +23,43 @@ class PhraseRiskResult(TypedDict):
 
 
 def normalize_text(text: str) -> str:
-    without_marks = _DIACRITICS.sub("", text)
-    unified_alef = _ALEF.sub("ا", without_marks)
-    lowered = unified_alef.lower()
-    return _WHITESPACE.sub(" ", lowered).strip()
+    t = _DIACRITICS.sub("", str(text or ""))
+    t = _ALEF.sub("ا", t).replace("ى", "ي").replace("ة", "ه")
+    t = t.lower()
+    t = _APOSTROPHES.sub("", t)
+    t = _NON_WORD.sub(" ", t)
+    return _WHITESPACE.sub(" ", t).strip()
 
 
 def check_phrase_risk(text: str) -> PhraseRiskResult:
-    if text.strip() == "":
+    if not str(text or "").strip():
         return {"detected": False, "method": "none"}
 
-    normalized_text = normalize_text(text)
-    matched = _matching_phrases(normalized_text)
-    if not matched or _is_laughter_idiom(normalized_text, matched):
-        return {"detected": False, "method": "none"}
-    return {"detected": True, "method": "phrase"}
-
-
-def _matching_phrases(normalized_text: str) -> list[str]:
     payload = load_safety_json("crisis-phrases.json")
-    phrases = payload.get("phrases", []) if isinstance(payload, dict) else []
+    payload = payload if isinstance(payload, dict) else {}
+    cleaned = _strip_benign_idioms(normalize_text(text), payload)
+    if _matching_phrases(cleaned, payload):
+        return {"detected": True, "method": "phrase"}
+    return {"detected": False, "method": "none"}
+
+
+def _strip_benign_idioms(normalized_text: str, payload: dict) -> str:
+    """Remove only the exact harmless idiom spans (e.g. نموت من الضحك).
+    The rest of the text is still checked, and the model judge still sees everything."""
+    idioms = payload.get("benign_idioms") or _DEFAULT_BENIGN_IDIOMS
+    padded = f" {normalized_text} "
+    for idiom in idioms:
+        normalized_idiom = normalize_text(str(idiom))
+        if normalized_idiom:
+            padded = padded.replace(normalized_idiom, " ")
+    return _WHITESPACE.sub(" ", padded).strip()
+
+
+def _matching_phrases(normalized_text: str, payload: dict) -> list[str]:
     matched: list[str] = []
-    for phrase in phrases:
+    for phrase in payload.get("phrases", []):
         raw = phrase.get("text", "") if isinstance(phrase, dict) else ""
         normalized_phrase = normalize_text(str(raw))
         if normalized_phrase and normalized_phrase in normalized_text:
             matched.append(normalized_phrase)
     return matched
-
-
-def _is_laughter_idiom(normalized_text: str, matched: list[str]) -> bool:
-    """Keep a colloquial joke off the phrase layer. The model judges it later."""
-    if _LAUGHTER_TAIL not in normalized_text:
-        return False
-    return all(phrase in _LAUGHTER_STEMS for phrase in matched)
