@@ -1,0 +1,375 @@
+{
+  "version": "0.2",
+  "notes": "Phrase layer of the risk check. Matching uses normalizeText() and substring search: any match = risk. benign_idioms are removed from the text before matching (phrase layer only; the LLM judge still sees the full text). Needs native Libyan review.",
+  "benign_idioms": [
+    "نموت من الضحك",
+    "نموت فيك",
+    "نموت فيه",
+    "نموت فيها",
+    "نموت عليه",
+    "نموت عليها",
+    "نموت من الجوع"
+  ],
+  "phrases": [
+    {
+      "text": "نبي نموت",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "أبي أموت",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "نبي نقتل روحي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "أفكر في الانتحار",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "ما عندي سبب نعيش",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "الحياة ما تستاهل",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نبي نرتاح للأبد",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "لو نرقد وما نقومش",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نبي نختفي من الدنيا",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "خلاص ما نقدر نكمل",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "حاس روحي بنجنن",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "مش قادر نتحمل أكثر",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "كل شي انتهى خلاص",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "nabi nmot",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "nabi no2tol ro7i",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "msh gader nkamel",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "5alas ma nagder nkamel",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "I want to die",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "I want to kill myself",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "I can't do this anymore",
+      "script": "english",
+      "dialect": "none",
+      "category": "crisis"
+    },
+    {
+      "text": "نبي نأذي نفسي",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "نبي نرمي روحي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "العالم أحسن بدوني",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "انتحار",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "ننتحر",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نقتل روحي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نقتل نفسي",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "نأذي روحي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نأذي نفسي",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "نجرح روحي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نجرح نفسي",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "نرمي نفسي",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "إنهاء حياتي",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "انهي حياتي",
+      "script": "arabic",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "ننهي حياتي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نخلص من حياتي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نخلص من روحي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نبغي نموت",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نتمنى الموت",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "ما نبيش نعيش",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "ما عاد نبي نعيش",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "نبي نختفي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "أحسن بدوني",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "بدوني أحسن",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "فايدة من وجودي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "فايدة من حياتي",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "تعبت من الحياة",
+      "script": "arabic",
+      "dialect": "libyan",
+      "category": "crisis"
+    },
+    {
+      "text": "nabgi nmot",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "nabi nmoot",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "nebi nmot",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "nentahar",
+      "script": "latin",
+      "dialect": "libyan",
+      "category": "self-harm"
+    },
+    {
+      "text": "intihar",
+      "script": "latin",
+      "dialect": "standard",
+      "category": "self-harm"
+    },
+    {
+      "text": "kill myself",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "end my life",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "suicide",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "suicidal",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "want to die",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "hurt myself",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "dont want to live",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    },
+    {
+      "text": "better off without me",
+      "script": "english",
+      "dialect": "none",
+      "category": "self-harm"
+    }
+  ]
+}
