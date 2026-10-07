@@ -34,9 +34,9 @@ Build this service from the `backend` directory on Render.
 
 - Build: `pip install -r requirements.txt`
 - Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-- Environment: `GEMINI_API_KEY` on the host, `GEMINI_MODEL=gemini-flash-lite-latest`, and `CORS_ORIGINS=http://localhost:3000`
+- Environment: `GEMINI_API_KEY` on the host, `GEMINI_MODEL=gemini-flash-lite-latest`, and `CORS_ORIGINS=*`
 
-When Person 1 shares the frontend origin, add it to `CORS_ORIGINS`, separated by a comma. The API key stays out of the repository.
+`CORS_ORIGINS=*` lets any browser origin call the API. A native phone app does not use this check. The API key stays out of the repository.
 
 The public base URL will be written here after the service is live.
 

@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-flash-lite-latest"
     llm_timeout_seconds: float = 10
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "*"
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
