@@ -9,7 +9,9 @@ import {
   I18nManager,
 } from 'react-native';
 import { Chip, Recipient } from '../types';
+import { colors } from '../theme';
 import ar from '../i18n/ar.json';
+import supportCardData from '../../safety/support-card.json';
 
 export interface CaptureScreenProps {
   selectedChips: Chip[];
@@ -20,37 +22,26 @@ export interface CaptureScreenProps {
   onChangeInputText: (text: string) => void;
   onSubmit: () => void;
   isLoading?: boolean;
+  /** True while the free text matches a crisis phrase; drafting is blocked. */
+  crisisDetected?: boolean;
+  onOpenSupport: () => void;
   historyCount: number;
   onClearHistory: () => void;
 }
 
-const CHIP_LIST: { id: Chip; label: string; icon: string }[] = [
-  { id: 'exams', label: ar.chips.exams, icon: '📚' },
-  { id: 'family', label: ar.chips.family, icon: '🏡' },
-  { id: 'work', label: ar.chips.work, icon: '💼' },
-  { id: 'relationships', label: ar.chips.relationships, icon: '🤝' },
-  { id: 'sleep', label: ar.chips.sleep, icon: '🌙' },
-  { id: 'money', label: ar.chips.money, icon: '💳' },
-  { id: 'other', label: ar.chips.other, icon: '💬' },
-];
-
-const RECIPIENT_LIST: { id: Recipient; label: string; icon: string }[] = [
-  { id: 'friend', label: ar.recipients.friend, icon: '🧑‍🤝‍🧑' },
-  { id: 'sibling', label: ar.recipients.sibling, icon: '👫' },
-  { id: 'parent', label: ar.recipients.parent, icon: '👨‍👩‍👧' },
-  { id: 'trusted_adult', label: ar.recipients.trusted_adult, icon: '🧑‍🦳' },
-  { id: 'counsellor', label: ar.recipients.counsellor, icon: '🎓' },
-];
+const CHIP_IDS = Object.keys(ar.chips) as Chip[];
+const RECIPIENT_IDS = Object.keys(ar.recipients) as Recipient[];
 
 /**
  * CaptureScreen (Screen 1: Stress & Context Capture)
  *
- * RTL Native Screen presenting:
- * 1. 7 everyday stress chips in RTL flexbox with multi-select support.
- * 2. 5 recipient selectors tailored to Libyan youth social dynamics.
- * 3. 1-3 line optional TextInput for brief personalized thoughts.
- * 4. Sandboxed on-device history indicator with one-tap erase.
- * 5. Stated limits notice explaining Jisr is a writing companion, not a doctor.
+ * RTL native port of the web showcase's home form (src/app/page.js on main):
+ * 1. Brand block with the Jisr mark, name and tagline.
+ * 2. 7 everyday stress chips with multi-select support.
+ * 3. Optional free text, screened live by the Guardian crisis check.
+ * 4. 5 recipient selectors tailored to Libyan youth social dynamics.
+ * 5. Sandboxed on-device history indicator with one-tap erase.
+ * 6. Stated limits notice explaining Jisr is a writing companion, not a doctor.
  */
 export const CaptureScreen: React.FC<CaptureScreenProps> = ({
   selectedChips,
@@ -61,46 +52,44 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
   onChangeInputText,
   onSubmit,
   isLoading = false,
+  crisisDetected = false,
+  onOpenSupport,
   historyCount,
   onClearHistory,
 }) => {
-  const isSubmitDisabled = selectedChips.length === 0 || isLoading;
+  const isSubmitDisabled = selectedChips.length === 0 || isLoading || crisisDetected;
 
   return (
     <View style={styles.container}>
-      {/* SECTION 1: Stress Chips */}
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.sectionTitle}>شن أكثر حاجة شاغلة بالك هالفترة؟</Text>
-          <Text style={styles.sectionSubtitle}>
-            تقدر تختار أكثر من موضوع بنقرة واحدة
-          </Text>
+      {/* Brand */}
+      <View style={styles.brand}>
+        <View style={styles.miniBridgeMark}>
+          <Text style={styles.miniBridgeMarkText}>جسر</Text>
         </View>
+        <Text style={styles.brandTitle}>{ar.app_name}</Text>
+        <Text style={styles.brandTagline}>{ar.tagline}</Text>
+      </View>
 
-        <View style={styles.chipsContainer}>
-          {CHIP_LIST.map((chip) => {
-            const isSelected = selectedChips.includes(chip.id);
+      {/* SECTION 1: Stress Chips */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>شن أكثر حاجة شاغلة بالك هالفترة؟</Text>
+        <Text style={styles.hint}>تقدر تختار أكثر من موضوع.</Text>
+
+        <View style={styles.pillRow}>
+          {CHIP_IDS.map((id) => {
+            const isSelected = selectedChips.includes(id);
             return (
               <TouchableOpacity
-                key={chip.id}
-                style={[
-                  styles.chipButton,
-                  isSelected && styles.chipButtonSelected,
-                ]}
-                onPress={() => onToggleChip(chip.id)}
+                key={id}
+                style={[styles.pill, isSelected && styles.pillSelected]}
+                onPress={() => onToggleChip(id)}
                 activeOpacity={0.8}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: isSelected }}
-                accessibilityLabel={chip.label}
+                accessibilityLabel={ar.chips[id]}
               >
-                <Text style={styles.chipIcon}>{chip.icon}</Text>
-                <Text
-                  style={[
-                    styles.chipLabel,
-                    isSelected && styles.chipLabelSelected,
-                  ]}
-                >
-                  {chip.label}
+                <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
+                  {ar.chips[id]}
                 </Text>
               </TouchableOpacity>
             );
@@ -108,95 +97,85 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
         </View>
       </View>
 
-      {/* SECTION 2: Recipient Selection */}
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.sectionTitle}>{ar.placeholders.search_recipient}</Text>
-          <Text style={styles.sectionSubtitle}>
-            لمن تبي تبعث الرسالة؟ الصياغة حتتعدل حسب الشخص
-          </Text>
-        </View>
-
-        <View style={styles.recipientsContainer}>
-          {RECIPIENT_LIST.map((rec) => {
-            const isSelected = selectedRecipient === rec.id;
-            return (
-              <TouchableOpacity
-                key={rec.id}
-                style={[
-                  styles.recipientButton,
-                  isSelected && styles.recipientButtonSelected,
-                ]}
-                onPress={() => onSelectRecipient(rec.id)}
-                activeOpacity={0.8}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: isSelected }}
-                accessibilityLabel={rec.label}
-              >
-                <Text style={styles.recipientIcon}>{rec.icon}</Text>
-                <Text
-                  style={[
-                    styles.recipientLabel,
-                    isSelected && styles.recipientLabelSelected,
-                  ]}
-                >
-                  {rec.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
-      {/* SECTION 3: Optional Free-Text Input */}
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.sectionTitle}>لو تحب، اكتب سطر أو سطرين بكلماتك</Text>
-          <Text style={styles.sectionSubtitle}>
-            اختياري تماماً. تقدر تعتمد على الاختيارات فوق بس.
-          </Text>
-        </View>
+      {/* SECTION 2: Optional Free-Text Input */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{ar.placeholders.user_input}</Text>
 
         <TextInput
-          style={styles.textInput}
+          style={[styles.textInput, crisisDetected && styles.textInputAlert]}
           multiline
-          numberOfLines={3}
-          placeholder={ar.placeholders.user_input}
-          placeholderTextColor="#94A3B8"
+          numberOfLines={4}
           value={inputText}
           onChangeText={onChangeInputText}
           textAlign="right"
           textAlignVertical="top"
-          accessibilityLabel="النص الاختياري"
+          accessibilityLabel={ar.placeholders.user_input}
         />
+
+        {/* Guardian: drafting is blocked while a crisis phrase is present */}
+        {crisisDetected && (
+          <View style={styles.crisisBanner} accessibilityRole="alert">
+            <Text style={styles.crisisBannerText}>{supportCardData.title_ar}</Text>
+            <TouchableOpacity
+              style={styles.crisisBannerButton}
+              onPress={onOpenSupport}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={ar.triggers.persistent_human_route}
+            >
+              <Text style={styles.crisisBannerButtonText}>
+                {ar.triggers.persistent_human_route}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      {/* SECTION 3: Recipient Selection */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{ar.placeholders.search_recipient}</Text>
+
+        <View style={styles.pillRow}>
+          {RECIPIENT_IDS.map((id) => {
+            const isSelected = selectedRecipient === id;
+            return (
+              <TouchableOpacity
+                key={id}
+                style={[styles.pill, isSelected && styles.pillSelected]}
+                onPress={() => onSelectRecipient(id)}
+                activeOpacity={0.8}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: isSelected }}
+                accessibilityLabel={ar.recipients[id]}
+              >
+                <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
+                  {ar.recipients[id]}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       {/* Primary Action Button */}
       <TouchableOpacity
-        style={[
-          styles.submitButton,
-          isSubmitDisabled && styles.submitButtonDisabled,
-        ]}
+        style={[styles.continueButton, isSubmitDisabled && styles.continueButtonDisabled]}
         onPress={onSubmit}
         disabled={isSubmitDisabled}
         activeOpacity={0.85}
         accessibilityRole="button"
-        accessibilityLabel="تجهيز الرسالة"
+        accessibilityLabel={ar.buttons.start_drafting}
       >
         {isLoading ? (
-          <ActivityIndicator color="#FFFFFF" size="small" />
+          <ActivityIndicator color={colors.white} size="small" />
         ) : (
-          <Text style={styles.submitButtonText}>تجهيز الرسالة ✨</Text>
+          <Text style={styles.continueButtonText}>{ar.buttons.start_drafting}</Text>
         )}
       </TouchableOpacity>
 
       {/* SECTION 4: Sandboxed History & Privacy */}
       <View style={styles.privacyCard}>
-        <View style={styles.privacyHeader}>
-          <Text style={styles.privacyBadge}>🔒 خصوصية كاملة</Text>
-          <Text style={styles.privacyTitle}>الحفظ المحلي على جهازك</Text>
-        </View>
-
+        <Text style={styles.privacyTitle}>الحفظ المحلي على جهازك</Text>
         <Text style={styles.privacyDescription}>
           بياناتك محفوظة على جهازك فقط ({historyCount} موضوع مسجل). لا نملك خوادم تخزن أسرارك أو تتتبعك.
         </Text>
@@ -207,17 +186,13 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
             onPress={onClearHistory}
             activeOpacity={0.7}
           >
-            <Text style={styles.clearHistoryText}>
-              🗑️ {ar.buttons.clear_history}
-            </Text>
+            <Text style={styles.clearHistoryText}>{ar.buttons.clear_history}</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {/* Stated Limits Notice */}
-      <View style={styles.limitsCard}>
-        <Text style={styles.limitsText}>{ar.limits.notice}</Text>
-      </View>
+      <Text style={styles.limits}>{ar.limits.notice}</Text>
     </View>
   );
 };
@@ -226,188 +201,193 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+  brand: {
+    alignItems: 'center',
+    marginBottom: 31,
   },
-  cardHeader: {
-    marginBottom: 12,
+  miniBridgeMark: {
+    width: 86,
+    height: 50,
+    borderRadius: 18,
+    backgroundColor: colors.green,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.green,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  miniBridgeMarkText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  brandTitle: {
+    marginTop: 12,
+    marginBottom: 7,
+    color: colors.navy,
+    fontSize: 39,
+    fontWeight: '800',
+  },
+  brandTagline: {
+    color: colors.green,
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 27,
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: 27,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0F172A',
+    marginBottom: 10,
+    color: colors.navy,
+    fontSize: 17,
+    fontWeight: '800',
+    lineHeight: 29,
     textAlign: 'right',
-    marginBottom: 4,
   },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: '#64748B',
+  hint: {
+    marginTop: -4,
+    marginBottom: 15,
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 24,
     textAlign: 'right',
-    lineHeight: 18,
   },
-  chipsContainer: {
+  pillRow: {
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 10,
   },
-  chipButton: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: 20,
+  pill: {
+    paddingHorizontal: 17,
+    paddingVertical: 11,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
-    gap: 6,
+    borderColor: colors.border,
+    backgroundColor: colors.white,
   },
-  chipButtonSelected: {
-    backgroundColor: '#0284C7',
-    borderColor: '#0284C7',
+  pillSelected: {
+    backgroundColor: colors.green,
+    borderColor: colors.green,
+    shadowColor: colors.green,
+    shadowOffset: { width: 0, height: 9 },
+    shadowOpacity: 0.18,
+    shadowRadius: 11,
+    elevation: 3,
   },
-  chipIcon: {
+  pillLabel: {
+    color: colors.navy,
     fontSize: 14,
   },
-  chipLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#334155',
-  },
-  chipLabelSelected: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  recipientsContainer: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  recipientButton: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    gap: 6,
-  },
-  recipientButtonSelected: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
-  },
-  recipientIcon: {
-    fontSize: 14,
-  },
-  recipientLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#334155',
-  },
-  recipientLabelSelected: {
-    color: '#FFFFFF',
+  pillLabelSelected: {
+    color: colors.white,
     fontWeight: '700',
   },
   textInput: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 14,
-    color: '#0F172A',
+    minHeight: 110,
+    padding: 16,
+    borderRadius: 21,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    minHeight: 85,
-    lineHeight: 22,
+    borderColor: colors.border,
+    backgroundColor: colors.white,
+    color: colors.navy,
+    fontSize: 15,
+    lineHeight: 28,
   },
-  submitButton: {
-    backgroundColor: '#0284C7',
-    borderRadius: 14,
+  textInputAlert: {
+    borderColor: colors.safety,
+  },
+  crisisBanner: {
+    marginTop: 12,
+    padding: 16,
+    gap: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(176, 67, 42, 0.18)',
+    backgroundColor: colors.safetySoft,
+  },
+  crisisBannerText: {
+    color: '#783323',
+    fontSize: 15,
+    fontWeight: '800',
+    lineHeight: 26,
+    textAlign: 'right',
+  },
+  crisisBannerButton: {
+    alignSelf: 'stretch',
+    paddingVertical: 12,
+    borderRadius: 999,
+    backgroundColor: colors.safety,
+    alignItems: 'center',
+  },
+  crisisBannerButtonText: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  continueButton: {
+    paddingHorizontal: 20,
     paddingVertical: 14,
+    borderRadius: 999,
+    backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
-    shadowColor: '#0284C7',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+    shadowColor: colors.green,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
     elevation: 3,
   },
-  submitButtonDisabled: {
-    backgroundColor: '#94A3B8',
+  continueButtonDisabled: {
+    opacity: 0.36,
     shadowOpacity: 0,
     elevation: 0,
   },
-  submitButtonText: {
-    color: '#FFFFFF',
+  continueButtonText: {
+    color: colors.white,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   privacyCard: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 14,
+    marginTop: 21,
     padding: 14,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#BBF7D0',
-    marginBottom: 14,
-  },
-  privacyHeader: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
+    borderColor: 'rgba(47, 107, 79, 0.18)',
+    backgroundColor: colors.greenSoft,
   },
   privacyTitle: {
+    marginBottom: 6,
+    color: colors.green,
     fontSize: 13,
-    fontWeight: '700',
-    color: '#166534',
+    fontWeight: '800',
     textAlign: 'right',
-  },
-  privacyBadge: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#15803D',
   },
   privacyDescription: {
+    color: colors.green,
     fontSize: 12,
-    color: '#166534',
-    lineHeight: 18,
+    lineHeight: 20,
     textAlign: 'right',
-    marginBottom: 6,
   },
   clearHistoryButton: {
     alignSelf: 'flex-start',
-    marginTop: 4,
+    marginTop: 8,
     paddingVertical: 4,
   },
   clearHistoryText: {
+    color: colors.safety,
     fontSize: 12,
-    color: '#DC2626',
-    fontWeight: '600',
+    fontWeight: '700',
     textDecorationLine: 'underline',
   },
-  limitsCard: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 20,
-  },
-  limitsText: {
-    fontSize: 11,
-    color: '#64748B',
-    textAlign: 'right',
-    lineHeight: 17,
+  limits: {
+    marginTop: 21,
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 23,
+    textAlign: 'center',
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -8,10 +8,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Share,
-  ActivityIndicator,
   Alert,
   I18nManager,
-  Platform,
+  Image,
+  Animated,
+  LayoutChangeEvent,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
@@ -19,7 +20,6 @@ import {
   Chip,
   Recipient,
   Tone,
-  Draft,
   IdentifierRemoved,
   Alignment,
 } from './src/types';
@@ -29,12 +29,12 @@ import {
   checkFaithfulness,
   getOfflineDrafts,
 } from './src/services/api';
+import { checkLocalCrisis } from './src/services/crisisCheck';
 import { sanitizePii } from './src/services/piiSanitizer';
 import {
   recordChipSelection,
   getHistory,
   clearHistory,
-  isHistoryEnabled,
   checkChipRecurrence,
 } from './src/services/storage';
 
@@ -46,11 +46,20 @@ import {
   TriggerModal,
 } from './src/components';
 import { CaptureScreen } from './src/screens/CaptureScreen';
+import { colors } from './src/theme';
 
 import ar from './src/i18n/ar.json';
 import plainTemplatesData from './safety/plain-templates.json';
 
 const TONE_KEYS: Tone[] = ['gentle', 'direct', 'formal'];
+
+// Rayan's intro artwork (shared with the Next.js web showcase)
+const INTRO_IMAGE = require('./public/brand/jisr-intro-mobile.png');
+const INTRO_IMAGE_SIZE = { width: 941, height: 1672, cornerRadius: 20 };
+const INTRO_AUTO_ENTER_MS = 4200;
+const INTRO_FADE_MS = 650;
+
+type Screen = 'intro' | 'capture' | 'drafting' | 'encouraged_out';
 
 export default function App() {
   // Capture inputs
@@ -59,8 +68,14 @@ export default function App() {
   const [inputText, setInputText] = useState('');
 
   // Screen state
-  const [activeScreen, setActiveScreen] = useState<'capture' | 'drafting' | 'encouraged_out'>('capture');
+  const [activeScreen, setActiveScreen] = useState<Screen>('intro');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Intro / splash
+  const introOpacity = useRef(new Animated.Value(1)).current;
+  const contentOpacity = useRef(new Animated.Value(0)).current;
+  const introFinishedRef = useRef(false);
+  const [introArea, setIntroArea] = useState({ width: 0, height: 0 });
 
   // Modals state
   const [showSupportModal, setShowSupportModal] = useState(false);
@@ -68,6 +83,8 @@ export default function App() {
   const [showTriggerModal, setShowTriggerModal] = useState(false);
   const [triggerChipLabel, setTriggerChipLabel] = useState('');
   const [triggerIsRecurrence, setTriggerIsRecurrence] = useState(false);
+  // Selection the user answered "not now" to; continuing with it skips the prompt
+  const [dismissedSelectionKey, setDismissedSelectionKey] = useState('');
 
   // Drafts & Tone
   const [drafts, setDrafts] = useState<Record<Tone, string>>({
@@ -116,6 +133,77 @@ export default function App() {
     }
   }, [activeScreen, editedDraft, inputText, selectedChips]);
 
+  // ---------------- Intro ----------------
+
+  const enterApp = useCallback(() => {
+    if (introFinishedRef.current) return;
+    introFinishedRef.current = true;
+
+    Animated.timing(introOpacity, {
+      toValue: 0,
+      duration: INTRO_FADE_MS,
+      useNativeDriver: true,
+    }).start(() => {
+      setActiveScreen('capture');
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 360,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, [introOpacity, contentOpacity]);
+
+  // The intro enters the app on its own after a few seconds, but waits while
+  // the support card is open so the human route is never cut short.
+  useEffect(() => {
+    if (activeScreen !== 'intro' || showSupportModal) return;
+    const timer = setTimeout(enterApp, INTRO_AUTO_ENTER_MS);
+    return () => clearTimeout(timer);
+  }, [activeScreen, showSupportModal, enterApp]);
+
+  const introImageStyle = useMemo(() => {
+    const scale = Math.min(
+      introArea.width / INTRO_IMAGE_SIZE.width,
+      introArea.height / INTRO_IMAGE_SIZE.height
+    );
+    return {
+      width: INTRO_IMAGE_SIZE.width * scale,
+      height: INTRO_IMAGE_SIZE.height * scale,
+      borderRadius: INTRO_IMAGE_SIZE.cornerRadius * scale,
+    };
+  }, [introArea]);
+
+  const handleIntroLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setIntroArea({ width, height });
+  };
+
+  // ---------------- Guardian: live crisis interception ----------------
+
+  // Every keystroke is screened on-device against safety/crisis-phrases.json,
+  // both in the capture box and in the editable draft.
+  const inputRisk = useMemo(() => checkLocalCrisis(inputText), [inputText]);
+  const draftRisk = useMemo(
+    () => (activeScreen === 'drafting' ? checkLocalCrisis(editedDraft) : null),
+    [activeScreen, editedDraft]
+  );
+  const crisisDetected = inputRisk.riskDetected || Boolean(draftRisk?.riskDetected);
+
+  // A new match immediately blocks drafting and opens the support card.
+  useEffect(() => {
+    if (!crisisDetected) return;
+    setShowTriggerModal(false);
+    setIsCrisisModal(true);
+    setShowSupportModal(true);
+  }, [crisisDetected]);
+
+  const openSupport = () => {
+    setIsCrisisModal(crisisDetected);
+    setShowSupportModal(true);
+  };
+
+  // ---------------- Capture ----------------
+
   // Compute deterministic baseline template for the selected chip, recipient, and tone
   const activeBaselineTemplate = useMemo(() => {
     const chip = selectedChips[0];
@@ -127,33 +215,43 @@ export default function App() {
     return raw.replace(/\[topic\]/g, topic).replace(/\{topic\}/g, topic);
   }, [selectedChips, selectedRecipient, currentTone]);
 
-  // Handle toggling of stress chips on CaptureScreen
-  const handleToggleChip = async (chipId: Chip) => {
-    const isSelected = selectedChips.includes(chipId);
-    let updated: Chip[];
+  const selectedTopicLabel = selectedChips.map((id) => ar.chips[id]).join('، ');
+  const selectionKey = [...selectedChips].sort().join('|');
 
-    if (isSelected) {
-      updated = selectedChips.filter((id) => id !== chipId);
-      setSelectedChips(updated);
-    } else {
-      updated = [...selectedChips, chipId];
-      setSelectedChips(updated);
+  const handleToggleChip = (chipId: Chip) => {
+    setSelectedChips((current) =>
+      current.includes(chipId)
+        ? current.filter((id) => id !== chipId)
+        : [...current, chipId]
+    );
+  };
 
-      // Check if this chip meets the pattern recurrence trigger (>= 3 times)
-      const isRecurring = await checkChipRecurrence(chipId);
-      const label = ar.chips[chipId];
+  // "Continue" opens the writing invitation, as on the web showcase. A chip
+  // picked 3+ times before gets the pattern prompt instead.
+  const handleContinue = async () => {
+    if (selectedChips.length === 0 || crisisDetected) return;
 
-      if (isRecurring) {
-        setTriggerChipLabel(label);
-        setTriggerIsRecurrence(true);
-        setShowTriggerModal(true);
-      } else if (updated.length === 1) {
-        // Same-session gentle prompt on first chip selection
-        setTriggerChipLabel(label);
-        setTriggerIsRecurrence(false);
-        setShowTriggerModal(true);
+    if (selectionKey === dismissedSelectionKey) {
+      handleStartDrafting();
+      return;
+    }
+
+    let recurringChip: Chip | undefined;
+    for (const chip of selectedChips) {
+      if (await checkChipRecurrence(chip)) {
+        recurringChip = chip;
+        break;
       }
     }
+
+    setTriggerChipLabel(recurringChip ? ar.chips[recurringChip] : selectedTopicLabel);
+    setTriggerIsRecurrence(Boolean(recurringChip));
+    setShowTriggerModal(true);
+  };
+
+  const handleNotNow = () => {
+    setDismissedSelectionKey(selectionKey);
+    setShowTriggerModal(false);
   };
 
   // Main submission handler: triggers Guardian risk screening and drafting engine
@@ -163,6 +261,7 @@ export default function App() {
       return;
     }
 
+    setShowTriggerModal(false);
     setIsLoading(true);
 
     try {
@@ -198,11 +297,9 @@ export default function App() {
       const direct = response.drafts.find((d) => d.tone === 'direct')?.text || '';
       const formal = response.drafts.find((d) => d.tone === 'formal')?.text || '';
 
-      const newDrafts: Record<Tone, string> = { gentle, direct, formal };
-      setDrafts(newDrafts);
-      setEditedDraft(newDrafts[currentTone] || gentle);
-
-      // Transition to drafting screen
+      setDrafts({ gentle, direct, formal });
+      setCurrentTone('gentle');
+      setEditedDraft(gentle);
       setActiveScreen('drafting');
     } catch (error) {
       console.warn('Drafting error, falling back to offline templates:', error);
@@ -213,7 +310,8 @@ export default function App() {
         formal: fallback.drafts.find((d) => d.tone === 'formal')?.text || '',
       };
       setDrafts(fallbackDrafts);
-      setEditedDraft(fallbackDrafts[currentTone]);
+      setCurrentTone('gentle');
+      setEditedDraft(fallbackDrafts.gentle);
       setActiveScreen('drafting');
     } finally {
       setIsLoading(false);
@@ -222,7 +320,7 @@ export default function App() {
 
   // Share via OS native share sheet (WhatsApp, Messenger, SMS handoff) with 0 telemetry
   const handleShare = async () => {
-    if (!editedDraft) return;
+    if (!editedDraft || crisisDetected) return;
 
     try {
       const result = await Share.share({
@@ -253,581 +351,669 @@ export default function App() {
     setSelectedRecipient('friend');
     setCurrentTone('gentle');
     setEditedDraft('');
+    setDismissedSelectionKey('');
     setShowBaseline(false);
     setShowFaithfulness(false);
     setShowOutbound(false);
     setActiveScreen('capture');
   };
 
+  const supportModal = (
+    <SupportCardModal
+      visible={showSupportModal}
+      isCrisis={isCrisisModal}
+      onClose={() => {
+        setShowSupportModal(false);
+        setIsCrisisModal(false);
+      }}
+    />
+  );
+
+  // ================= INTRO / SPLASH =================
+  if (activeScreen === 'intro') {
+    return (
+      <View style={styles.introRoot} onLayout={handleIntroLayout}>
+        <StatusBar style="dark" translucent={false} backgroundColor={colors.introFrame} />
+
+        <Animated.View style={[styles.introContent, { opacity: introOpacity }]}>
+          {introArea.width > 0 && (
+            <Image
+              source={INTRO_IMAGE}
+              style={introImageStyle}
+              resizeMode="cover"
+              accessible
+              accessibilityLabel={`${ar.app_name} — جسر لطيف نحو شخص تثق به`}
+            />
+          )}
+
+          <View style={styles.introActions}>
+            {/* PERSISTENT HUMAN ROUTE (also reachable from the intro) */}
+            <TouchableOpacity
+              style={[styles.humanRouteButton, styles.introHumanRoute]}
+              onPress={openSupport}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={ar.triggers.persistent_human_route}
+            >
+              <Text style={styles.humanRouteText}>
+                {ar.triggers.persistent_human_route}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.introStartButton}
+              onPress={enterApp}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="ابدأ"
+            >
+              <Text style={styles.introStartText}>ابدأ</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {supportModal}
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" translucent={false} backgroundColor={colors.cream} />
 
-      {/* ================= PERSISTENT TOP HEADER ================= */}
-      <View style={styles.header}>
-        {/* Brand Logo & Tagline */}
-        <View style={styles.headerBrand}>
-          <Text style={styles.headerTitle}>{ar.app_name}</Text>
-          <Text style={styles.headerTagline}>{ar.tagline}</Text>
-        </View>
-
-        {/* PERSISTENT HUMAN ROUTE BUTTON ("تكلم مع حد توا") */}
+      {/* ================= PERSISTENT HUMAN ROUTE ("تكلم مع حد توا") ================= */}
+      <View style={styles.topBar}>
+        <View style={styles.topBarSpacer} />
         <TouchableOpacity
-          style={styles.persistentSupportButton}
-          onPress={() => {
-            setIsCrisisModal(false);
-            setShowSupportModal(true);
-          }}
+          style={styles.humanRouteButton}
+          onPress={openSupport}
           activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel={ar.triggers.persistent_human_route}
         >
-          <Text style={styles.persistentSupportIcon}>🕊️</Text>
-          <Text style={styles.persistentSupportText}>
+          <Text style={styles.humanRouteText}>
             {ar.triggers.persistent_human_route}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        style={styles.scrollArea}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        {activeScreen === 'capture' && (
-          /* ================= SCREEN 1: CAPTURE ================= */
-          <CaptureScreen
-            selectedChips={selectedChips}
-            onToggleChip={handleToggleChip}
-            selectedRecipient={selectedRecipient}
-            onSelectRecipient={setSelectedRecipient}
-            inputText={inputText}
-            onChangeInputText={setInputText}
-            onSubmit={handleStartDrafting}
-            isLoading={isLoading}
-            historyCount={historyCount}
-            onClearHistory={handleClearHistory}
-          />
-        )}
+      <Animated.View style={[styles.contentFade, { opacity: contentOpacity }]}>
+        <ScrollView
+          style={styles.scrollArea}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.appCard}>
+            {activeScreen === 'capture' && (
+              /* ================= SCREEN 1: CAPTURE ================= */
+              <CaptureScreen
+                selectedChips={selectedChips}
+                onToggleChip={handleToggleChip}
+                selectedRecipient={selectedRecipient}
+                onSelectRecipient={setSelectedRecipient}
+                inputText={inputText}
+                onChangeInputText={setInputText}
+                onSubmit={handleContinue}
+                isLoading={isLoading}
+                crisisDetected={inputRisk.riskDetected}
+                onOpenSupport={openSupport}
+                historyCount={historyCount}
+                onClearHistory={handleClearHistory}
+              />
+            )}
 
-        {activeScreen === 'drafting' && (
-          /* ================= SCREEN 2: 3-TONE DRAFTING & TRUST ================= */
-          <View style={styles.draftingContainer}>
-            {/* AI Disclosure Badge */}
-            <View style={styles.disclosureCard}>
-              <View style={styles.disclosureHeader}>
-                <View style={styles.aiBadge}>
-                  <Text style={styles.aiBadgeText}>{ar.disclosure.badge}</Text>
-                </View>
-                <Text style={styles.disclosureTitle}>مساعدتك في الصياغة</Text>
-              </View>
-              <Text style={styles.disclosureNotice}>{ar.disclosure.notice}</Text>
-            </View>
-
-            {/* 3 Tone Selector Tabs */}
-            <View style={styles.toneTabsRow}>
-              {TONE_KEYS.map((toneKey) => {
-                const isActive = currentTone === toneKey;
-                return (
+            {activeScreen === 'drafting' && (
+              /* ================= SCREEN 2: 3-TONE DRAFTING & TRUST ================= */
+              <View>
+                <View style={styles.draftHeader}>
+                  <View style={styles.draftHeaderText}>
+                    <View style={styles.aiBadge}>
+                      <Text style={styles.aiBadgeText}>{ar.disclosure.badge}</Text>
+                    </View>
+                    <Text style={styles.draftTitle}>اختر الصياغة اللي تريحك</Text>
+                  </View>
                   <TouchableOpacity
-                    key={toneKey}
-                    style={[styles.toneTab, isActive && styles.toneTabActive]}
-                    onPress={() => setCurrentTone(toneKey)}
+                    style={styles.smallBackButton}
+                    onPress={() => setActiveScreen('capture')}
                     activeOpacity={0.8}
-                    accessibilityRole="tab"
-                    accessibilityState={{ selected: isActive }}
-                    accessibilityLabel={ar.tones[toneKey].label}
+                    accessibilityRole="button"
+                    accessibilityLabel="رجوع لتعديل الاختيارات"
+                  >
+                    <Text style={styles.smallBackButtonText}>←</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.hint}>
+                  اختار الأسلوب الأقرب ليك، وبعدها تقدر تعدّل أي كلمة قبل المشاركة.
+                </Text>
+
+                {/* 3 Tone Cards: لطيف / مباشر / رسمي */}
+                <View style={styles.toneButtons}>
+                  {TONE_KEYS.map((toneKey) => {
+                    const isActive = currentTone === toneKey;
+                    return (
+                      <TouchableOpacity
+                        key={toneKey}
+                        style={[styles.toneButton, isActive && styles.toneButtonSelected]}
+                        onPress={() => setCurrentTone(toneKey)}
+                        activeOpacity={0.8}
+                        accessibilityRole="tab"
+                        accessibilityState={{ selected: isActive }}
+                        accessibilityLabel={ar.tones[toneKey].label}
+                      >
+                        <Text style={[styles.toneLabel, isActive && styles.toneTextSelected]}>
+                          {ar.tones[toneKey].label}
+                        </Text>
+                        <Text
+                          style={[styles.toneDescription, isActive && styles.toneTextSelected]}
+                        >
+                          {ar.tones[toneKey].description}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {/* In-Place Editable Draft */}
+                <TextInput
+                  style={styles.draftEditor}
+                  multiline
+                  value={editedDraft}
+                  onChangeText={setEditedDraft}
+                  textAlign="right"
+                  textAlignVertical="top"
+                  placeholder="اكتب رسالتك هنا..."
+                  placeholderTextColor={colors.muted}
+                  accessibilityLabel="نص الرسالة القابل للتعديل"
+                />
+
+                {/* AI Disclosure */}
+                <View style={styles.disclosureBox}>
+                  <Text style={styles.disclosureBadge}>{ar.disclosure.badge}</Text>
+                  <Text style={styles.disclosureNotice}>{ar.disclosure.notice}</Text>
+                </View>
+
+                {/* Trust & Control Toggles */}
+                <View style={styles.trustControlsRow}>
+                  <TouchableOpacity
+                    style={[styles.trustToggleBtn, showBaseline && styles.trustToggleBtnActive]}
+                    onPress={() => setShowBaseline(!showBaseline)}
+                    activeOpacity={0.8}
+                    accessibilityState={{ expanded: showBaseline }}
+                  >
+                    <Text
+                      style={[styles.trustToggleText, showBaseline && styles.trustToggleTextActive]}
+                    >
+                      {showBaseline ? 'إخفاء المقارنة' : 'مقارنة مع القالب'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.trustToggleBtn,
+                      showFaithfulness && styles.trustToggleBtnActive,
+                    ]}
+                    onPress={() => setShowFaithfulness(!showFaithfulness)}
+                    activeOpacity={0.8}
+                    accessibilityState={{ expanded: showFaithfulness }}
                   >
                     <Text
                       style={[
-                        styles.toneTabText,
-                        isActive && styles.toneTabTextActive,
+                        styles.trustToggleText,
+                        showFaithfulness && styles.trustToggleTextActive,
                       ]}
                     >
-                      {ar.tones[toneKey].label}
+                      {showFaithfulness ? 'إخفاء المصدر' : 'فحص المصدر'}
                     </Text>
                   </TouchableOpacity>
-                );
-              })}
-            </View>
 
-            {/* In-Place Editable Draft Card */}
-            <View style={styles.draftEditorCard}>
-              <View style={styles.editorHeader}>
-                <Text style={styles.editorHint}>
-                  تقدر تعدل أي كلمة مباشرة في الصندوق تحت:
-                </Text>
-                <Text style={styles.toneDescription}>
-                  {ar.tones[currentTone].description}
-                </Text>
+                  <TouchableOpacity
+                    style={[styles.trustToggleBtn, showOutbound && styles.trustToggleBtnActive]}
+                    onPress={() => setShowOutbound(!showOutbound)}
+                    activeOpacity={0.8}
+                    accessibilityState={{ expanded: showOutbound }}
+                  >
+                    <Text
+                      style={[styles.trustToggleText, showOutbound && styles.trustToggleTextActive]}
+                    >
+                      {showOutbound ? 'إخفاء الخصوصية' : 'فحص الخصوصية'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* TRUST VIEW 1: Baseline Comparison */}
+                {showBaseline && (
+                  <BaselineComparison
+                    aiDraft={editedDraft}
+                    baselineTemplate={activeBaselineTemplate}
+                    recipientLabel={ar.recipients[selectedRecipient]}
+                    onSelectDraft={(text) => setEditedDraft(text)}
+                    style={styles.trustModule}
+                  />
+                )}
+
+                {/* TRUST VIEW 2: Faithfulness Alignment */}
+                {showFaithfulness && (
+                  <FaithfulnessView
+                    draftText={editedDraft}
+                    originalText={
+                      inputText || (selectedChips[0] ? ar.chips[selectedChips[0]] : '')
+                    }
+                    alignments={alignments}
+                    style={styles.trustModule}
+                  />
+                )}
+
+                {/* TRUST VIEW 3: Outbound PII Preview */}
+                {showOutbound && (
+                  <OutboundPreview
+                    sanitisedText={
+                      sanitizedData.sanitisedText ||
+                      (selectedChips[0] ? ar.chips[selectedChips[0]] : '')
+                    }
+                    identifiersRemoved={sanitizedData.identifiersRemoved}
+                    onEdit={() => setActiveScreen('capture')}
+                    style={styles.trustModule}
+                  />
+                )}
+
+                {/* Native Share Sheet */}
+                <TouchableOpacity
+                  style={[
+                    styles.primaryButton,
+                    (!editedDraft || crisisDetected) && styles.primaryButtonDisabled,
+                  ]}
+                  onPress={handleShare}
+                  disabled={!editedDraft || crisisDetected}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel={ar.buttons.share}
+                >
+                  <Text style={styles.primaryButtonText}>{ar.buttons.share}</Text>
+                </TouchableOpacity>
               </View>
-
-              <TextInput
-                style={styles.draftEditorInput}
-                multiline
-                value={editedDraft}
-                onChangeText={setEditedDraft}
-                textAlign="right"
-                textAlignVertical="top"
-                placeholder="اكتب رسالتك هنا..."
-                placeholderTextColor="#94A3B8"
-                accessibilityLabel="نص الرسالة القابل للتعديل"
-              />
-            </View>
-
-            {/* Trust & Control Toggles Row */}
-            <View style={styles.trustControlsRow}>
-              <TouchableOpacity
-                style={[
-                  styles.trustToggleBtn,
-                  showBaseline && styles.trustToggleBtnActive,
-                ]}
-                onPress={() => setShowBaseline(!showBaseline)}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.trustToggleText,
-                    showBaseline && styles.trustToggleTextActive,
-                  ]}
-                >
-                  ⚖️ {showBaseline ? 'إخفاء المقارنة' : 'مقارنة مع القالب'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.trustToggleBtn,
-                  showFaithfulness && styles.trustToggleBtnActive,
-                ]}
-                onPress={() => setShowFaithfulness(!showFaithfulness)}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.trustToggleText,
-                    showFaithfulness && styles.trustToggleTextActive,
-                  ]}
-                >
-                  🔍 {showFaithfulness ? 'إخفاء المصدر' : 'فحص المصدر'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.trustToggleBtn,
-                  showOutbound && styles.trustToggleBtnActive,
-                ]}
-                onPress={() => setShowOutbound(!showOutbound)}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.trustToggleText,
-                    showOutbound && styles.trustToggleTextActive,
-                  ]}
-                >
-                  🔒 {showOutbound ? 'إخفاء الخصوصية' : 'فحص الخصوصية'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* TRUST VIEW 1: Baseline Comparison */}
-            {showBaseline && (
-              <BaselineComparison
-                aiDraft={editedDraft}
-                baselineTemplate={activeBaselineTemplate}
-                recipientLabel={ar.recipients[selectedRecipient]}
-                onSelectDraft={(text) => setEditedDraft(text)}
-                style={styles.trustModule}
-              />
             )}
 
-            {/* TRUST VIEW 2: Faithfulness Alignment */}
-            {showFaithfulness && (
-              <FaithfulnessView
-                draftText={editedDraft}
-                originalText={
-                  inputText || (selectedChips[0] ? ar.chips[selectedChips[0]] : '')
-                }
-                alignments={alignments}
-                style={styles.trustModule}
-              />
+            {activeScreen === 'encouraged_out' && (
+              /* ================= SCREEN 3: HANDOFF / READY ================= */
+              <View style={styles.readyScreen}>
+                <View style={styles.readyIcon}>
+                  <Text style={styles.readyIconText}>✓</Text>
+                </View>
+                <Text style={styles.readyBrand}>{ar.app_name}</Text>
+                <Text style={styles.readyTitle}>{ar.handoff.ready_message}</Text>
+                <Text style={styles.readyText}>
+                  تذكر ديماً: مجرد كسر حاجز الصمت والحديث مع شخص تثق فيه هو البداية الحقيقية للشعور بالراحة.
+                </Text>
+
+                <TouchableOpacity
+                  style={[styles.primaryButton, styles.fullWidth]}
+                  onPress={handleStartNew}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.primaryButtonText}>كتابة رسالة جديدة</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.secondaryButton, styles.fullWidth]}
+                  onPress={() => setActiveScreen('drafting')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.secondaryButtonText}>رجوع</Text>
+                </TouchableOpacity>
+              </View>
             )}
-
-            {/* TRUST VIEW 3: Outbound PII Preview */}
-            {showOutbound && (
-              <OutboundPreview
-                sanitisedText={
-                  sanitizedData.sanitisedText ||
-                  (selectedChips[0] ? ar.chips[selectedChips[0]] : '')
-                }
-                identifiersRemoved={sanitizedData.identifiersRemoved}
-                onEdit={() => setActiveScreen('capture')}
-                style={styles.trustModule}
-              />
-            )}
-
-            {/* Action 1: Native Share Sheet */}
-            <TouchableOpacity
-              style={styles.shareButton}
-              onPress={handleShare}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel={ar.buttons.share}
-            >
-              <Text style={styles.shareButtonText}>
-                📤 {ar.buttons.share}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Action 2: Back to Edit Selections */}
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => setActiveScreen('capture')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.backButtonText}>
-                ← رجوع لتعديل الاختيارات
-              </Text>
-            </TouchableOpacity>
           </View>
-        )}
-
-        {activeScreen === 'encouraged_out' && (
-          /* ================= SCREEN 3: ENCOURAGED-OUT COMPLETION ================= */
-          <View style={styles.encouragedContainer}>
-            <View style={styles.encouragedCard}>
-              <Text style={styles.encouragedIcon}>🎉</Text>
-              <Text style={styles.encouragedTitle}>خطوة ممتازة وشجاعة!</Text>
-              <Text style={styles.encouragedMessage}>
-                {ar.handoff.ready_message}
-              </Text>
-              <Text style={styles.encouragedSubmessage}>
-                تذكر ديماً: مجرد كسر حاجز الصمت والحديث مع شخص تثق فيه هو البداية الحقيقية للشعور بالراحة.
-              </Text>
-
-              <TouchableOpacity
-                style={styles.startNewButton}
-                onPress={handleStartNew}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.startNewButtonText}>
-                  كتابة رسالة جديدة ✨
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </ScrollView>
+        </ScrollView>
+      </Animated.View>
 
       {/* ================= STATIC UNALTERABLE SUPPORT CARD MODAL ================= */}
-      <SupportCardModal
-        visible={showSupportModal}
-        isCrisis={isCrisisModal}
-        onClose={() => {
-          setShowSupportModal(false);
-          setIsCrisisModal(false);
-        }}
-      />
+      {supportModal}
 
       {/* ================= WRITING TRIGGER MODAL ================= */}
       <TriggerModal
         visible={showTriggerModal}
         chipLabel={triggerChipLabel}
         isRecurrence={triggerIsRecurrence}
-        onConfirm={() => {
-          setShowTriggerModal(false);
-          handleStartDrafting();
-        }}
-        onDismiss={() => setShowTriggerModal(false)}
+        onConfirm={handleStartDrafting}
+        onDismiss={handleNotNow}
       />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  // ---------- Intro ----------
+  introRoot: {
+    flex: 1,
+    backgroundColor: colors.introFrame,
+  },
+  introContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  introActions: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 24,
+    alignItems: 'center',
+    gap: 14,
+  },
+  introHumanRoute: {
+    backgroundColor: 'rgba(250, 246, 239, 0.94)',
+    shadowColor: colors.navy,
+    shadowOpacity: 0.12,
+  },
+  introStartButton: {
+    minWidth: 148,
+    paddingHorizontal: 30,
+    paddingVertical: 14,
+    borderRadius: 999,
+    backgroundColor: colors.green,
+    alignItems: 'center',
+    shadowColor: colors.green,
+    shadowOffset: { width: 0, height: 13 },
+    shadowOpacity: 0.28,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  introStartText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '800',
+  },
+
+  // ---------- Shell ----------
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: colors.cream,
   },
-  header: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    backgroundColor: '#1E293B',
-    borderBottomWidth: 1,
-    borderBottomColor: '#334155',
-  },
-  headerBrand: {
-    alignItems: 'flex-end',
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#38BDF8',
-    letterSpacing: 0.5,
-  },
-  headerTagline: {
-    fontSize: 11,
-    color: '#94A3B8',
-    marginTop: 2,
-  },
-  persistentSupportButton: {
+  topBar: {
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
     alignItems: 'center',
-    backgroundColor: '#DC2626',
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-    shadowColor: '#DC2626',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    paddingTop: 10,
+    paddingBottom: 8,
+  },
+  topBarSpacer: {
+    flex: 1,
+  },
+  humanRouteButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.safetyBorder,
+    backgroundColor: colors.safetySoft,
+    shadowColor: colors.safety,
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.1,
+    shadowRadius: 11,
     elevation: 3,
   },
-  persistentSupportIcon: {
-    fontSize: 14,
+  humanRouteText: {
+    color: colors.safety,
+    fontSize: 13,
+    fontWeight: '800',
   },
-  persistentSupportText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 12,
+  contentFade: {
+    flex: 1,
   },
   scrollArea: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 36,
+    paddingHorizontal: 10,
+    paddingBottom: 22,
   },
-  draftingContainer: {
+  appCard: {
     width: '100%',
-  },
-  disclosureCard: {
-    backgroundColor: '#1E293B',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 14,
-    borderRightWidth: 4,
-    borderRightColor: '#38BDF8',
+    paddingHorizontal: 17,
+    paddingVertical: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.93)',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: colors.border,
+    borderRadius: 28,
+    shadowColor: colors.brown,
+    shadowOffset: { width: 0, height: 22 },
+    shadowOpacity: 0.09,
+    shadowRadius: 32,
+    elevation: 4,
   },
-  disclosureHeader: {
+
+  // ---------- Drafting ----------
+  draftHeader: {
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
+    alignItems: 'flex-start',
+    gap: 13,
+    marginBottom: 8,
+  },
+  draftHeaderText: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  smallBackButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(62, 43, 5, 0.18)',
+    backgroundColor: colors.white,
+  },
+  smallBackButtonText: {
+    color: colors.brown,
+    fontSize: 16,
+    fontWeight: '800',
   },
   aiBadge: {
-    backgroundColor: '#0369A1',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: colors.lavenderSoft,
   },
   aiBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  disclosureTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#94A3B8',
-  },
-  disclosureNotice: {
+    color: colors.lavender,
     fontSize: 12,
-    color: '#CBD5E1',
+    fontWeight: '800',
+  },
+  draftTitle: {
+    marginTop: 7,
+    color: colors.navy,
+    fontSize: 20,
+    fontWeight: '800',
     textAlign: 'right',
-    lineHeight: 18,
+    lineHeight: 32,
   },
-  toneTabsRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    gap: 8,
-    marginBottom: 14,
-  },
-  toneTab: {
-    flex: 1,
-    backgroundColor: '#1E293B',
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#334155',
-  },
-  toneTabActive: {
-    backgroundColor: '#0284C7',
-    borderColor: '#38BDF8',
-  },
-  toneTabText: {
+  hint: {
+    marginBottom: 15,
+    color: colors.muted,
     fontSize: 14,
-    fontWeight: '600',
-    color: '#94A3B8',
-  },
-  toneTabTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  draftEditorCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  editorHeader: {
-    marginBottom: 10,
-  },
-  editorHint: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#475569',
+    lineHeight: 24,
     textAlign: 'right',
-    marginBottom: 2,
+  },
+  toneButtons: {
+    gap: 9,
+    marginTop: 7,
+    marginBottom: 22,
+  },
+  toneButton: {
+    padding: 13,
+    gap: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(106, 88, 166, 0.18)',
+    backgroundColor: colors.white,
+  },
+  toneButtonSelected: {
+    backgroundColor: colors.lavenderSoft,
+    borderColor: colors.lavender,
+  },
+  toneLabel: {
+    color: colors.navy,
+    fontSize: 15,
+    fontWeight: '800',
+    textAlign: 'right',
   },
   toneDescription: {
-    fontSize: 11,
-    color: '#64748B',
+    color: colors.navy,
+    fontSize: 12,
+    lineHeight: 19,
+    opacity: 0.8,
     textAlign: 'right',
   },
-  draftEditorInput: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 15,
-    color: '#0F172A',
-    minHeight: 130,
-    lineHeight: 24,
+  toneTextSelected: {
+    color: colors.lavender,
+  },
+  draftEditor: {
+    minHeight: 180,
+    padding: 16,
+    borderRadius: 21,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.border,
+    backgroundColor: colors.white,
+    color: colors.navy,
+    fontSize: 15,
+    lineHeight: 28,
+  },
+  disclosureBox: {
+    marginTop: 15,
+    padding: 16,
+    borderRadius: 19,
+    borderWidth: 1,
+    borderColor: 'rgba(106, 88, 166, 0.2)',
+    backgroundColor: colors.lavenderSoft,
+  },
+  disclosureBadge: {
+    color: colors.lavender,
+    fontSize: 14,
+    fontWeight: '800',
+    textAlign: 'right',
+    marginBottom: 6,
+  },
+  disclosureNotice: {
+    color: colors.lavender,
+    fontSize: 13,
+    lineHeight: 23,
+    textAlign: 'right',
   },
   trustControlsRow: {
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
     flexWrap: 'wrap',
     gap: 8,
+    marginTop: 18,
     marginBottom: 14,
   },
   trustToggleBtn: {
-    backgroundColor: '#1E293B',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 9,
-    borderRadius: 10,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#475569',
+    borderColor: colors.border,
+    backgroundColor: colors.white,
   },
   trustToggleBtnActive: {
-    backgroundColor: '#0F766E',
-    borderColor: '#2DD4BF',
+    backgroundColor: colors.greenSoft,
+    borderColor: colors.green,
   },
   trustToggleText: {
+    color: colors.navy,
     fontSize: 12,
-    fontWeight: '600',
-    color: '#CBD5E1',
+    fontWeight: '700',
   },
   trustToggleTextActive: {
-    color: '#FFFFFF',
+    color: colors.green,
   },
   trustModule: {
     marginBottom: 14,
   },
-  shareButton: {
-    backgroundColor: '#0284C7',
-    borderRadius: 14,
-    paddingVertical: 15,
+
+  // ---------- Buttons ----------
+  primaryButton: {
+    marginTop: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 999,
+    backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
-    shadowColor: '#0284C7',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+    shadowColor: colors.green,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
     elevation: 3,
   },
-  shareButtonText: {
-    color: '#FFFFFF',
+  primaryButtonDisabled: {
+    opacity: 0.36,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  primaryButtonText: {
+    color: colors.white,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
-  backButton: {
-    backgroundColor: 'transparent',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
+  secondaryButton: {
+    marginTop: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 13,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#334155',
-    marginBottom: 20,
+    borderColor: 'rgba(62, 43, 5, 0.18)',
+    backgroundColor: colors.white,
+    alignItems: 'center',
   },
-  backButtonText: {
-    color: '#94A3B8',
-    fontSize: 14,
-    fontWeight: '600',
+  secondaryButtonText: {
+    color: colors.brown,
+    fontSize: 15,
+    fontWeight: '800',
   },
-  encouragedContainer: {
+  fullWidth: {
+    alignSelf: 'stretch',
+  },
+
+  // ---------- Ready ----------
+  readyScreen: {
+    alignItems: 'center',
+    paddingVertical: 35,
+  },
+  readyIcon: {
+    width: 72,
+    height: 72,
+    marginBottom: 19,
+    borderRadius: 26,
+    backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 30,
-  },
-  encouragedCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 24,
-    width: '100%',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
+    shadowColor: colors.green,
+    shadowOffset: { width: 0, height: 13 },
+    shadowOpacity: 0.18,
+    shadowRadius: 15,
     elevation: 4,
   },
-  encouragedIcon: {
-    fontSize: 48,
-    marginBottom: 14,
+  readyIconText: {
+    color: colors.white,
+    fontSize: 34,
   },
-  encouragedTitle: {
-    fontSize: 20,
+  readyBrand: {
+    color: colors.navy,
+    fontSize: 15,
     fontWeight: '800',
-    color: '#0F172A',
+  },
+  readyTitle: {
+    marginVertical: 12,
+    color: colors.navy,
+    fontSize: 19,
+    fontWeight: '800',
+    lineHeight: 34,
     textAlign: 'center',
-    marginBottom: 10,
   },
-  encouragedMessage: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: '#334155',
+  readyText: {
+    marginBottom: 18,
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 26,
     textAlign: 'center',
-    marginBottom: 12,
-  },
-  encouragedSubmessage: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: '#64748B',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  startNewButton: {
-    backgroundColor: '#0284C7',
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 14,
-    width: '100%',
-    alignItems: 'center',
-  },
-  startNewButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '700',
   },
 });

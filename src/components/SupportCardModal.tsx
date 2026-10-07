@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import supportCardData from '../../safety/support-card.json';
 import { SupportContact } from '../types';
+import { colors } from '../theme';
 
 export interface SupportCardModalProps {
   visible: boolean;
@@ -144,25 +145,27 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
   },
   modalCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    backgroundColor: colors.cream,
+    borderRadius: 25,
     padding: 22,
     width: '100%',
     maxWidth: 480,
     maxHeight: '85%',
-    shadowColor: '#000000',
+    shadowColor: colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 8,
-    borderWidth: 1.5,
-    borderColor: '#EF4444',
+    borderWidth: 1,
+    borderColor: 'rgba(36, 54, 92, 0.1)',
+    borderTopWidth: 5,
+    borderTopColor: colors.safety,
   },
   headerRow: {
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
@@ -173,23 +176,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
+    color: colors.safety,
     textAlign: 'right',
     flex: 1,
   },
   alertBadge: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: colors.safetySoft,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#FCA5A5',
+    borderColor: colors.safetyBorder,
     marginLeft: 8,
   },
   alertBadgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#DC2626',
+    color: colors.safety,
   },
   scrollArea: {
     marginBottom: 16,
@@ -200,7 +203,7 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 14,
     lineHeight: 23,
-    color: '#334155',
+    color: colors.navy,
     textAlign: 'right',
     marginBottom: 16,
   },
@@ -210,7 +213,7 @@ const styles = StyleSheet.create({
   contactsSectionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#0F172A',
+    color: colors.navy,
     textAlign: 'right',
     marginBottom: 8,
   },
@@ -218,12 +221,12 @@ const styles = StyleSheet.create({
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
+    backgroundColor: colors.safetySoft,
+    borderRadius: 18,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'rgba(176, 67, 42, 0.18)',
   },
   contactInfo: {
     flex: 1,
@@ -232,37 +235,37 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0F172A',
+    color: colors.navy,
   },
   contactNumber: {
     fontSize: 13,
-    color: '#2563EB',
+    color: colors.navy,
     direction: 'ltr',
     marginTop: 2,
   },
   verifiedMeta: {
     fontSize: 11,
-    color: '#16A34A',
+    color: colors.green,
     marginTop: 4,
   },
   callButton: {
-    backgroundColor: '#16A34A',
+    backgroundColor: colors.green,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 999,
     marginRight: 8,
   },
   callButtonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 13,
   },
   fallbackBox: {
-    backgroundColor: '#FFF1F2',
-    borderRadius: 14,
+    backgroundColor: colors.safetySoft,
+    borderRadius: 18,
     padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#FECDD3',
+    borderWidth: 1,
+    borderColor: 'rgba(176, 67, 42, 0.18)',
     marginBottom: 14,
   },
   fallbackIconRow: {
@@ -277,42 +280,42 @@ const styles = StyleSheet.create({
   fallbackTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#9F1239',
+    color: '#783323',
     textAlign: 'right',
   },
   fallbackText: {
     fontSize: 13,
     lineHeight: 22,
-    color: '#881337',
+    color: '#783323',
     textAlign: 'right',
   },
   limitsBox: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
+    backgroundColor: colors.white,
+    borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.border,
   },
   limitsText: {
     fontSize: 12,
-    color: '#64748B',
+    color: colors.muted,
     textAlign: 'right',
     lineHeight: 19,
   },
   actionButton: {
     paddingVertical: 13,
-    borderRadius: 12,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
   },
   normalButton: {
-    backgroundColor: '#0284C7',
+    backgroundColor: colors.green,
   },
   crisisButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: colors.safety,
   },
   actionButtonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 15,
     fontWeight: '700',
   },

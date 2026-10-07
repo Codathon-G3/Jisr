@@ -8,6 +8,7 @@ import {
   I18nManager,
 } from 'react-native';
 import ar from '../i18n/ar.json';
+import { colors } from '../theme';
 
 export interface TriggerModalProps {
   visible: boolean;
@@ -98,24 +99,24 @@ export const TriggerModal: React.FC<TriggerModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   modalCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    backgroundColor: colors.cream,
+    borderRadius: 25,
     padding: 22,
     width: '100%',
     maxWidth: 440,
-    shadowColor: '#000000',
+    shadowColor: colors.navy,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 10,
     elevation: 6,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'rgba(36, 54, 92, 0.1)',
   },
   headerRow: {
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#E0F2FE',
+    backgroundColor: colors.greenSoft,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -137,14 +138,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#0F172A',
+    color: colors.navy,
     textAlign: 'right',
     flex: 1,
   },
   messageText: {
     fontSize: 15,
     lineHeight: 24,
-    color: '#334155',
+    color: colors.navy,
     textAlign: 'right',
     marginBottom: 22,
   },
@@ -154,30 +155,30 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 2,
-    backgroundColor: '#0284C7',
+    backgroundColor: colors.green,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
   },
   confirmButtonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 14,
     fontWeight: '700',
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.white,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: 'rgba(62, 43, 5, 0.18)',
   },
   cancelButtonText: {
-    color: '#64748B',
+    color: colors.brown,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '800',
   },
 });

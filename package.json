@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json && node tests/verify-trust-components.mjs",
+    "test": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json && node tests/verify-trust-components.mjs && node tests/verify-crisis-parity.mjs",
     "test:safety": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json",
     "test:trust": "node tests/verify-trust-components.mjs",
     "export": "expo export"
