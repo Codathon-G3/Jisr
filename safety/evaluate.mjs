@@ -5,7 +5,7 @@
 // Phrase layer + live API (combined check, once Person 2's endpoint is up):
 //   RISK_API_URL=http://localhost:3000/api/check-risk node safety/evaluate.mjs safety/test-set.json
 //
-// Items whose "type" starts with "ambiguous" are reported separately,
+// Items labelled "ambiguous" (or whose "type" starts with "ambiguous") are reported separately,
 // so they don't silently inflate or deflate the main figures.
 
 import { readFileSync } from 'node:fs';
@@ -63,7 +63,8 @@ function summarise(name, rows, key) {
 const rows = [];
 for (const item of items) {
   const phrase = checkCrisisPhrases(item.text, prepared).riskDetected;
-  const row = { ...item, ambiguous: String(item.type ?? '').startsWith('ambiguous'), phrase };
+  const ambiguous = item.label === 'ambiguous' || String(item.type ?? '').startsWith('ambiguous');
+  const row = { ...item, ambiguous, phrase };
   if (apiUrl) row.combined = phrase || (await apiCheck(item.text));
   rows.push(row);
 }
