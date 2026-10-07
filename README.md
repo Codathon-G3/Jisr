@@ -2,9 +2,9 @@
 
 > **AI-Assisted Writing Companion for Young People in Libya**  
 > *Developed for the Ai4LY National Codathon 2026 (Libya Artificial Intelligence Forum)*  
-> **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima | **Contact**: abdwadood2000@gmail.com | **Submission Date**: October 7, 2026
+> **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima |
+>  **Submission Date**: October 7, 2026
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Status: In-Development](https://img.shields.io/badge/Status-Prototype%20Development-orange.svg)](#)
 
 ---
