@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "جسر",
-  description: "خطوتك الأولى لطلب الدعم والمساعدة",
+  title: "جسر | Jisr",
+  description: "جسر لطيف نحو شخص تثق به",
 };
 
 export default function RootLayout({ children }) {
