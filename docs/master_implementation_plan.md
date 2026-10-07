@@ -694,10 +694,10 @@ Everyone must agree on before coding:
 
 | Person | What they build | Can start immediately? |
 |--------|----------------|----------------------|
-| P1 | App scaffold, chip UI, text input, recipient selector, basic navigation | ✅ Yes |
-| P2 | API scaffold, LLM access validation, risk-check endpoint (with mock phrase list) | ✅ Yes |
-| P3 | Crisis phrase list, forbidden-terms list, support card content | ✅ Yes |
-| P4 | Arabic UI strings file, start README skeleton | ✅ Yes |
+| P1 | App scaffold, chip UI, text input, recipient selector, basic navigation | Yes |
+| P2 | API scaffold, LLM access validation, risk-check endpoint (with mock phrase list) | Yes |
+| P3 | Crisis phrase list, forbidden-terms list, support card content | Yes |
+| P4 | Arabic UI strings file, start README skeleton | Yes |
 
 **Mocking strategy**: Person 1 uses hardcoded mock API responses while Person 2 builds the real API. Person 2 uses a temporary placeholder phrase list while Person 3 builds the real one.
 

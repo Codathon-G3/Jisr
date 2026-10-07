@@ -434,7 +434,7 @@ export default function Home() {
 
                   {copied && (
                     <p className="successMessage">
-                      تم نسخ النص ✓
+                      تم نسخ النص 
                     </p>
                   )}
                 </div>
@@ -449,7 +449,7 @@ export default function Home() {
           {screen === "ready" && (
             <div className="screenPanel readyScreen">
               <div className="readyIcon">
-                ✓
+                
               </div>
 
               <span className="readyBrand">
@@ -493,7 +493,7 @@ export default function Home() {
             </button>
 
             <div className="modalIcon greenIcon">
-              ✦
+              
             </div>
 
             <p className="triggerText">

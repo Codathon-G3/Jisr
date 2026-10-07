@@ -1,4 +1,4 @@
-# 📑 Jisr (جِسر) — Comprehensive Technical Report
+# Jisr (جِسر) — Comprehensive Technical Report
 
 > **Project**: Jisr (Bridge Note) — AI-Assisted Writing Companion  
 > **Event**: Ai4LY National Codathon 2026 — Libya Artificial Intelligence Forum  

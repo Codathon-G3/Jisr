@@ -1,4 +1,4 @@
-# 🧪 Joint Integration & Testing Protocol
+# Joint Integration & Testing Protocol
 
 > **Purpose**: Practical guide for connecting the 4 workstreams, validating end-to-end functionality, executing safety benchmarks, and conducting demo rehearsals.
 
@@ -80,15 +80,15 @@ curl -X POST "http://localhost:3000/api/generate-drafts" \
 
 # Expected response:
 # {
-#   "sanitisedText": "[name] ديما يضغط عليا في قرايتي ورقمي [phone]",
-#   "identifiersRemoved": [{"original": "بابا", "placeholder": "[name]"}, ...],
-#   "drafts": [
-#     {"tone": "gentle", "text": "..."},
-#     {"tone": "direct", "text": "..."},
-#     {"tone": "formal", "text": "..."}
-#   ],
-#   "outputCheckPassed": true,
-#   "usedFallbackTemplate": false
+# "sanitisedText": "[name] ديما يضغط عليا في قرايتي ورقمي [phone]",
+# "identifiersRemoved": [{"original": "بابا", "placeholder": "[name]"}, ...],
+# "drafts": [
+# {"tone": "gentle", "text": "..."},
+# {"tone": "direct", "text": "..."},
+# {"tone": "formal", "text": "..."}
+# ],
+# "outputCheckPassed": true,
+# "usedFallbackTemplate": false
 # }
 ```
 

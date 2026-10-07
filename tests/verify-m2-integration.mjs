@@ -23,7 +23,7 @@ for (const file of m2Files) {
   assert(existsSync(fullPath), `Missing required file: ${file}`);
   const content = readFileSync(fullPath, 'utf8');
   assert(content.length > 50, `File appears truncated: ${file}`);
-  console.log(`✅ File verified: ${file}`);
+  console.log(`[PASS] File verified: ${file}`);
 }
 
 // 2. Verify plain templates coverage in safety/plain-templates.json
@@ -40,19 +40,19 @@ for (const tone of tones) {
     assert(tmpl.includes('[topic]') || tmpl.includes('{topic}'), `Template missing [topic] placeholder in ${tone}.${rec}`);
   }
 }
-console.log('✅ All 35 template permutations (3 tones × 5 recipients) contain valid [topic] placeholders');
+console.log('[PASS] All 35 template permutations (3 tones × 5 recipients) contain valid [topic] placeholders');
 
 for (const chip of chips) {
   assert(plainTemplates.topic_labels[chip], `Missing topic label for chip: ${chip}`);
 }
-console.log('✅ All 7 stress chips have mapped topic labels in plain-templates.json');
+console.log('[PASS] All 7 stress chips have mapped topic labels in plain-templates.json');
 
 // 3. Verify support card unalterable static structure in safety/support-card.json
 const supportCard = JSON.parse(readFileSync(resolve('safety/support-card.json'), 'utf8'));
 assert(supportCard.title_ar, 'Missing title_ar in support-card.json');
 assert(supportCard.fallbackMessage_ar, 'Missing fallbackMessage_ar in support-card.json');
 assert(Array.isArray(supportCard.contacts), 'support-card.json contacts must be an array');
-console.log('✅ Static SupportCard structure verified');
+console.log('[PASS] Static SupportCard structure verified');
 
 // 4. Verify ar.json localization keys for all chips, recipients, triggers, tones
 const arJson = JSON.parse(readFileSync(resolve('src/i18n/ar.json'), 'utf8'));
@@ -65,7 +65,7 @@ for (const rec of recipients) {
 assert(arJson.triggers.same_session_prompt.includes('{chip}'), 'same_session_prompt missing {chip}');
 assert(arJson.triggers.pattern_prompt.includes('{chip}'), 'pattern_prompt missing {chip}');
 assert(arJson.triggers.persistent_human_route, 'Missing persistent_human_route in ar.json');
-console.log('✅ Arabic localization keys and trigger templates verified');
+console.log('[PASS] Arabic localization keys and trigger templates verified');
 
 // 5. Verify component export contracts in src/components/index.ts
 const componentsIndex = readFileSync(resolve('src/components/index.ts'), 'utf8');
@@ -79,6 +79,6 @@ const requiredExports = [
 for (const exp of requiredExports) {
   assert(componentsIndex.includes(exp), `src/components/index.ts must export ${exp}`);
 }
-console.log('✅ All 5 trust and modal components exported from src/components/index.ts');
+console.log('[PASS] All 5 trust and modal components exported from src/components/index.ts');
 
-console.log('\n🎉 Milestone 2 Integration Verification passed cleanly!');
+console.log('\n[SUCCESS] Milestone 2 Integration Verification passed cleanly!');

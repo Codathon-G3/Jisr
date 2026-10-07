@@ -56,5 +56,5 @@ for (const chip of chipsList) {
   }
 }
 
-console.log(`✅ Verified ${testCount} topic/recipient permutations for offline fallback drafts`);
-console.log('🎉 Offline fallback is 100% deterministic and safe!');
+console.log(`[PASS] Verified ${testCount} topic/recipient permutations for offline fallback drafts`);
+console.log('[SUCCESS] Offline fallback is 100% deterministic and safe!');

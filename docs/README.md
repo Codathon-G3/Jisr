@@ -1,10 +1,10 @@
-# 📚 Jisr Project Documentation Index
+# Jisr Project Documentation Index
 
 > **Purpose**: Master index for all markdown files, engineering specifications, safety datasets, and competition materials in the `Jisr` repository.
 
 ---
 
-## 🗂️ Documentation Map
+## Documentation Map
 
 ```
 Jisr/
@@ -37,7 +37,7 @@ Jisr/
 
 ---
 
-## 🎯 How These Documents Lead to Completion
+## How These Documents Lead to Completion
 
 1. **For Team Execution (Right Now)**:
    * Each teammate opens their numbered guide in `docs/team_plan/` and builds their components independently without blocking each other.

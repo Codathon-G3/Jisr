@@ -113,8 +113,8 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
         <View style={styles.cardHeader}>
           <Text style={styles.cardIndicator}>
             {activeTab === 'ai'
-              ? '✨ كلام مهذب ومخصص لمشاعرك'
-              : '📄 نص جاهز وجامد'}
+              ? 'كلام مهذب ومخصص لمشاعرك'
+              : 'نص جاهز وجامد'}
           </Text>
         </View>
 
@@ -125,8 +125,8 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
       <View style={styles.insightBox}>
         <Text style={styles.insightText}>
           {activeTab === 'ai'
-            ? '💡 الذكاء الاصطناعي يساعدك تكسر حاجز البداية بدون إحراج وبلهجة طبيعية يفهمها قريبك.'
-            : '⚠️ القالب الثابت كلام عام جداً وقد يبدو بارداً أو غير معبر عن حالتك الحقيقية.'}
+            ? 'الذكاء الاصطناعي يساعدك تكسر حاجز البداية بدون إحراج وبلهجة طبيعية يفهمها قريبك.'
+            : 'القالب الثابت كلام عام جداً وقد يبدو بارداً أو غير معبر عن حالتك الحقيقية.'}
         </Text>
       </View>
 

@@ -6,20 +6,20 @@ console.log('--- Verifying Person 4 Trust & Localization Technicalities ---');
 // 1. Verify src/i18n/ar.json
 const arJsonPath = resolve('src/i18n/ar.json');
 if (!existsSync(arJsonPath)) {
-  console.error('❌ Missing src/i18n/ar.json');
+  console.error('[FAIL] Missing src/i18n/ar.json');
   process.exit(1);
 }
 const arJson = JSON.parse(readFileSync(arJsonPath, 'utf8'));
-console.log('✅ src/i18n/ar.json loaded and valid JSON');
+console.log('[PASS] src/i18n/ar.json loaded and valid JSON');
 
 const requiredSections = ['chips', 'recipients', 'triggers', 'buttons', 'tones', 'disclosure', 'limits', 'trust'];
 for (const sec of requiredSections) {
   if (!arJson[sec]) {
-    console.error(`❌ Missing section in ar.json: ${sec}`);
+    console.error(`[FAIL] Missing section in ar.json: ${sec}`);
     process.exit(1);
   }
 }
-console.log('✅ All required Arabic localization sections present');
+console.log('[PASS] All required Arabic localization sections present');
 
 // 2. Verify Trust Components
 const components = [
@@ -31,15 +31,15 @@ const components = [
 
 for (const comp of components) {
   if (!existsSync(resolve(comp))) {
-    console.error(`❌ Missing component file: ${comp}`);
+    console.error(`[FAIL] Missing component file: ${comp}`);
     process.exit(1);
   }
   const content = readFileSync(resolve(comp), 'utf8');
   if (!content.includes('export const') && !content.includes('export *')) {
-    console.error(`❌ Invalid component export in: ${comp}`);
+    console.error(`[FAIL] Invalid component export in: ${comp}`);
     process.exit(1);
   }
-  console.log(`✅ Verified component: ${comp}`);
+  console.log(`[PASS] Verified component: ${comp}`);
 }
 
-console.log('\n🎉 All Person 4 Trust & Localization technical deliverables verified successfully!');
+console.log('\n[SUCCESS] All Person 4 Trust & Localization technical deliverables verified successfully!');

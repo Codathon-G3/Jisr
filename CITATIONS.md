@@ -1,4 +1,4 @@
-# 📚 Tool, Model & Service Citations
+# Tool, Model & Service Citations
 
 > **Requirement Compliance**: Ai4LY National Codathon 2026 — Participation Terms & Requirements §4 [T§4]  
 > *"The use of open-source models, APIs, and modern frameworks is permitted, provided that all tools, models, and services used are explicitly cited in the project documentation."*

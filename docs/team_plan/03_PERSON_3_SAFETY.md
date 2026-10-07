@@ -85,7 +85,7 @@ If Muatz (Person 2) is the brain, you are the guardrails.
 
 ## Starter Crisis Phrase List
 
-> ⚠️ This is a **starting point only**. You must expand it significantly, especially with Libyan dialect and euphemistic forms. Have Mohamed Thabet (Person 4) review it.
+> This is a **starting point only**. You must expand it significantly, especially with Libyan dialect and euphemistic forms. Have Mohamed Thabet (Person 4) review it.
 
 ```json
 {
@@ -285,11 +285,11 @@ You need to write all 15 combinations. Make sure they are:
 
 ## Definition of Done
 
-✅ The crisis phrase list, forbidden-terms list, output check module, support card, plain templates, and safety test set exist in `/safety/`. The combined risk check (phrase + model) has been run on the test set. Recall and false-alarm rates are measured with sample sizes and documented in `evidence.md`. Every contact on the support card is verified, or the fallback text is used instead.
+The crisis phrase list, forbidden-terms list, output check module, support card, plain templates, and safety test set exist in `/safety/`. The combined risk check (phrase + model) has been run on the test set. Recall and false-alarm rates are measured with sample sizes and documented in `evidence.md`. Every contact on the support card is verified, or the fallback text is used instead.
 
 ---
 
-## ⚠️ Critical Reminders
+## Critical Reminders
 
 1. **The phrase list is the most important safety artifact in this project.** Take it seriously. Over-trigger rather than miss.
 2. **NEVER use real crisis text from a real person** in the test set. All inputs must be synthetic (team-written).

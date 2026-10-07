@@ -1,4 +1,4 @@
-# 🛡️ Committee Defense & Q&A Playbook
+# Committee Defense & Q&A Playbook
 
 > **Audience**: Evaluation Committee — Ai4LY National Codathon 2026  
 > **Session Format**: ~5 minutes of questions directly following the 5-minute presentation  

@@ -7,7 +7,7 @@
 
 ---
 
-## ⏰ Time Reality Check
+## Time Reality Check
 
 We have **less than one day**. A production product is NOT required. A **working prototype** that demonstrates the core chain is what we need:
 
@@ -17,7 +17,7 @@ Chips → (optional record) → trigger invitation → writing → risk check �
 
 ---
 
-## 🏗️ Team Roles
+## Team Roles
 
 | Person | Member | Role | Owns |
 |---|---|---|---|
@@ -30,7 +30,7 @@ Chips → (optional record) → trigger invitation → writing → risk check �
 
 ---
 
-## 🔧 Decisions to Agree on RIGHT NOW (first 30 minutes)
+## Decisions to Agree on RIGHT NOW (first 30 minutes)
 
 ### 1. Tech Stack (Mobile App Workflow)
 
@@ -44,7 +44,7 @@ Chips → (optional record) → trigger invitation → writing → risk check �
 | **LLM Service** | Gemini API or Groq (Llama 3.3) | Fast, free tier, strong Arabic — **test NOW** |
 | **Language** | TypeScript / JavaScript (or Dart for Flutter) | Team preference |
 
-> ⚠️ **CRITICAL MOBILE NETWORKING RULE**: When testing from a physical phone or Expo Go, **never use `http://localhost:3000`** (the phone considers "localhost" to be itself!). Person 2 must deploy the API to Vercel/Railway, or use an `ngrok` tunnel / local Wi-Fi IP (`http://192.168.x.x:3000`).
+> **CRITICAL MOBILE NETWORKING RULE**: When testing from a physical phone or Expo Go, **never use `http://localhost:3000`** (the phone considers "localhost" to be itself!). Person 2 must deploy the API to Vercel/Railway, or use an `ngrok` tunnel / local Wi-Fi IP (`http://192.168.x.x:3000`).
 
 ### 2. Immediate Actions
 
@@ -69,7 +69,7 @@ Chips → (optional record) → trigger invitation → writing → risk check �
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 jisr/
@@ -119,7 +119,7 @@ jisr/
 
 ---
 
-## 🔌 API Contract (Person 1 ↔ Person 2)
+## API Contract (Person 1 ↔ Person 2)
 
 This is the **single most important interface** in the project. Both Person 1 and Person 2 must follow this exactly.
 
@@ -203,7 +203,7 @@ Or if risk detected:
 
 ---
 
-## 📋 Data Files Contract (Person 3 → Person 1 & Person 2)
+## Data Files Contract (Person 3 → Person 1 & Person 2)
 
 ### `safety/support-card.json`
 
@@ -261,7 +261,7 @@ Or if risk detected:
 
 ---
 
-## 📋 Arabic Strings Contract (Person 4 → Person 1)
+## Arabic Strings Contract (Person 4 → Person 1)
 
 ### `src/i18n/ar.json`
 
@@ -313,24 +313,24 @@ Rayan (Person 1) uses these strings directly. Mohamed Thabet (Person 4) may upda
 
 ---
 
-## ⏱️ Timeline
+## Timeline
 
 | Time Block | What Happens |
 |------------|-------------|
-| **Hour 0–0.5** | 🤝 Shared setup: repo, tech stack, API key test, role confirmation |
-| **Hour 0.5–3** | 🧱 Foundations: each person builds their core independently |
-| **Hour 3–8** | 🔨 Parallel development: everyone building their piece |
-| **Hour 6** | 🔍 **Checkpoint**: P1 has working UI with mocks? P2 has deployed API? P3 has phrase list + test set? P4 has Arabic strings? |
-| **Hour 8–10** | 🔗 Integration: connect frontend to real API, plug in safety data, add Arabic strings |
-| **Hour 10** | 🔍 **Checkpoint**: full end-to-end flow works on a phone? |
-| **Hour 10–12** | 🧪 Testing, safety evaluation, bug fixes |
-| **Hour 12** | 🛑 **Feature freeze** — no new features after this |
-| **Hour 12–13.5** | 📝 Final docs, pitch deck, demo video backup |
-| **Hour 13.5** | 🚀 **Final push to GitHub, submit repo link** |
+| **Hour 0–0.5** | Shared setup: repo, tech stack, API key test, role confirmation |
+| **Hour 0.5–3** | Foundations: each person builds their core independently |
+| **Hour 3–8** | Parallel development: everyone building their piece |
+| **Hour 6** | **Checkpoint**: P1 has working UI with mocks? P2 has deployed API? P3 has phrase list + test set? P4 has Arabic strings? |
+| **Hour 8–10** | Integration: connect frontend to real API, plug in safety data, add Arabic strings |
+| **Hour 10** | **Checkpoint**: full end-to-end flow works on a phone? |
+| **Hour 10–12** | Testing, safety evaluation, bug fixes |
+| **Hour 12** | **Feature freeze** — no new features after this |
+| **Hour 12–13.5** | Final docs, pitch deck, demo video backup |
+| **Hour 13.5** | **Final push to GitHub, submit repo link** |
 
 ---
 
-## 🚫 Things That Are NEVER Cut
+## Things That Are NEVER Cut
 
 From the DOCX §20.2:
 
@@ -346,7 +346,7 @@ If we're behind schedule, we cut in this order:
 
 ---
 
-## 📦 What Must Be in the Repository at Submission
+## What Must Be in the Repository at Submission
 
 - [ ] Complete source code
 - [ ] `README.md` — architecture, requirements, setup, usage
@@ -357,7 +357,7 @@ If we're behind schedule, we cut in this order:
 
 ---
 
-## 🗣️ Communication
+## Communication
 
 - Use the team group chat for quick questions
 - If you're blocked by someone else's work, **say so immediately** — don't wait

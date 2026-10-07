@@ -368,10 +368,10 @@ def build_slide_2(prs, icon_path):
     # Bottom Left Card: What We Are NOT
     card_not, tf_not = add_card(slide, Inches(0.6), Inches(3.75), Inches(5.9), Inches(3.1), title="فلسفة جسر المغايرة والحدود الأخلاقية (What We Are NOT)")
     not_points = [
-        ("❌ لسنا روبوت محادثة (Not a Chatbot):", "لا نجر المستخدم لحوارات شاشة وهمية قد تزيد العزلة والارتباط بالآلة.", ACCENT_RED),
-        ("❌ لسنا معالجاً بديلاً (Not a Therapist):", "لا نشخص أمراضاً ولا نضع تسميات طبية ولا نصف أدوية أو بروتوكولات علاجية.", ACCENT_RED),
-        ("✅ هدفنا الخروج السريع (Rapid Exit):", "النجاح يقاس بلحظة إغلاق التطبيق وبدء المحادثة الفعلية مع الأخ أو الصديق.", ACCENT_GREEN),
-        ("👤 المستخدم هو المؤلف والمتحكم دائماً:", "الذكاء الاصطناعي يقترح فقط، والشاب يراجع، يعدل، ويرسل بنفسه.", ACCENT_AMBER)
+        ("لسنا روبوت محادثة (Not a Chatbot):", "لا نجر المستخدم لحوارات شاشة وهمية قد تزيد العزلة والارتباط بالآلة.", ACCENT_RED),
+        ("لسنا معالجاً بديلاً (Not a Therapist):", "لا نشخص أمراضاً ولا نضع تسميات طبية ولا نصف أدوية أو بروتوكولات علاجية.", ACCENT_RED),
+        ("هدفنا الخروج السريع (Rapid Exit):", "النجاح يقاس بلحظة إغلاق التطبيق وبدء المحادثة الفعلية مع الأخ أو الصديق.", ACCENT_GREEN),
+        ("المستخدم هو المؤلف والمتحكم دائماً:", "الذكاء الاصطناعي يقترح فقط، والشاب يراجع، يعدل، ويرسل بنفسه.", ACCENT_AMBER)
     ]
     for headline, desc, col in not_points:
         p_h = tf_not.add_paragraph()
@@ -485,7 +485,7 @@ def build_slide_3(prs, icon_path):
     tf_s1.margin_bottom = Inches(0.12)
 
     p_s1_t = tf_s1.paragraphs[0]
-    p_s1_t.text = "✨ صياغة الذكاء الاصطناعي (جسر — نبرة لطيفة للأم):"
+    p_s1_t.text = "صياغة الذكاء الاصطناعي (جسر — نبرة لطيفة للأم):"
     p_s1_t.font.name = FONT_FAMILY
     p_s1_t.font.size = Pt(10.5)
     p_s1_t.font.bold = True
@@ -516,7 +516,7 @@ def build_slide_3(prs, icon_path):
     tf_s2.margin_bottom = Inches(0.12)
 
     p_s2_t = tf_s2.paragraphs[0]
-    p_s2_t.text = "📄 القالب الثابت التقليدي (Static Baseline Template):"
+    p_s2_t.text = "القالب الثابت التقليدي (Static Baseline Template):"
     p_s2_t.font.name = FONT_FAMILY
     p_s2_t.font.size = Pt(10.5)
     p_s2_t.font.bold = True
@@ -547,7 +547,7 @@ def build_slide_3(prs, icon_path):
     tf_s3.margin_bottom = Inches(0.1)
 
     p_s3_t = tf_s3.paragraphs[0]
-    p_s3_t.text = "💡 الفارق العملي المقاس في التقييم:"
+    p_s3_t.text = "الفارق العملي المقاس في التقييم:"
     p_s3_t.font.name = FONT_FAMILY
     p_s3_t.font.size = Pt(10.5)
     p_s3_t.font.bold = True
@@ -604,7 +604,7 @@ def build_slide_4(prs, icon_path):
         ("المرحلة 1: الفحص المسبق (Pre-Drafting Risk Gate)", "فحص مدخلات المستخدم قبل وصولها للذكاء الاصطناعي. عند اكتشاف مؤشر أزمة حادة باللهجة، يُعلّق التوليد فوراً وبدون أي تأخير.", ACCENT_AMBER),
         ("المرحلة 2: كارت الدعم الثابت المعتمد (Support Card Modal)", "عرض رسالة الطوارئ المعتمدة مع تجنب كتابة أرقام خطوط ساخنة وهمية أو غير محققة (contacts: []) للحفاظ على أمان المستخدم.", ACCENT_RED),
         ("المرحلة 3: فلترة المخرجات القطعية (Deterministic Output Guard)", "فحص المسودات الناتجة بقائمة حظر تضم 55 مصطلحاً تشخيصياً ودوائياً (أدوية، اضطرابات) لمنع أي ادعاء طبي نهائياً.", ACCENT_AMBER),
-        ("🆘 طريق بشري دائم (Persistent Human Route)", "زر «تكلم مع حد توا» متواجد في جميع الشاشات للوصول الفوري للإنسان دون انتظار أي خوارزمية.", ACCENT_GREEN)
+        ("طريق بشري دائم (Persistent Human Route)", "زر «تكلم مع حد توا» متواجد في جميع الشاشات للوصول الفوري للإنسان دون انتظار أي خوارزمية.", ACCENT_GREEN)
     ]
     for headline, desc, col in stages:
         p_h = tf_r.add_paragraph()
@@ -643,7 +643,7 @@ def build_slide_4(prs, icon_path):
     tf_m.margin_bottom = Inches(0.1)
 
     p_m0 = tf_m.paragraphs[0]
-    p_m0.text = "🎯 نتائج القياس على معيار الأزمات التخليقي (N=25 — Dev Set):"
+    p_m0.text = "نتائج القياس على معيار الأزمات التخليقي (N=25 — Dev Set):"
     p_m0.font.name = FONT_FAMILY
     p_m0.font.size = Pt(11)
     p_m0.font.bold = True
@@ -681,7 +681,7 @@ def build_slide_4(prs, icon_path):
     tf_p.margin_bottom = Inches(0.1)
 
     p_priv_t = tf_p.paragraphs[0]
-    p_priv_t.text = "🔒 الخصوصية الصفرية وحماية الهوية (Zero-Data-Retention):"
+    p_priv_t.text = "الخصوصية الصفرية وحماية الهوية (Zero-Data-Retention):"
     p_priv_t.font.name = FONT_FAMILY
     p_priv_t.font.size = Pt(11)
     p_priv_t.font.bold = True
@@ -743,10 +743,10 @@ def build_slide_5(prs, icon_path):
     # Right Card: Libya Feasibility
     card_r, tf_r = add_card(slide, Inches(6.8), Inches(2.05), Inches(5.9), Inches(4.8), title="الملائمة لواقع البنية التحتية والمجتمع في ليبيا (Libya Feasibility)")
     feasibility = [
-        ("📦 حزمة Android APK مستقلة (builds/jisr-v1.0.0.apk):", "تطبيق حقيقي جاهز للتثبيت الفوري لجميع أجهزة أندرويد دون الحاجة لمتجر Google Play أو بيئات برمجية معقدة.", ACCENT_AMBER),
-        ("⚡ صمود تام أمام انقطاع الإنترنت والكهرباء:", "استهلاك شبكة خفيف جداً (<2KB)، مع تحول تلقائي وفوري للقوالب المحلية (safety/plain-templates.json) عند انقطاع الاتصال.", ACCENT_GREEN),
-        ("🇱🇾 اللهجة الليبية البيضاء والثقافة الأسرية:", "مُعاير لعبارات الشباب اليومية (مضغوط، تعبان، مخنوق)، ومراعاة مكانة الوالدين والإخوة كأول خط دعم إنساني طبيعي.", TEXT_PRIMARY),
-        ("💬 التصدير المباشر لواتساب وماسنجر:", "مشاركة بضغطة زر واحدة عبر التطبيقات التي يستخدمها أكثر من 90% من شباب ليبيا دون أي خادم وسيط.", ACCENT_AMBER)
+        ("حزمة Android APK مستقلة (builds/jisr-v1.0.0.apk):", "تطبيق حقيقي جاهز للتثبيت الفوري لجميع أجهزة أندرويد دون الحاجة لمتجر Google Play أو بيئات برمجية معقدة.", ACCENT_AMBER),
+        ("صمود تام أمام انقطاع الإنترنت والكهرباء:", "استهلاك شبكة خفيف جداً (<2KB)، مع تحول تلقائي وفوري للقوالب المحلية (safety/plain-templates.json) عند انقطاع الاتصال.", ACCENT_GREEN),
+        ("اللهجة الليبية البيضاء والثقافة الأسرية:", "مُعاير لعبارات الشباب اليومية (مضغوط، تعبان، مخنوق)، ومراعاة مكانة الوالدين والإخوة كأول خط دعم إنساني طبيعي.", TEXT_PRIMARY),
+        ("التصدير المباشر لواتساب وماسنجر:", "مشاركة بضغطة زر واحدة عبر التطبيقات التي يستخدمها أكثر من 90% من شباب ليبيا دون أي خادم وسيط.", ACCENT_AMBER)
     ]
     for headline, desc, col in feasibility:
         p_h = tf_r.add_paragraph()
@@ -778,10 +778,10 @@ def build_slide_5(prs, icon_path):
     # Left Card: Team Engineering Ownership
     card_l, tf_l = add_card(slide, Inches(0.6), Inches(2.05), Inches(5.9), Inches(4.8), title="فريق العمل وتوزيع المسؤوليات (Team Engineering Ownership)")
     team_members = [
-        ("👑 محمد ثابت (Mohamed Thabet) — قائد الفريق (Team Leader):", "المعمارية، التوثيق الفني (REPORT.md)، عروض التحكيم، واجهات الثقة (BaselineComparison, FaithfulnessView, OutboundPreview)، والتدقيق اللغوي.", ACCENT_AMBER),
-        ("📱 ريان (Rayan) — مهندس الواجهات وتطبيق المحمول (Mobile Lead):", "تطبيق React Native/Expo، الـ 7 رقائق، زر الطريق البشري («تكلم مع حد توا»)، وحزم الـ APK المستقل (builds/jisr-v1.0.0.apk).", TEXT_PRIMARY),
-        ("⚙️ معتز (Muatz) — مهندس الذكاء الاصطناعي والخلفية (AI & Backend):", "خادم FastAPI المستقل، توجيه نماذج Gemini 1.5 Flash و Groq Llama 3.3، وتطهير البيانات الحساسة PII.", TEXT_PRIMARY),
-        ("🛡️ شيماء (Shima) — مهندسة الأمان وطبقة الحارس (Safety Engineer):", "معجم الأزمات الليبية (60 عبارة)، قائمة حظر المصطلحات (55 مصطلحاً)، واختبارات الأمان الـ 450 واختبارات Parity.", ACCENT_GREEN)
+        ("محمد ثابت (Mohamed Thabet) — قائد الفريق (Team Leader):", "المعمارية، التوثيق الفني (REPORT.md)، عروض التحكيم، واجهات الثقة (BaselineComparison, FaithfulnessView, OutboundPreview)، والتدقيق اللغوي.", ACCENT_AMBER),
+        ("ريان (Rayan) — مهندس الواجهات وتطبيق المحمول (Mobile Lead):", "تطبيق React Native/Expo، الـ 7 رقائق، زر الطريق البشري («تكلم مع حد توا»)، وحزم الـ APK المستقل (builds/jisr-v1.0.0.apk).", TEXT_PRIMARY),
+        ("معتز (Muatz) — مهندس الذكاء الاصطناعي والخلفية (AI & Backend):", "خادم FastAPI المستقل، توجيه نماذج Gemini 1.5 Flash و Groq Llama 3.3، وتطهير البيانات الحساسة PII.", TEXT_PRIMARY),
+        ("شيماء (Shima) — مهندسة الأمان وطبقة الحارس (Safety Engineer):", "معجم الأزمات الليبية (60 عبارة)، قائمة حظر المصطلحات (55 مصطلحاً)، واختبارات الأمان الـ 450 واختبارات Parity.", ACCENT_GREEN)
     ]
     for member, desc, col in team_members:
         p_h = tf_l.add_paragraph()

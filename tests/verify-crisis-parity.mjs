@@ -53,7 +53,7 @@ for (const phrase of crisisData.phrases) {
     );
   }
 }
-console.log(`✅ All ${crisisData.phrases.length} crisis phrases caught on-device (${checks} spellings)`);
+console.log(`[PASS] All ${crisisData.phrases.length} crisis phrases caught on-device (${checks} spellings)`);
 
 // 2. The app and the Guardian engine agree on every phrase variant and dev-set item.
 const parityInputs = [
@@ -68,7 +68,7 @@ for (const text of parityInputs) {
     `Mobile and safety engine disagree on: ${text}`
   );
 }
-console.log(`✅ Mobile matches safety/lib/crisis-check.mjs on ${parityInputs.length} inputs`);
+console.log(`[PASS] Mobile matches safety/lib/crisis-check.mjs on ${parityInputs.length} inputs`);
 
 // 3. Benign idioms such as "نموت من الضحك" never raise a false alarm.
 for (const idiom of crisisData.benign_idioms) {
@@ -79,7 +79,7 @@ for (const idiom of crisisData.benign_idioms) {
     `Benign idiom flagged as crisis: ${idiom}`
   );
 }
-console.log(`✅ ${crisisData.benign_idioms.length} benign idioms stay unflagged`);
+console.log(`[PASS] ${crisisData.benign_idioms.length} benign idioms stay unflagged`);
 
 // 4. Quranic/annotation marks are stripped like the Python backend does
 //    (U+0610–061A, U+06D6–06ED). Inside a word they would otherwise split it
@@ -98,6 +98,6 @@ for (const mark of ['ؐ', 'ؚ', 'ۖ', 'ۭ']) {
     `Mark U+${mark.charCodeAt(0).toString(16).toUpperCase()} hides a crisis phrase`
   );
 }
-console.log('✅ Extended Arabic marks stripped (same range as the Python backend)');
+console.log('[PASS] Extended Arabic marks stripped (same range as the Python backend)');
 
-console.log(`🎉 Crisis check parity verified (${checks} checks)`);
+console.log(`[SUCCESS] Crisis check parity verified (${checks} checks)`);

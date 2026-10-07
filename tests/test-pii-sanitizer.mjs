@@ -40,7 +40,7 @@ assert.strictEqual('ايميل ahmed@example.com هنا'.replace(EMAIL_RE, '[ema
 assert.strictEqual('حكيت مع والدي و بابا'.replace(KINSHIP_RE, '[name]'), 'حكيت مع [name] و [name]');
 assert.strictEqual('تكلمت مع خوي و أختي'.replace(KINSHIP_RE, '[name]'), 'تكلمت مع [name] و [name]');
 
-console.log('✅ Libyan phone number scrubbers (+218, 091, 092...) verified');
-console.log('✅ Email scrubbers verified');
-console.log('✅ Family kinship scrubbers verified');
-console.log('🎉 PII Sanitizer logic verified successfully!');
+console.log('[PASS] Libyan phone number scrubbers (+218, 091, 092...) verified');
+console.log('[PASS] Email scrubbers verified');
+console.log('[PASS] Family kinship scrubbers verified');
+console.log('[SUCCESS] PII Sanitizer logic verified successfully!');

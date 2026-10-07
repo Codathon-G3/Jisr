@@ -146,11 +146,11 @@ Use these from hour 1 so you can build the full UI without waiting.
 
 ## Definition of Done
 
-✅ A user can open the mobile app on a phone, see Arabic chips, tap them, optionally write text, pick a recipient, see a trigger invitation, accept it, see 3 drafts (or support card if risk detected), edit a draft, and share it via WhatsApp/Messenger through the native share sheet — all in Arabic, RTL, with the "Talk to Someone Now" button visible on every screen, and a working offline template fallback.
+A user can open the mobile app on a phone, see Arabic chips, tap them, optionally write text, pick a recipient, see a trigger invitation, accept it, see 3 drafts (or support card if risk detected), edit a draft, and share it via WhatsApp/Messenger through the native share sheet — all in Arabic, RTL, with the "Talk to Someone Now" button visible on every screen, and a working offline template fallback.
 
 ---
 
-## ⚠️ Critical Reminders
+## Critical Reminders
 
 1. **The "Talk to Someone Now" button is NEVER hidden, disabled, or moved.** It's on every mobile screen.
 2. **Nothing is sent automatically.** The native share sheet hands the text to the user's messaging app only when the user explicitly taps Share.

@@ -1,4 +1,4 @@
-# 🌉 Jisr (جِسر) — Team Execution Kit (Ai4LY Codathon 2026)
+# Jisr (جِسر) — Team Execution Kit (Ai4LY Codathon 2026)
 
 > **Submission Deadline**: Wednesday, October 7, 2026 at 11:50 PM  
 > **Presentation / Evaluation**: Thursday, October 8, 2026 after noon prayer (Online, ~5 min presentation + ~5 min Q&A)  
@@ -6,13 +6,13 @@
 
 ---
 
-## 📌 Welcome Team! Start Here
+## Welcome Team! Start Here
 
 This folder contains the complete, battle-ready implementation roadmap for our project **Jisr** (Bridge Note). Everything has been structured to prevent blocking, eliminate confusion, and ensure that all four of us can work simultaneously from minute one.
 
 ---
 
-## 🗺️ How to Use This Kit
+## How to Use This Kit
 
 1. **Everyone reads [00_SHARED_SETUP.md](./00_SHARED_SETUP.md) together** (first 15–20 minutes).
    - This sets our tech stack, API contracts, repository layout, and mutual guarantees.
@@ -26,7 +26,7 @@ This folder contains the complete, battle-ready implementation roadmap for our p
 
 ---
 
-## 👥 Roles & Responsibilities at a Glance
+## Roles & Responsibilities at a Glance
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -49,7 +49,7 @@ This folder contains the complete, battle-ready implementation roadmap for our p
 
 ---
 
-## ⏱️ Master Timeline & Checkpoints
+## Master Timeline & Checkpoints
 
 | Time Window | Milestone | Goal / Hand-off |
 |---|---|---|
@@ -64,7 +64,7 @@ This folder contains the complete, battle-ready implementation roadmap for our p
 
 ---
 
-## 🚨 Emergency Cut Order (If Falling Behind)
+## Emergency Cut Order (If Falling Behind)
 
 If any component is delayed, we strictly follow the official product cut hierarchy:
 
@@ -73,16 +73,16 @@ If any component is delayed, we strictly follow the official product cut hierarc
 3. **Cut Tier 2**: Faithfulness highlight view (keep Baseline Comparison).
 4. **Cut Tier 1**: Baseline Comparison view.
 5. **NEVER CUT**:
-   - 🛡️ **The Guardian Layer** (Risk check + Fixed support card)
-   - 🆘 **The Persistent Human Route** ("Talk to Someone Now" button on every screen)
-   - 🔒 **Zero Data Retention** (Stateless drafting, no tracking)
+   - **The Guardian Layer** (Risk check + Fixed support card)
+   - **The Persistent Human Route** ("Talk to Someone Now" button on every screen)
+   - **Zero Data Retention** (Stateless drafting, no tracking)
 
 ---
 
-## 📞 Critical Success Factors
+## Critical Success Factors
 
 - **Fast handoffs**: Do not wait for others to be 100% finished. Use mocks and agreed JSON contracts.
 - **Libyan Context**: Evaluators care about real applicability in Libya (Arabic RTL, Libyan dialect, low bandwidth, stigma-free framing, family-respecting recipients).
 - **Measure Safety**: Evaluators want measured numbers, not vague claims. Person 3's recall test gives us that advantage.
 
-Let's do this! Open your designated plan and begin. 🚀
+Let's do this! Open your designated plan and begin. 

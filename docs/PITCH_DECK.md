@@ -1,4 +1,4 @@
-# 🎤 Jisr (جِسر) — Pitch Deck & 5-Minute Presentation Script
+# Jisr (جِسر) — Pitch Deck & 5-Minute Presentation Script
 
 > **Event**: Ai4LY National Codathon 2026 Evaluation  
 > **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima  
@@ -8,7 +8,7 @@
 
 ---
 
-## 📊 5-Slide Structure Summary
+## 5-Slide Structure Summary
 
 ```
 Slide 1: The Problem  ──► The Silence at the First Sentence (Stigma, Overwhelm)
@@ -20,7 +20,7 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
 
 ---
 
-## 🎙️ Slide-by-Slide Script & Visual Guide
+## Slide-by-Slide Script & Visual Guide
 
 ### Slide 1: The Problem — The Silence at the First Sentence (Minute 0:00 – 1:00)
 
@@ -44,7 +44,7 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
 * **Slide Title**: "Jisr (جِسر): Breaking the Silence, Then Getting Out of the Way"
 * **Visual Elements**:
   * The Linear Product Flow:  
-    `Taps Chips` ➔ `Gentle Trigger` ➔ `1-3 Lines` ➔ `Guardian Layer Check` ➔ `3 Tone Drafts` ➔ `Native Messaging Share`.
+    `Taps Chips` `Gentle Trigger` `1-3 Lines` `Guardian Layer Check` `3 Tone Drafts` `Native Messaging Share`.
   * Highlight box: *"Not a Chatbot. Not a Therapist. We never hold the conversation."*
 * **Speaker Script**:
   > *"Jisr is fundamentally different from generic AI health apps. We did not build a conversational chatbot, and we do not pretend to be an artificial therapist.  
@@ -105,6 +105,6 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
 
 ---
 
-## ⏱️ Emergency Timing Checklist
+## Emergency Timing Checklist
 * **At 4:00**: Wrap up Slide 4 and transition immediately to Slide 5 / live demo.
 * **If API connection lags**: Immediately switch to the pre-recorded demo video or showcase the pre-computed baseline comparison without pausing.

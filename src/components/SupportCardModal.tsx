@@ -59,7 +59,7 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
           <View style={styles.headerRow}>
             <View style={styles.alertBadge}>
               <Text style={styles.alertBadgeText}>
-                {isCrisis ? '⚠️ تنبيه أمان' : '🕊️ دعم إنساني'}
+                {isCrisis ? 'تنبيه أمان' : 'دعم إنساني'}
               </Text>
             </View>
             <Text style={styles.title}>{supportCardData.title_ar}</Text>
@@ -88,7 +88,7 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
                       <Text style={styles.contactNumber}>{contact.number}</Text>
                       {contact.verifiedOn && (
                         <Text style={styles.verifiedMeta}>
-                          ✓ تم التحقق بتاريخ: {contact.verifiedOn}
+                          تم التحقق بتاريخ: {contact.verifiedOn}
                         </Text>
                       )}
                     </View>
@@ -106,7 +106,7 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
               /* Static Unaltered Fallback Box when no 24/7 hotline is verified */
               <View style={styles.fallbackBox}>
                 <View style={styles.fallbackIconRow}>
-                  <Text style={styles.fallbackIcon}>🏥</Text>
+                  
                   <Text style={styles.fallbackTitle}>إشعار مهم للسلامة</Text>
                 </View>
                 <Text style={styles.fallbackText}>

@@ -52,7 +52,7 @@ export const TriggerModal: React.FC<TriggerModalProps> = ({
           {/* Header & Icon */}
           <View style={styles.headerRow}>
             <View style={styles.iconCircle}>
-              <Text style={styles.iconText}>{isRecurrence ? '🌿' : '🕊️'}</Text>
+              <Text style={styles.iconText}>•</Text>
             </View>
             <Text style={styles.title}>
               {isRecurrence ? 'ملاحظة لطيفة وداعمة' : 'دعوة للمساعدة في الكتابة'}

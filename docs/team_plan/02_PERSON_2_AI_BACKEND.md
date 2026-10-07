@@ -148,7 +148,7 @@ Output format (JSON):
 }
 ```
 
-⚠️ **Test this prompt with Arabic and dialect inputs immediately.** Adjust wording based on actual output quality.
+**Test this prompt with Arabic and dialect inputs immediately.** Adjust wording based on actual output quality.
 
 ---
 
@@ -235,11 +235,11 @@ const emailRegex = /[\w.-]+@[\w.-]+\.\w{2,}/g;
 
 ## Definition of Done
 
-✅ The API accepts session data, returns either a risk alert or 3 tone-adapted Arabic drafts, with no clinical language, traceable to user's words, identifiers removed, nothing stored. The API is deployed and accessible from a browser. Rayan (Person 1) can call it and get correct responses. Fallback to plain templates works when the LLM is unreachable.
+The API accepts session data, returns either a risk alert or 3 tone-adapted Arabic drafts, with no clinical language, traceable to user's words, identifiers removed, nothing stored. The API is deployed and accessible from a browser. Rayan (Person 1) can call it and get correct responses. Fallback to plain templates works when the LLM is unreachable.
 
 ---
 
-## ⚠️ Critical Reminders
+## Critical Reminders
 
 1. **NEVER store user text.** No database, no log files, no analytics. The API is stateless.
 2. **NEVER put the API key in the frontend code.** It stays server-side only.

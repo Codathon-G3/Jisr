@@ -1,4 +1,4 @@
-# 🌉 Jisr (جِسر) — AI-Assisted Writing Companion
+# Jisr (جِسر) — AI-Assisted Writing Companion
 
 > **AI-Assisted Writing Companion for Young People in Libya**  
 > *Developed for the Ai4LY National Codathon 2026 (Libya Artificial Intelligence Forum)*  
@@ -15,7 +15,7 @@
 
 ---
 
-## 🏆 Official Submission Deliverables & Requirements Matrix
+## Official Submission Deliverables & Requirements Matrix
 
 This repository fulfills all required submission deliverables for the **Ai4LY National Codathon 2026** prior to the 11:50 PM deadline:
 
@@ -32,7 +32,7 @@ This repository fulfills all required submission deliverables for the **Ai4LY Na
 
 ---
 
-## 📖 Problem & Solution in 30 Seconds
+## Problem & Solution in 30 Seconds
 
 The hardest step in reaching out during times of emotional distress is often writing the very first sentence. For young people in Libya facing everyday pressures (exams, family expectations, employment, relationships, sleep, finances), cultural stigma and emotional overwhelm frequently lead to silence.
 
@@ -42,11 +42,11 @@ The hardest step in reaching out during times of emotional distress is often wri
 * It produces three tone-adapted, editable message drafts (**Gentle**, **Direct**, **Formal**) tailored to a real person in the user's personal circle (friend, sibling, parent, trusted adult, or counsellor).
 * It hands the message directly to WhatsApp, Messenger, or SMS via the native system share sheet, and immediately encourages the user to close the app.
 
-> 🛡️ **Core Philosophy**: Jisr is **not a chatbot**, **not a virtual therapist**, and **never holds open-ended conversations**. Its sole purpose is to connect a human to a human early and exit.
+> **Core Philosophy**: Jisr is **not a chatbot**, **not a virtual therapist**, and **never holds open-ended conversations**. Its sole purpose is to connect a human to a human early and exit.
 
 ---
 
-## ✨ The 4 System Layers
+## The 4 System Layers
 
 ```text
 User (Taps Situation Chips / Writes 1–3 Lines)
@@ -85,14 +85,14 @@ User (Taps Situation Chips / Writes 1–3 Lines)
 
 ---
 
-## 🗂️ Clustered Repository Architecture
+## Clustered Repository Architecture
 
 The repository is organized into **5 clean functional clusters**, separating client interfaces, AI microservices, safety datasets, distribution artifacts, and verification suites:
 
 ```text
 Jisr/
 │
-├── 📱 1. CLIENT SHOWCASES (Web & Mobile Frontends)
+├── 1. CLIENT SHOWCASES (Web & Mobile Frontends)
 │   ├── App.tsx                        # Root React Native / Expo mobile application
 │   ├── src/app/                       # Next.js 16 Web Showcase (instant browser evaluation)
 │   ├── src/screens/CaptureScreen.tsx  # RTL chips, recipient picker & text input screen
@@ -100,13 +100,13 @@ Jisr/
 │   ├── src/services/                  # Crisis screening, PII scrubbing, storage & API client
 │   └── src/i18n/ar.json               # Complete Libyan Arabic UI dictionary & chip labels
 │
-├── 🤖 2. AI CORE & MICROSERVICE (Stateless FastAPI Backend)
+├── 2. AI CORE & MICROSERVICE (Stateless FastAPI Backend)
 │   ├── backend/app/main.py            # FastAPI service entry point & CORS configuration
 │   ├── backend/app/routers/           # Endpoints (/api/check-risk, /api/generate-drafts, /api/faithfulness)
 │   ├── backend/app/services/          # Multi-LLM client (Gemini 1.5 Flash, Groq Llama 3.3), PII sanitizer
 │   └── backend/prompts/               # System prompt definitions for 3-tone drafting and grounding
 │
-├── 🛡️ 3. GUARDIAN SAFETY ENGINE (Linguistic Datasets & Safety Gates)
+├── 3. GUARDIAN SAFETY ENGINE (Linguistic Datasets & Safety Gates)
 │   ├── safety/crisis-phrases.json     # 60 Libyan dialect distress phrases (verified on 360+ spellings)
 │   ├── safety/forbidden-terms.json    # 55 blocked clinical, diagnostic, and medication terms
 │   ├── safety/plain-templates.json    # 35 deterministic offline fallback & baseline templates
@@ -114,7 +114,7 @@ Jisr/
 │   ├── safety/dev-set.json            # 25-item gold-standard benchmark for recall evaluation
 │   └── safety/lib/                    # Text normalization and zero-latency matching algorithms
 │
-├── 📦 4. DISTRIBUTION & COMPETITION ARTIFACTS
+├── 4. DISTRIBUTION & COMPETITION ARTIFACTS
 │   ├── builds/jisr-v1.0.0.apk         # Sideloadable standalone Android APK (63.1 MB, SHA-256 verified)
 │   ├── builds/README.md               # APK package specs, architecture, signing & sideloading guide
 │   ├── docs/PITCH_DECK.pptx           # Standalone 16:9 widescreen PowerPoint presentation deck
@@ -124,7 +124,7 @@ Jisr/
 │   ├── REPORT.md                      # Comprehensive 35 KB Markdown Technical Report
 │   └── CITATIONS.md                   # Complete third-party tools, models & frameworks citations
 │
-└── 🧪 5. QA & AUTOMATED VERIFICATION SUITE
+└── 5. QA & AUTOMATED VERIFICATION SUITE
     ├── safety/selftest.mjs            # Deterministic Guardian unit test runner (450 passing tests)
     ├── safety/evaluate.mjs            # Crisis benchmark recall evaluation runner (100.0% recall)
     ├── tests/verify-crisis-parity.mjs # 756 parity checks between mobile TypeScript & Node Guardian engine
@@ -135,9 +135,9 @@ Jisr/
 
 ---
 
-## 🚀 Setup & Execution Guide for Judges
+## Setup & Execution Guide for Judges
 
-### 🌟 Dual-Showcase Evaluation Avenues
+### Dual-Showcase Evaluation Avenues
 Evaluators can review Jisr through two distinct, synchronized avenues:
 1. **Showcase 1 (Web)**: Instant, zero-friction browser experience running Next.js 16 (`npm run dev` on port 3000). Ideal for rapid live demonstration and projection.
 2. **Showcase 2 (Mobile)**: Standalone compiled Android APK (`builds/jisr-v1.0.0.apk`) ready for immediate sideloading onto physical Android devices or emulators, plus source execution via Expo SDK 51.
@@ -153,7 +153,7 @@ Both showcases are backed by the same Guardian safety datasets (`safety/`), offl
 
 ---
 
-### 🌐 Showcase 1: Web Showcase (Next.js 16 — Instant Browser Evaluation)
+### Showcase 1: Web Showcase (Next.js 16 — Instant Browser Evaluation)
 
 The Web Showcase provides the fastest way to evaluate Jisr's full user experience directly in your browser:
 
@@ -181,7 +181,7 @@ npm run build && npm run start
 
 ---
 
-### 📱 Showcase 2: Mobile Showcase (React Native / Expo & Android APK)
+### Showcase 2: Mobile Showcase (React Native / Expo & Android APK)
 
 #### Option A: Direct APK Sideloading (Fastest Mobile Evaluation)
 Evaluators can install and run the standalone, pre-compiled Android binary without setting up mobile build environments:
@@ -220,7 +220,7 @@ npx expo start --web
 
 ---
 
-### ⚙️ Optional Backend API Server (FastAPI & Uvicorn)
+### Optional Backend API Server (FastAPI & Uvicorn)
 
 The backend provides LLM-driven drafting, risk checking, and PII anonymization endpoints:
 
@@ -237,11 +237,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-> **🛡️ Offline Resilience Guarantee**: If the FastAPI backend is not running, both the Web and Mobile applications automatically fallback to the local deterministic engine (`safety/plain-templates.json`). The application is 100% operational offline without any external network dependency.
+> **Offline Resilience Guarantee**: If the FastAPI backend is not running, both the Web and Mobile applications automatically fallback to the local deterministic engine (`safety/plain-templates.json`). The application is 100% operational offline without any external network dependency.
 
 ---
 
-## 🧪 Automated Verification Suite (`npm test`)
+## Automated Verification Suite (`npm test`)
 
 The complete verification harness executes deterministic unit tests, benchmark recall evaluations, trust component integrity checks, and crisis parity validations in a single command:
 
@@ -275,7 +275,7 @@ node tests/verify-m2-integration.mjs    # Validates complete Milestone 2 mobile 
 
 ---
 
-## 👥 Team & Workstreams
+## Team & Workstreams
 
 | Member | Workstream | Primary Deliverables |
 |---|---|---|
@@ -286,12 +286,12 @@ node tests/verify-m2-integration.mjs    # Validates complete Milestone 2 mobile 
 
 ---
 
-## 📜 Citations & Acknowledgments
+## Citations & Acknowledgments
 
 All foundation models, open-source libraries, and frameworks utilized in this project are documented in [`CITATIONS.md`](CITATIONS.md) in strict compliance with Section 4 of the Ai4LY Codathon guidelines.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

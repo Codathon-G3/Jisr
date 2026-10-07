@@ -63,7 +63,7 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
       <View style={styles.headerRow}>
         <Text style={styles.title}>معاينة البيانات الصادرة (حماية الخصوصية)</Text>
         <View style={styles.shieldBadge}>
-          <Text style={styles.shieldBadgeText}>🔒 تصفية محلية</Text>
+          <Text style={styles.shieldBadgeText}>تصفية محلية</Text>
         </View>
       </View>
 
@@ -85,7 +85,7 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
       {hasIdentifiers ? (
         <View style={styles.scrubbedSection}>
           <Text style={styles.scrubbedHeader}>
-            🛡️ تم استبدال البيانات التالية لحماية هويتك:
+            تم استبدال البيانات التالية لحماية هويتك:
           </Text>
           <View style={styles.tagsRow}>
             {identifiersRemoved.map((item, index) => (
@@ -100,7 +100,7 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
       ) : (
         <View style={styles.cleanSection}>
           <Text style={styles.cleanText}>
-            ✅ النص نظيف تماماً ولا يحتوي على أرقام هواتف أو بيانات اتصال حساسة.
+            النص نظيف تماماً ولا يحتوي على أرقام هواتف أو بيانات اتصال حساسة.
           </Text>
         </View>
       )}
@@ -108,7 +108,7 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
       {/* Zero Retention Guarantee */}
       <View style={styles.guaranteeBox}>
         <Text style={styles.guaranteeText}>
-          ⚡ ضمان جسر: لا يتم تخزين هذا النص في أي خادم أو قاعدة بيانات سحابية.
+          ضمان جسر: لا يتم تخزين هذا النص في أي خادم أو قاعدة بيانات سحابية.
         </Text>
       </View>
 

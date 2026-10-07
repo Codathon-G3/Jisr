@@ -110,7 +110,7 @@ export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
       {alignments.length > 0 && (
         <View style={styles.counterRow}>
           <Text style={styles.counterText}>
-            ✅ تم التحقق من مطابقة {alignments.length} عبارة رئيسية بنجاح
+            تم التحقق من مطابقة {alignments.length} عبارة رئيسية بنجاح
           </Text>
         </View>
       )}

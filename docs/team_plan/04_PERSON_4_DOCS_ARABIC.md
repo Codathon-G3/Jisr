@@ -226,11 +226,11 @@ This is the detailed technical report. It draws heavily on the product definitio
 
 ## Definition of Done
 
-✅ All Arabic text has been reviewed and is natural, non-clinical, and culturally appropriate. Trust view components render correctly. README instructions work. Technical report accurately reflects what was built and includes measured safety figures. Pitch deck is ready for the 5-minute presentation. Citations file is complete. Committee Q&A answers are prepared.
+All Arabic text has been reviewed and is natural, non-clinical, and culturally appropriate. Trust view components render correctly. README instructions work. Technical report accurately reflects what was built and includes measured safety figures. Pitch deck is ready for the 5-minute presentation. Citations file is complete. Committee Q&A answers are prepared.
 
 ---
 
-## ⚠️ Critical Reminders
+## Critical Reminders
 
 1. **Arabic strings are a blocking dependency for Rayan (Person 1).** Deliver `ar.json` by hour 1.5.
 2. **The crisis phrase list review is a safety-critical task.** If phrases are wrong, the risk check misses real crisis text.
