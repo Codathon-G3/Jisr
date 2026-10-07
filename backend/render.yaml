@@ -10,6 +10,6 @@ services:
       - key: LLM_TIMEOUT_SECONDS
         value: "10"
       - key: CORS_ORIGINS
-        value: http://localhost:3000
+        value: "*"
       - key: GEMINI_API_KEY
         sync: false
