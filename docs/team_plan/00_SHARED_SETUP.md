@@ -24,7 +24,7 @@ Chips → (optional record) → trigger invitation → writing → risk check �
 | **Person 1** | **Rayan** | Frontend & Capture | The entire mobile UI, chip capture, trigger logic, sharing, on-device record |
 | **Person 2** | **Muatz** | AI / Backend | LLM integration, drafting API, risk check API, identifier removal |
 | **Person 3** | **Shima** | Safety & Evidence | Crisis phrase list, output check, support card, plain templates, test set, safety figures |
-| **Person 4** | **Mohamed Thabet** (Lead) | Trust Views, Arabic, Docs & Presentation | Trust UI components, all Arabic text, README, technical report, pitch deck, citations (`abdwadood2000@gmail.com`) |
+| **Person 4** | **Mohamed Thabet** (Lead) | Trust Views, Arabic, Docs & Presentation | Trust UI components, all Arabic text, README, technical report, pitch deck, citations |
 
 **Rule**: Each person owns their area. Do NOT edit another person's files without coordinating.
 

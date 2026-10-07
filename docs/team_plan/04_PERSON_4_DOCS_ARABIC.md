@@ -142,7 +142,7 @@ This is the detailed technical report. It draws heavily on the product definitio
 - [Reference CITATIONS.md]
 
 ## 10. Team
-- **Mohamed Thabet** (Team Leader / Person 4): Trust Views, Arabic Quality, Documentation & Presentation Lead (`abdwadood2000@gmail.com`)
+- **Mohamed Thabet** (Team Leader / Person 4): Trust Views, Arabic Quality, Documentation & Presentation Lead
 - **Rayan** (Person 1): Mobile App & Interaction Engineer
 - **Muatz** (Person 2): AI Core & Backend Engineer
 - **Shima** (Person 3): Safety, Guardian & Evidence Engineer

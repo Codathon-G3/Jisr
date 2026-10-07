@@ -4,8 +4,7 @@
 > **Event**: Ai4LY National Codathon 2026 — Libya Artificial Intelligence Forum  
 > **Track**: AI for Mental Health & Youth Well-being  
 > **Deliverable**: Technical Report in Markdown [T§5]  
-> **Authors**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima  
-> **Contact**: abdwadood2000@gmail.com
+> **Authors**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima
 
 ---
 
@@ -160,7 +159,7 @@ Jisr demonstrates that artificial intelligence in mental health is most impactfu
 
 | Member | Role & Workstream | Engineering Ownership |
 |---|---|---|
-| **Mohamed Thabet** | **Team Leader**, Person 4: Trust Views, Arabic Quality & Documentation Lead | System architecture, Arabic linguistic review, technical report, pitch deck, baseline comparison components (`abdwadood2000@gmail.com`) |
+| **Mohamed Thabet** | **Team Leader**, Person 4: Trust Views, Arabic Quality & Documentation Lead | System architecture, Arabic linguistic review, technical report, pitch deck, baseline comparison components |
 | **Rayan** | Person 1: Mobile App & Interaction Engineer | React Native / Expo UI client, chip selector, native share sheet integration, on-device sandboxed storage |
 | **Muatz** | Person 2: AI Core & Backend Engineer | LLM prompt engineering, risk check API, drafting engine, PII sanitization regex, stateless API routes |
 | **Shima** | Person 3: Safety, Guardian & Evidence Engineer | Guardian Layer crisis phrase benchmark (Libyan dialect), output filter medical blacklist, fallback templates, empirical recall metrics |

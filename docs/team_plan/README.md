@@ -2,7 +2,7 @@
 
 > **Submission Deadline**: Wednesday, October 7, 2026 at 11:50 PM  
 > **Presentation / Evaluation**: Thursday, October 8, 2026 after noon prayer (Online, ~5 min presentation + ~5 min Q&A)  
-> **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima | **Contact**: abdwadood2000@gmail.com
+> **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima
 
 ---
 
