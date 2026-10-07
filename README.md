@@ -6,11 +6,11 @@
 > **Submission Date**: October 7, 2026  
 > **Active Branch**: `main`
 
-[![Live Web Showcase](https://img.shields.io/badge/Web%20Showcase-Next.js%2016-000000?logo=next.js&style=for-the-badge)](#-showcase-1-web-showcase-nextjs-16--instant-browser-evaluation)
+[![Live Web Showcase](https://img.shields.io/badge/Web%20Showcase-Next.js%2016-000000?logo=next.js&style=for-the-badge)](#showcase-1-web-showcase-nextjs-16--instant-browser-evaluation)
 [![Android APK](https://img.shields.io/badge/Android%20APK-Download%20v1.0.0-brightgreen?logo=android&style=for-the-badge)](builds/jisr-v1.0.0.apk)
-[![Expo Go](https://img.shields.io/badge/Expo%20Go-Mobile%20Preview-blue?logo=expo&style=for-the-badge)](#-showcase-2-mobile-showcase-react-native--expo--android-apk)
+[![Expo Go](https://img.shields.io/badge/Expo%20Go-Mobile%20Preview-blue?logo=expo&style=for-the-badge)](#showcase-2-mobile-showcase-react-native--expo--android-apk)
 [![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Uvicorn-009688?logo=fastapi&style=for-the-badge)](backend/)
-[![Safety Tests](https://img.shields.io/badge/Safety%20Tests-450%2F450%20Pass%20(100%25%20Recall)-success?style=for-the-badge)](#-automated-verification-suite-npm-test)
+[![Safety Tests](https://img.shields.io/badge/Safety%20Tests-450%2F450%20Pass%20(100%25%20Recall)-success?style=for-the-badge)](#automated-verification-suite-npm-test)
 [![Presentation: Pitch Deck](https://img.shields.io/badge/Presentation-16%3A9%20Pitch%20Deck-purple?style=for-the-badge)](docs/PITCH_DECK.pptx)
 
 ---
@@ -38,7 +38,7 @@ The hardest step in reaching out during times of emotional distress is often wri
 
 **Jisr** (Bridge Note) is a privacy-first, Arabic-native writing companion engineered to break this silence:
 * It takes minimal user inputs (one-tap stress chips and an optional 1–3 lines of messy thoughts).
-* It immediately checks for acute crisis indicators using a high-recall Guardian Layer.
+* It immediately checks for acute crisis indicators using a high-recall Guardian Layer before drafting.
 * It produces three tone-adapted, editable message drafts (**Gentle**, **Direct**, **Formal**) tailored to a real person in the user's personal circle (friend, sibling, parent, trusted adult, or counsellor).
 * It hands the message directly to WhatsApp, Messenger, or SMS via the native system share sheet, and immediately encourages the user to close the app.
 
@@ -46,42 +46,83 @@ The hardest step in reaching out during times of emotional distress is often wri
 
 ---
 
-## The 4 System Layers
+## Project Architecture & Data Flow
+
+### System Interaction Diagram
 
 ```text
-User (Taps Situation Chips / Writes 1–3 Lines)
-  │
-  ├── [Layer 1: Capture Layer] Deterministic situation chips & recipient selector (Zero-typing friendly)
-  │
-  ├── [Layer 2: Guardian Layer] High-recall dialect risk classifier & clinical blacklist
-  │     ├── Crisis Detected  ──► Static Verified Support Card (never AI-generated)
-  │     └── Safe Input       ──► Proceeds to Drafting Engine
-  │
-  ├── [Layer 3: Drafting Engine] 3 tone drafts (Gentle, Direct, Formal) from user words only
-  │
-  └── [Layer 4: Trust & Control] Baseline Comparison, Faithfulness inspect & Native Share Sheet
+                                [ USER INTERACTION ]
+                                          │
+                 Taps Situation Chips (1-7) & Writes 1-3 Lines (Optional)
+                                          │
+                                          ▼
+                         [ CLIENT-SIDE PRE-PROCESSING ]
+               ┌──────────────────────────┴──────────────────────────┐
+               │                                                     │
+               ▼                                                     ▼
+     Local PII Sanitizer                               Zero-Latency Crisis Screener
+ (Strips Libyan phone numbers +218,               (Matches 60 Libyan dialect markers
+  emails & personal kinship names)                 across 360+ orthographic variants)
+               │                                                     │
+               ▼                                                     ▼
+    Sanitized Text & Chips                            [ Acute Crisis Detected? ]
+               │                                             ├── YES ──► Halts drafting & opens static
+               │                                             │           SupportCardModal (Ethical ER Notice)
+               │                                             │
+               │                                             └── NO ──► Continues to Drafting Engine
+               │
+               ▼
+   [ DRAFTING ENGINE (ONLINE OR OFFLINE) ]
+               │
+               ├── ONLINE PATH (Network Available, Timeout: 2.5s)
+               │      │
+               │      ▼
+               │   FastAPI Service (uvicorn app.main:app)
+               │      ├── POST /api/check-risk (Zero-shot classification)
+               │      ├── POST /api/generate-drafts (Gemini 1.5 Flash / Groq Llama 3.3)
+               │      └── Deterministic Output Filter (55 clinical/diagnostic terms blocked)
+               │
+               └── OFFLINE PATH (Network Down / Electrical Blackout / Timeout Exceeded)
+                      │
+                      ▼
+                   Local Deterministic Engine (safety/plain-templates.json)
+                   (35 Pre-vetted topic & recipient template permutations)
+                                          │
+                                          ▼
+                             [ 3 TONE-ADAPTED DRAFTS ]
+                       (Gentle: لطيف | Direct: مباشر | Formal: رسمي)
+                                          │
+                                          ▼
+                         [ LAYER 4: TRUST & USER CONTROL ]
+               ┌──────────────────────────┼──────────────────────────┐
+               │                          │                          │
+               ▼                          ▼                          ▼
+     Baseline Comparison          Faithfulness View           Outbound Preview
+   (AI Draft vs. Static)       (Attribution to user input)   (Inspects scrubbed PII)
+                                          │
+                                          ▼
+                               In-Place Text Editing
+                                          │
+                                          ▼
+                               Native OS Share Sheet
+                      (Direct hand-off to WhatsApp / Messenger)
+                                          │
+                                          ▼
+                         [ ENCOURAGED-OUT EXIT SCREEN ]
+                       (Session ends with zero retained data)
 ```
 
-1. **Layer 1: Capture Layer (Zero-Typing Friendly)**
-   * 7 everyday stress chips (`الامتحانات`, `العائلة`, `العمل`, `العلاقات`, `النوم`, `المال`, `أخرى`) in authentic RTL layout.
-   * 5 relationship categories (`صديق`, `أخ/أخت`, `أحد الوالدين`, `شخص كبير تثق فيه`, `مرشد/أستاذ`).
-   * Usable even with zero text typed.
-2. **Layer 2: The Guardian Layer (Safety Non-Negotiables)**
-   * **Pre-Drafting Risk Check**: Zero-latency local regex matching across 60 Libyan dialect crisis phrases (tested on 360+ spelling variants) plus model-based classification. Crisis inputs immediately divert to human care.
-   * **Clinical Blacklist**: Deterministic filter blocking 55 psychiatric conditions, diagnosis labels, and medication terms.
-   * **Persistent Human Route**: Pinned *"تكلم مع حد توا"* (Talk to Someone Now) button on every screen opening the verified Support Card modal.
-   * **Ethical Contact Policy**: Enacts strict safety rule (`contacts: []` empty array) with an unalterable emergency room statement rather than displaying unmonitored Libyan hotline numbers.
-3. **Layer 3: Tone-Adapted Drafting Engine**
-   * Generates exactly 3 drafts: **Gentle** (لطيف), **Direct** (مباشر), and **Formal** (رسمي) with live in-place editing.
-   * Generates strictly from user words—zero invented facts, zero clinical labels.
-   * Powered by Google Gemini 1.5 Flash (primary) and Groq Llama 3.3 70B (fallback).
-4. **Layer 4: Trust, Privacy & Native Sharing**
-   * **Live Baseline Comparison**: Live toggle comparing the AI draft against a generic template to prove real AI utility.
-   * **Faithfulness Alignment**: Visual word-level attribution tracing draft words directly back to the user's input.
-   * **Outbound Preview**: Client-side PII sanitizer displays scrubbed personal phone numbers (+218), emails, and kinship names before transmission.
-   * **Zero Cloud Data Retention**: Stateless drafting; no personal notes are ever stored on servers or databases.
-   * **Sandboxed On-Device History**: Optional local-only memory via `AsyncStorage` with one-tap instant wipe.
-   * **Native Mobile Handoff**: Dispatches to WhatsApp, Messenger, or SMS via the OS share sheet with zero telemetry.
+### Component Breakdown & Responsibilities
+1. **Frontend Showcases**:
+   * **Web Showcase (`src/app/`)**: Built on Next.js 16 with customized RTL Arabic typography and instant browser accessibility.
+   * **Mobile Client (`App.tsx`, `src/`)**: Built on React Native 0.74 / Expo SDK 51, providing native mobile sharing (`Share.share()`), sandboxed on-device recurrence memory (`AsyncStorage`), and APK distribution.
+2. **AI Microservice (`backend/app/`)**:
+   * Stateless FastAPI backend with asynchronous endpoints (`/api/check-risk`, `/api/generate-drafts`, `/api/faithfulness`).
+   * Powered by Google Gemini 1.5 Flash (sub-800ms latency, native Arabic tokenization) with Groq LPU (Llama 3.3 70B) high-speed fallback.
+3. **Guardian Safety Engine (`safety/`)**:
+   * Pre-generation lexicon of 60 dialect crisis phrases (tested across 360+ spelling variants) with 7 whitelisted colloquial idioms.
+   * Deterministic post-generation blacklist intercepting 55 diagnostic and pharmaceutical terms.
+   * Static emergency Support Card with unalterable emergency room guidance.
 
 ---
 
@@ -135,44 +176,82 @@ Jisr/
 
 ---
 
-## Setup & Execution Guide for Judges
+## Operational Requirements & System Prerequisites
 
-### Dual-Showcase Evaluation Avenues
-Evaluators can review Jisr through two distinct, synchronized avenues:
-1. **Showcase 1 (Web)**: Instant, zero-friction browser experience running Next.js 16 (`npm run dev` on port 3000). Ideal for rapid live demonstration and projection.
-2. **Showcase 2 (Mobile)**: Standalone compiled Android APK (`builds/jisr-v1.0.0.apk`) ready for immediate sideloading onto physical Android devices or emulators, plus source execution via Expo SDK 51.
+### Runtime & Dependency Versions
 
-Both showcases are backed by the same Guardian safety datasets (`safety/`), offline fallback templates (`safety/plain-templates.json`), and the optional Python FastAPI backend (`backend/`).
+| Component | Technology | Minimum Version | Tested Version |
+|---|---|---|---|
+| **Node.js Runtime** | Node.js (V8) | `>= 18.0.0` | `v20.x` / `v22.x` |
+| **Package Manager** | npm | `>= 9.0.0` | `v10.8.x` |
+| **Web Framework** | Next.js | `^16.4.0` | `16.4.0` |
+| **Mobile Runtime** | React Native / Expo | Expo SDK 51 | React Native `0.74.5` |
+| **Target Mobile OS** | Android | API 23 (Android 6.0+) | API 34 (Android 14) |
+| **Backend Runtime** | Python (CPython) | `>= 3.10` | `3.10.x` / `3.13.x` |
+| **ASGI Web Server** | Uvicorn / FastAPI | FastAPI `>= 0.115` | Uvicorn `0.32` |
+
+### Environment Variables & API Keys
+
+Environment variables are configured in `backend/.env` (template provided in `backend/.env.example`):
+
+| Variable | Description | Required? | Default Value |
+|---|---|:---:|---|
+| `GEMINI_API_KEY` | Google AI Studio API key for Gemini 1.5 Flash | Optional* | `""` (Empty string) |
+| `GEMINI_MODEL` | Foundation model identifier | Optional | `gemini-flash-lite-latest` |
+| `LLM_TIMEOUT_SECONDS` | Gateway timeout before falling back | Optional | `10` |
+| `CORS_ORIGINS` | Permitted origins for frontend CORS | Optional | `*` |
+
+> **Zero-Key Offline Guarantee**: An API key is **NOT required** to evaluate the application. If `GEMINI_API_KEY` is not provided or the backend is offline, both the Web Showcase and Mobile Client automatically fall back to the local deterministic template engine (`safety/plain-templates.json`), maintaining 100% functionality with zero network or cloud dependency.
 
 ---
 
-### Prerequisites
-* **Node.js** (v18 or later recommended; v20+ supported)
-* **Python** (v3.10 or later, for backend service)
-* **Mobile Evaluation**: Physical Android device (Android 6.0+ / API 23+) OR Android Emulator (x86_64 / ARM) OR Expo Go app
+## Step-by-Step Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Codathon-G3/Jisr.git
+cd Jisr
+```
+
+### 2. Install Root Dependencies
+```bash
+npm install
+```
+
+### 3. (Optional) Setup Backend Python Environment
+```bash
+cd backend
+python -m venv .venv
+
+# On Windows (PowerShell):
+.venv\Scripts\activate
+# On Linux / macOS:
+source .venv/bin/activate
+
+pip install -r requirements.txt
+cd ..
+```
 
 ---
+
+## Usage Instructions & Workflows
 
 ### Showcase 1: Web Showcase (Next.js 16 — Instant Browser Evaluation)
 
-The Web Showcase provides the fastest way to evaluate Jisr's full user experience directly in your browser:
+The Web Showcase provides the fastest way to evaluate Jisr's full user experience directly in your web browser:
 
 ```bash
-# 1. Install dependencies (from repository root)
-npm install
-
-# 2. Launch the Next.js development server
+# From repository root:
 npm run dev
 ```
 
-* **URL**: Open [http://localhost:3000](http://localhost:3000) in any modern browser.
-* **Active Features**:
-  * Full RTL Libyan Arabic interface styled in dark/cream/navy palette.
-  * Interactive selection of 7 stress topics and 5 recipient types.
-  * Guardian Layer pre-drafting crisis detection & safety interception.
-  * 3-tone drafting engine (Gentle, Direct, Formal) with live offline fallback.
-  * Persistent *"تكلم مع حد توا"* emergency support card modal.
-  * Trust inspection tools and baseline comparison.
+* **Access**: Open [http://localhost:3000](http://localhost:3000) in any modern browser.
+* **Evaluation Workflow**:
+  1. Select 1 or more situation chips (`الامتحانات`, `العائلة`, etc.).
+  2. Choose a recipient (`صديق`, `أخ/أخت`, etc.).
+  3. Optionally type 1–2 lines of stressful thoughts.
+  4. Notice immediate crisis screening and 3-tone drafting.
+  5. Inspect the live Baseline Comparison and Outbound PII preview.
 
 To create a production-optimized build:
 ```bash
@@ -211,7 +290,7 @@ Evaluators can install and run the standalone, pre-compiled Android binary witho
 
 #### Option B: Running Mobile App from Source (Expo SDK 51)
 ```bash
-# Option 1: Mobile preview via Expo Go (QR Code)
+# Option 1: Mobile preview via Expo Go (scan terminal QR code)
 npx expo start
 
 # Option 2: Mobile Web preview (React Native Web)
@@ -220,24 +299,14 @@ npx expo start --web
 
 ---
 
-### Optional Backend API Server (FastAPI & Uvicorn)
-
-The backend provides LLM-driven drafting, risk checking, and PII anonymization endpoints:
+### Running the Optional Backend Service (FastAPI)
 
 ```bash
 cd backend
-
-# Create and activate Python virtual environment
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# Linux/macOS: source .venv/bin/activate
-
-# Install dependencies & run service
-pip install -r requirements.txt
+# With virtual environment activated:
 uvicorn app.main:app --reload --port 8000
 ```
-
-> **Offline Resilience Guarantee**: If the FastAPI backend is not running, both the Web and Mobile applications automatically fallback to the local deterministic engine (`safety/plain-templates.json`). The application is 100% operational offline without any external network dependency.
+* **API Documentation**: Interactive OpenAPI Swagger documentation available at [http://localhost:8000/docs](http://localhost:8000/docs).
 
 ---
 
@@ -272,6 +341,17 @@ node tests/test-offline-fallback.mjs    # Validates all 35 offline fallback temp
 node tests/test-pii-sanitizer.mjs       # Validates Libyan phone (+218), email & kinship scrubbing
 node tests/verify-m2-integration.mjs    # Validates complete Milestone 2 mobile integration flow
 ```
+
+---
+
+## Core Safety Guardrails & Ethical Boundaries
+
+* **Not a Doctor or Therapist**: Jisr does not diagnose, screen, score, or provide therapy.
+* **No Automatic Actions**: Jisr never messages third parties or contacts emergency services automatically.
+* **No Tracking**: No user profiling, no account required, no message logging.
+* **Identifiers Removed**: Libyan phone numbers (+218, 091, 092), emails, and kinship mentions are scrubbed on-device before drafting.
+* **Persistent Human Route**: The *"تكلم مع حد توا"* button is unblocked and reachable on every screen.
+* **Emergency Contact Ethics**: In active crisis, displaying unresponsive phone numbers introduces severe hazard. Jisr maintains `contacts: []` with an unalterable direct statement guiding users to a trusted person or the nearest emergency department.
 
 ---
 
