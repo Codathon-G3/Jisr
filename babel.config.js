@@ -1,6 +1,14 @@
-module.exports = function(api) {
-  api.cache(true);
+module.exports = function (api) {
+  const isMetro = api.caller((caller) => caller && caller.name === "metro");
+  api.cache.using(() => (isMetro ? "metro" : "next"));
+
+  if (isMetro) {
+    return {
+      presets: ["babel-preset-expo"],
+    };
+  }
+
   return {
-    presets: ['babel-preset-expo'],
+    presets: ["next/babel"],
   };
 };

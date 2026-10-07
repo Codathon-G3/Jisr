@@ -116,9 +116,17 @@ export default function Home() {
       return "";
     }
 
-    const topic = selectedTopic || ar.chips?.other || "";
+    const labels = templates.topic_labels || {};
+    const topic =
+      selectedChips
+        .map((id) => labels[id] || ar.chips?.[id])
+        .filter(Boolean)
+        .join(" و ") ||
+      labels.other ||
+      ar.chips?.other ||
+      "";
 
-    return template.replaceAll("{topic}", topic);
+    return template.replaceAll("{topic}", topic).replaceAll("[topic]", topic);
   }
 
   function chooseTone(tone) {
