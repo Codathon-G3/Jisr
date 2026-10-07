@@ -1,0 +1,130 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  direction: rtl;
+  background: #f7f7f5;
+  color: #222;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  background: white;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 42px;
+}
+
+.brand p {
+  margin-top: 10px;
+  color: #666;
+  line-height: 1.7;
+}
+
+.section {
+  margin-bottom: 28px;
+}
+
+.section h2,
+.section label {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hint {
+  margin-top: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.chips,
+.recipients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip,
+.recipient {
+  border: 1px solid #ddd;
+  background: white;
+  padding: 11px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip.selected,
+.recipient.selected {
+  background: #222;
+  color: white;
+  border-color: #222;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 14px;
+  outline: none;
+  direction: rtl;
+}
+
+textarea:focus {
+  border-color: #888;
+}
+
+.continueButton {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #222;
+  color: white;
+}
+
+.continueButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 22px 18px;
+    border-radius: 18px;
+  }
+
+  .brand h1 {
+    font-size: 36px;
+  }
+}
