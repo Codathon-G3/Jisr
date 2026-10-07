@@ -2,12 +2,15 @@
   box-sizing: border-box;
 }
 
+html {
+  direction: rtl;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  direction: rtl;
   background: #f7f7f5;
-  color: #222;
+  color: #222222;
 }
 
 button,
@@ -15,55 +18,94 @@ textarea {
   font: inherit;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .page {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 90px 16px 40px;
 }
 
 .card {
   width: 100%;
-  max-width: 560px;
-  background: white;
+  max-width: 600px;
+  background: #ffffff;
   border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
 }
+
+/* =========================
+   Brand
+========================= */
 
 .brand {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 34px;
+}
+
+.smallBrand {
+  margin-bottom: 22px;
 }
 
 .brand h1 {
-  margin: 0;
-  font-size: 42px;
+  margin: 10px 0 6px;
+  font-size: 44px;
 }
 
 .brand p {
-  margin-top: 10px;
-  color: #666;
-  line-height: 1.7;
+  margin: 0;
+  color: #666666;
+  line-height: 1.8;
 }
 
+.logoCircle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  margin: 0 auto;
+  background: #222222;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 34px;
+  font-weight: bold;
+}
+
+/* =========================
+   Sections
+========================= */
+
 .section {
-  margin-bottom: 28px;
+  margin-bottom: 30px;
 }
 
 .section h2,
-.section label {
+.section label,
+.editorSection label {
   display: block;
   font-size: 18px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
+  line-height: 1.6;
 }
 
 .hint {
-  margin-top: 0;
-  color: #777;
+  color: #777777;
   font-size: 14px;
+  margin-top: 0;
+  line-height: 1.7;
 }
+
+/* =========================
+   Chips
+========================= */
 
 .chips,
 .recipients {
@@ -74,43 +116,84 @@ textarea {
 
 .chip,
 .recipient {
-  border: 1px solid #ddd;
-  background: white;
-  padding: 11px 16px;
+  border: 1px solid #dedede;
+  background: #ffffff;
+  color: #222222;
+
+  padding: 11px 17px;
+
   border-radius: 999px;
+
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border 0.15s ease,
+    transform 0.15s ease;
+}
+
+.chip:hover,
+.recipient:hover {
+  transform: translateY(-1px);
 }
 
 .chip.selected,
 .recipient.selected {
-  background: #222;
-  color: white;
-  border-color: #222;
+  background: #222222;
+  color: #ffffff;
+  border-color: #222222;
 }
+
+/* =========================
+   Text Areas
+========================= */
 
 textarea {
   width: 100%;
-  resize: vertical;
-  border: 1px solid #ddd;
-  border-radius: 14px;
-  padding: 14px;
+
+  border: 1px solid #dedede;
+  border-radius: 15px;
+
+  padding: 15px;
+
   outline: none;
+
+  resize: vertical;
+
   direction: rtl;
+
+  line-height: 1.8;
+
+  background: #ffffff;
 }
 
 textarea:focus {
-  border-color: #888;
+  border-color: #777777;
+}
+
+/* =========================
+   Main Button
+========================= */
+
+.continueButton,
+.primaryButton {
+  border: 0;
+
+  background: #222222;
+  color: #ffffff;
+
+  border-radius: 14px;
+
+  padding: 14px 18px;
+
+  font-weight: 700;
+
+  cursor: pointer;
 }
 
 .continueButton {
   width: 100%;
-  border: 0;
-  border-radius: 14px;
-  padding: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  background: #222;
-  color: white;
 }
 
 .continueButton:disabled {
@@ -118,13 +201,325 @@ textarea:focus {
   cursor: not-allowed;
 }
 
+/* =========================
+   Secondary buttons
+========================= */
+
+.secondaryButton,
+.backButton {
+  background: #ffffff;
+  color: #222222;
+
+  border: 1px solid #dedede;
+
+  border-radius: 14px;
+
+  padding: 13px 18px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.backButton {
+  margin-top: 22px;
+}
+
+/* =========================
+   Human Route
+========================= */
+
+.humanRouteButton {
+  position: fixed;
+
+  top: 18px;
+  left: 18px;
+
+  z-index: 50;
+
+  border: 1px solid #dddddd;
+
+  background: #ffffff;
+  color: #222222;
+
+  padding: 11px 15px;
+
+  border-radius: 999px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   Limits
+========================= */
+
+.limits {
+  margin-top: 20px;
+
+  font-size: 12px;
+
+  color: #777777;
+
+  line-height: 1.8;
+
+  text-align: center;
+}
+
+/* =========================
+   Modal
+========================= */
+
+.modalOverlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 100;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 440px;
+
+  max-height: 85vh;
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border-radius: 22px;
+
+  padding: 28px;
+
+  text-align: right;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modalCard h2 {
+  margin-top: 0;
+}
+
+.modalCard p {
+  line-height: 1.9;
+}
+
+.modalActions {
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 24px;
+}
+
+.modalActions button {
+  flex: 1;
+}
+
+/* =========================
+   Draft Screen
+========================= */
+
+.draftScreen h2 {
+  line-height: 1.7;
+}
+
+.toneButtons {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 8px;
+
+  margin: 20px 0 26px;
+}
+
+.toneButton {
+  padding: 12px 8px;
+
+  border-radius: 13px;
+
+  border: 1px solid #dddddd;
+
+  background: #ffffff;
+
+  cursor: pointer;
+}
+
+.toneButton.selected {
+  background: #222222;
+
+  color: #ffffff;
+
+  border-color: #222222;
+}
+
+.editorSection {
+  margin-top: 16px;
+}
+
+.draftEditor {
+  min-height: 170px;
+}
+
+.aiDisclosure {
+  margin-top: 12px;
+
+  font-size: 13px;
+
+  color: #666666;
+
+  line-height: 1.8;
+}
+
+.draftActions {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+.successMessage {
+  text-align: center;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  margin-top: 14px;
+}
+
+/* =========================
+   Support Card
+========================= */
+
+.supportModal h2 {
+  line-height: 1.6;
+}
+
+.contactsList {
+  margin: 20px 0;
+}
+
+.contactCard {
+  border: 1px solid #dddddd;
+
+  border-radius: 14px;
+
+  padding: 15px;
+
+  margin-bottom: 10px;
+}
+
+.fallbackSupport {
+  background: #f6f6f6;
+
+  border-radius: 14px;
+
+  padding: 16px;
+
+  margin: 18px 0;
+}
+
+.supportGuidance {
+  color: #555555;
+}
+
+/* =========================
+   Ready Screen
+========================= */
+
+.readyScreen {
+  text-align: center;
+
+  padding: 30px 0;
+}
+
+.readyIcon {
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  background: #222222;
+
+  color: #ffffff;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 34px;
+}
+
+.readyScreen h1 {
+  margin-bottom: 8px;
+}
+
+.readyScreen h2 {
+  line-height: 1.7;
+}
+
+.readyScreen p {
+  color: #666666;
+
+  line-height: 1.8;
+}
+
+/* =========================
+   Mobile
+========================= */
+
 @media (max-width: 600px) {
+  .page {
+    padding: 82px 12px 24px;
+  }
+
   .card {
-    padding: 22px 18px;
+    padding: 22px 17px;
+
     border-radius: 18px;
   }
 
   .brand h1 {
-    font-size: 36px;
+    font-size: 38px;
+  }
+
+  .humanRouteButton {
+    top: 12px;
+    left: 12px;
+
+    max-width: calc(100% - 24px);
+
+    font-size: 13px;
+  }
+
+  .toneButtons {
+    grid-template-columns: 1fr;
+  }
+
+  .draftActions {
+    grid-template-columns: 1fr;
+  }
+
+  .modalActions {
+    flex-direction: column;
   }
 }
