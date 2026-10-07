@@ -1,0 +1,194 @@
+{
+  "version": "0.2",
+  "notes": "Clinical words blocked in AI drafts. Everyday words such as قلق/قلقان (worried) and ضغط (pressure) are deliberately NOT listed.",
+  "terms": [
+    {
+      "text": "اكتئاب",
+      "category": "condition"
+    },
+    {
+      "text": "depression",
+      "category": "condition"
+    },
+    {
+      "text": "depressed",
+      "category": "condition"
+    },
+    {
+      "text": "قلق مرضي",
+      "category": "condition"
+    },
+    {
+      "text": "اضطراب نفسي",
+      "category": "condition"
+    },
+    {
+      "text": "اضطراب الهلع",
+      "category": "condition"
+    },
+    {
+      "text": "panic disorder",
+      "category": "condition"
+    },
+    {
+      "text": "anxiety disorder",
+      "category": "condition"
+    },
+    {
+      "text": "PTSD",
+      "category": "condition"
+    },
+    {
+      "text": "صدمة نفسية",
+      "category": "condition"
+    },
+    {
+      "text": "ثنائي القطب",
+      "category": "condition"
+    },
+    {
+      "text": "bipolar",
+      "category": "condition"
+    },
+    {
+      "text": "انفصام",
+      "category": "condition"
+    },
+    {
+      "text": "فصام",
+      "category": "condition"
+    },
+    {
+      "text": "schizophrenia",
+      "category": "condition"
+    },
+    {
+      "text": "تشخيصك هو",
+      "category": "diagnostic"
+    },
+    {
+      "text": "أنت تعاني من",
+      "category": "diagnostic"
+    },
+    {
+      "text": "حالتك تسمى",
+      "category": "diagnostic"
+    },
+    {
+      "text": "diagnosis",
+      "category": "diagnostic"
+    },
+    {
+      "text": "دواء",
+      "category": "medication"
+    },
+    {
+      "text": "حبوب مهدئة",
+      "category": "medication"
+    },
+    {
+      "text": "مضادات الاكتئاب",
+      "category": "medication"
+    },
+    {
+      "text": "جرعة",
+      "category": "medication"
+    },
+    {
+      "text": "antidepressant",
+      "category": "medication"
+    },
+    {
+      "text": "خطة علاجية",
+      "category": "treatment"
+    },
+    {
+      "text": "جلسات علاج نفسي",
+      "category": "treatment"
+    },
+    {
+      "text": "علاج سلوكي معرفي",
+      "category": "treatment"
+    },
+    {
+      "text": "psychotherapy",
+      "category": "treatment"
+    },
+    {
+      "text": "مكتئب",
+      "category": "condition"
+    },
+    {
+      "text": "مكتئبه",
+      "category": "condition"
+    },
+    {
+      "text": "مرض نفسي",
+      "category": "condition"
+    },
+    {
+      "text": "مريض نفسي",
+      "category": "condition"
+    },
+    {
+      "text": "نوبة هلع",
+      "category": "condition"
+    },
+    {
+      "text": "نوبات هلع",
+      "category": "condition"
+    },
+    {
+      "text": "وسواس قهري",
+      "category": "condition"
+    },
+    {
+      "text": "OCD",
+      "category": "condition"
+    },
+    {
+      "text": "تشخيص",
+      "category": "diagnostic"
+    },
+    {
+      "text": "أعراض",
+      "category": "diagnostic"
+    },
+    {
+      "text": "symptoms",
+      "category": "diagnostic"
+    },
+    {
+      "text": "مهدئات",
+      "category": "medication"
+    },
+    {
+      "text": "مهدئ",
+      "category": "medication"
+    },
+    {
+      "text": "medication",
+      "category": "medication"
+    },
+    {
+      "text": "pills",
+      "category": "medication"
+    },
+    {
+      "text": "علاج نفسي",
+      "category": "treatment"
+    },
+    {
+      "text": "طبيب نفسي",
+      "category": "treatment"
+    },
+    {
+      "text": "psychiatrist",
+      "category": "treatment"
+    },
+    {
+      "text": "therapy",
+      "category": "treatment"
+    }
+  ]
+}
