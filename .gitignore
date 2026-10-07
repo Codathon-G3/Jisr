@@ -32,6 +32,8 @@ backend/tests/__pycache__/
 .agents/
 ORIGINAL_REQUEST.md
 
-# Operating System Files
+# Operating System & Office Temporary Files
 .DS_Store
 Thumbs.db
+~$*.pptx
+~$*.docx

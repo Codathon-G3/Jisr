@@ -17,6 +17,7 @@ Jisr/
     ├── COMMITTEE_QA.md            # Committee defense playbook & expected Q&A answers
     ├── master_implementation_plan.md # 10-Stage full pipeline from product definition DOCX
     ├── codathon_submission_requirements.md # Ai4LY official requirements checklist
+    ├── scripts/                       # Presentation tools (generate_pitch_deck.py)
     └── team_plan/                 # The 4-Person implementation workstreams
         ├── README.md              # Team sprint dashboard & 24h timeline
         ├── 00_SHARED_SETUP.md     # Shared decisions, Git rules, & API data contracts
