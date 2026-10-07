@@ -164,8 +164,8 @@ Because Jisr operates under a strict Zero-Data-Retention policy, real-world effi
 
 Jisr directly addresses the operational conditions of Libya:
 1. **Linguistic Calibration**: Tested on Libyan Arabic dialect (*"مضغوط"*, *"حاس روحي بنجنن"*, *"ما نقدرش نكمل"*).
-2. **Infrastructure Resilience**: Lightweight payload size (<2 KB); graceful automatic fallback to plain templates if cellular networks drop.
-3. **Distribution Reality**: Interfaces with Meta Messenger and WhatsApp, reaching over 90% of Libyan social messaging users.
+2. **Infrastructure Resilience**: Distributed as a standalone Android APK (`builds/jisr-v1.0.0.apk`) with lightweight network payload (<2 KB); graceful automatic fallback to plain templates (`safety/plain-templates.json`) ensuring 100% functionality even during internet blackouts.
+3. **Distribution Reality**: Directly sideloadable without requiring Google Play Store access; interfaces with Meta Messenger, WhatsApp, and SMS, reaching over 90% of Libyan social messaging users.
 4. **Cultural Alignment**: Incorporates family members (`أحد الوالدين`, `أخ/أخت`) and trusted community figures (`شخص كبير تثق فيه`) as natural support pillars.
 
 ---

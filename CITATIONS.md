@@ -35,10 +35,11 @@ This document provides complete, transparent attribution for all third-party mod
 
 ### React Native & Expo
 * **Provider**: Meta Open Source & 650 Industries, Inc. (Expo)
-* **Purpose**: Cross-platform mobile application development targeting Android and iOS with native performance.
+* **Purpose**: Cross-platform mobile application development targeting Android APK distribution and universal web execution.
 * **Key Modules**:
-  * `expo`: Managed runtime and build tooling.
-  * `react-native`: Core mobile UI primitives.
+  * `expo` (SDK 51): Managed mobile runtime and native build tooling.
+  * `react-native`: Core mobile UI primitives and RTL layout engine.
+  * `eas-cli`: Expo Application Services build tooling for standalone Android APK compilation.
   * `@react-native-async-storage/async-storage`: Sandboxed, local on-device persistence for optional private chip history.
   * `expo-sharing` / React Native `Share`: Native operating system share sheet integration for WhatsApp, Messenger, and Telegram.
 * **License**: MIT License.
@@ -47,15 +48,19 @@ This document provides complete, transparent attribution for all third-party mod
 
 ## 3. Backend & Deployment Infrastructure
 
-### Next.js / Node.js
-* **Provider**: Vercel, Inc. & OpenJS Foundation
-* **Purpose**: Serverless API routes (`/api/check-risk`, `/api/generate-drafts`) providing a secure boundary between client devices and model provider keys.
-* **License**: MIT License.
+### FastAPI & Uvicorn
+* **Provider**: Sebastián Ramírez (tiangolo) & Encode OSS
+* **Purpose**: High-performance asynchronous REST API (`/api/check-risk`, `/api/generate-drafts`, `/api/faithfulness`) providing stateless drafting, PII redaction, and model orchestration without storing user inputs.
+* **Key Modules**:
+  * `fastapi` (>=0.115): ASGI web framework with strict Pydantic v2 data validation schemas.
+  * `uvicorn` (>=0.32): Lightning-fast ASGI server implementation.
+  * `httpx` (>=0.27): Asynchronous HTTP client for Gemini and Groq model inferences.
+* **License**: MIT License / BSD-3-Clause.
 
-### Vercel Serverless Platform
-* **Provider**: Vercel, Inc.
-* **Purpose**: Cloud hosting and edge deployment for backend API endpoints.
-* **Terms**: Free Hobby / Developer Tier.
+### EAS Build & GitHub Actions CI
+* **Provider**: Expo (650 Industries) & GitHub, Inc.
+* **Purpose**: Automated build pipelines and artifact packaging for standalone Android APK (`builds/jisr-v1.0.0.apk`) and automated release distribution.
+* **Terms**: Free Open-Source / Developer Tier.
 
 ---
 

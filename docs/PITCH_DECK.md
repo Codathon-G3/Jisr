@@ -91,13 +91,15 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
 
 * **Slide Title**: "Built for Libyan Reality"
 * **Visual Elements**:
+  * Standalone Downloadable Android APK badge & QR Code (`builds/jisr-v1.0.0.apk`).
   * Live Mobile App Screen / Video Demonstration:
     * Inputting Libyan dialect: *"مضغوط هلبا من الامتحانات ومش قادر نركز"*.
-    * Generating the 3 drafts in seconds.
-    * Tapping Share to WhatsApp.
-  * Stated Honest Limitations banner.
+    * Generating the 3 drafts in sub-second response time.
+    * Tapping Native Share Sheet to WhatsApp / Messenger.
+    * Seamless offline fallback demonstration (`safety/plain-templates.json`).
+  * Stated Honest Limitations banner (Non-clinical, human-in-the-loop).
 * **Speaker Script**:
-  > *"Jisr was built for Libyan reality: it understands Libyan dialect, operates with low bandwidth, respects family structures in its recipient options, and connects directly to WhatsApp and Messenger, which 90%+ of our young people use.  
+  > *"Jisr was built for Libyan reality: it is packaged as a lightweight, downloadable Android APK that works on ordinary smartphones, operates with zero bandwidth using deterministic fallback templates, understands authentic Libyan dialect, respects family structures in its recipient options, and connects directly to WhatsApp and Messenger, which 90%+ of our young people use.  
   > We are honest about our limits: Jisr is not a doctor, does not replace medical specialists, and never sends a message without user approval.  
   > By removing the friction of the first sentence, Jisr helps young Libyans turn silence into early, life-changing human conversations. Thank you, and we welcome your questions."*
 

@@ -5,7 +5,11 @@
 > **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima |
 >  **Submission Date**: October 7, 2026
 
-[![Status: In-Development](https://img.shields.io/badge/Status-Prototype%20Development-orange.svg)](#)
+[![Platform: Android APK](https://img.shields.io/badge/Download-Android_APK-brightgreen.svg)](builds/jisr-v1.0.0.apk)
+[![Framework: React Native / Expo](https://img.shields.io/badge/Framework-React_Native_/_Expo_SDK_51-blue.svg)](#)
+[![Backend: FastAPI](https://img.shields.io/badge/Backend-Python_FastAPI-009688.svg)](backend/)
+[![Safety: 450 Tests Passed](https://img.shields.io/badge/Safety_Tests-450_Passed-success.svg)](safety/)
+[![Presentation: Pitch Deck](https://img.shields.io/badge/Presentation-5--Slide_Pitch_Deck-purple.svg)](docs/PITCH_DECK.md)
 
 ---
 
@@ -65,60 +69,99 @@ User (Taps Chips / Writes 1-3 Lines)
 
 ```text
 Jisr/
+├── .github/workflows/         # Automated APK build & release CI pipeline (build-apk.yml)
+├── assets/                    # Mobile branding assets (icon, splash, adaptive-icon, favicon)
+├── backend/                   # Python FastAPI stateless drafting & safety API
+│   ├── app/                   # FastAPI routes (/check-risk, /generate-drafts, /faithfulness)
+│   ├── data/ / prompts/       # Prompts and safety datasets
+│   ├── tests/                 # Backend pytest test suite
+│   └── requirements.txt       # Python dependencies (fastapi, uvicorn, pydantic, httpx)
+├── builds/                    # Standalone compiled Android APK distribution
+│   ├── jisr-v1.0.0.apk        # Standalone Android APK file for direct sideloading
+│   └── README.md              # APK specifications, checksums & sideload guide
 ├── docs/                      # Complete team planning, architecture, and guides
 │   ├── team_plan/             # Detailed 4-person workstreams and contracts
-│   │   ├── 00_SHARED_SETUP.md # Tech choices & API schemas
-│   │   ├── 01_PERSON_1_FRONTEND.md
-│   │   ├── 02_PERSON_2_AI_BACKEND.md
-│   │   ├── 03_PERSON_3_SAFETY.md
-│   │   ├── 04_PERSON_4_DOCS_ARABIC.md
-│   │   ├── 05_INTEGRATION_AND_TESTING_PROTOCOL.md
-│   │   └── starter_data/      # Pre-built Arabic strings, templates & safety datasets
+│   ├── PITCH_DECK.md          # 5-minute presentation script and 5-slide plan
+│   ├── COMMITTEE_QA.md        # Technical defense & FAQ for committee
 │   └── codathon_submission_requirements.md
-├── src/ / app/                # Mobile application source code (In progress)
-├── api/                       # Stateless backend endpoints for AI drafting & safety
-├── safety/                    # Guardian Layer crisis phrases and evaluation benchmarks
-└── README.md
+├── safety/                    # Guardian Layer (Libyan dialect crisis lexicon & benchmarks)
+│   ├── crisis-phrases.json    # 375 curated Libyan dialect crisis expressions
+│   ├── forbidden-terms.json   # 194 diagnostic/clinical blocked terms
+│   ├── support-card.json      # Pre-written verified human support contacts
+│   ├── plain-templates.json   # Deterministic fallback templates (Libyan Arabic)
+│   ├── evaluate.mjs           # Automated benchmark evaluation harness (100% recall)
+│   └── selftest.mjs           # Guardian test harness (450 passing tests)
+├── src/                       # React Native / Expo mobile app source code
+│   ├── components/            # Trust & UI components (Baseline, Faithfulness, Outbound)
+│   ├── services/              # Crisis check, PII sanitizer & sandboxed AsyncStorage
+│   ├── types/                 # Shared TypeScript interfaces
+│   └── i18n/                  # Arabic (Libyan dialect) localization strings
+├── tests/                     # Integration and verification test scripts
+├── App.tsx                    # Master mobile application entry point & linear flow
+├── app.json                   # Expo configuration & Android APK package metadata
+├── eas.json                   # EAS Build profile for standalone Android APK generation
+├── CITATIONS.md               # Tool, model, and dataset attributions (Codathon §4)
+├── REPORT.md                  # Comprehensive Technical Report in Markdown
+└── README.md                  # Master project guide, architecture & setup
 ```
 
 ---
 
 ## 🚀 Setup & Execution Guide
 
-> ⚠️ *Note: The core components are currently being built and integrated by the four workstreams. Below is the preliminary execution structure.*
-
 ### Prerequisites
 * **Node.js** (v18 or later)
-* **Mobile Environment**: Expo Go installed on an Android/iOS device (or Android Studio emulator)
-* **API Key**: Google Gemini API key or Groq API key
+* **Python** (v3.10 or later)
+* **Mobile Environment**: Any Android device (direct APK install) OR Expo Go OR any web browser
 
-### 1. Backend API Setup
+---
+
+### 1. Direct Android APK Installation (Recommended for Quick Evaluation)
+Evaluators can immediately test the standalone app without installing development tools:
+1. Download `builds/jisr-v1.0.0.apk` directly from this repository or from [GitHub Releases](https://github.com/Ai4LY/Jisr/releases).
+2. Sideload onto any physical Android device (Android 7.0+) and open **Jisr**.
+
+---
+
+### 2. Running the Mobile App from Source (Expo / Web)
 ```bash
 # Clone the repository
 git clone git@github.com:Codathon-G3/Jisr.git
 cd Jisr
 
-# Install dependencies (once backend dependencies are committed)
+# Install dependencies
 npm install
 
-# Configure environment variables
-# Copy .env.example to .env.local and add your API keys:
-# GEMINI_API_KEY=your_key_here
+# Option A: Universal Web Preview (Instant browser testing)
+npm run web
 
-# Start the local backend API server
-npm run dev
-```
-
-### 2. Mobile App Setup
-```bash
-# Start the Expo development server
+# Option B: Run on Mobile Device via Expo Go
 npx expo start
-
-# Scan the QR code using the Expo Go app on your physical phone,
-# or press 'a' to open on Android Emulator.
+# Scan the displayed QR code with the Expo Go app on Android or iOS.
 ```
 
-*(Exact package scripts and live deployed URLs will be finalized upon Phase 3 integration freeze).*
+---
+
+### 3. Running the Backend API Server (FastAPI)
+```bash
+cd backend
+
+# Install Python requirements
+pip install -r requirements.txt
+
+# Start the FastAPI server (runs on http://localhost:8000)
+uvicorn app.main:app --reload --port 8000
+```
+> *Note: If the backend server is not running, Jisr automatically and seamlessly switches to its deterministic offline templates (`safety/plain-templates.json`), guaranteeing 100% uptime even under network drops.*
+
+---
+
+### 4. Running the Verification & Safety Test Suite
+```bash
+# Execute the full automated test suite (Safety unit tests + Crisis Recall + Trust components)
+npm test
+```
+*Expected Result: 450 safety tests passed (0 failed), 100.0% crisis recall on Libyan dialect benchmarks.*
 
 ---
 
