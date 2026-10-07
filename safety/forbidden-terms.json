@@ -1,6 +1,6 @@
 {
-  "version": "0.2",
-  "notes": "Clinical words blocked in AI drafts. Everyday words such as قلق/قلقان (worried) and ضغط (pressure) are deliberately NOT listed.",
+  "version": "0.3",
+  "notes": "Clinical words blocked in AI drafts. Deliberately NOT listed (differs from the plan's starter list): قلق (everyday 'worried', e.g. قلقان من الامتحانات), علاج (everyday 'solution', e.g. علاج للمشكلة), مضاد (generic 'anti-'; مضادات الاكتئاب is listed). Clinical forms such as قلق مرضي and علاج نفسي ARE listed.",
   "terms": [
     {
       "text": "اكتئاب",
@@ -188,6 +188,38 @@
     },
     {
       "text": "therapy",
+      "category": "treatment"
+    },
+    {
+      "text": "anxiety",
+      "category": "condition"
+    },
+    {
+      "text": "اضطراب",
+      "category": "condition"
+    },
+    {
+      "text": "disorder",
+      "category": "condition"
+    },
+    {
+      "text": "ذهان",
+      "category": "condition"
+    },
+    {
+      "text": "حبوب",
+      "category": "medication"
+    },
+    {
+      "text": "dosage",
+      "category": "medication"
+    },
+    {
+      "text": "treatment",
+      "category": "treatment"
+    },
+    {
+      "text": "therapist",
       "category": "treatment"
     }
   ]

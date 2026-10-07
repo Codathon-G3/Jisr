@@ -2,7 +2,7 @@
 // Run before every commit:  node safety/selftest.mjs
 // Exits with code 1 if anything fails, so it can also run in CI later.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { prepareCrisisList, checkCrisisPhrases } from './lib/crisis-check.mjs';
 import { prepareForbiddenTerms, checkDraft } from './lib/output-check.mjs';
 import { normalizeText } from './lib/normalize.mjs';
@@ -47,6 +47,12 @@ const blocked = ['يمكن عندي اكتئاب', 'حاسة إني مكتئبة
 allowed.forEach((t) => ok(checkDraft(t, terms).passed, `should pass output check: ${t}`));
 blocked.forEach((t) => ok(!checkDraft(t, terms).passed, `should fail output check: ${t}`));
 
+// 4b. Plan checklist: inject EVERY forbidden term into a normal draft -> all caught, as strings
+for (const term of forbiddenJson.terms) {
+  const r = checkDraft(`مرحبا، حبيت نقولك ${term.text} وشكراً`, terms);
+  ok(!r.passed && r.flaggedTerms.includes(term.text), `injected term not caught: ${term.text}`);
+}
+
 // 5. Every filled template is safe
 const tones = ['gentle', 'direct', 'formal'];
 const recipients = ['friend', 'sibling', 'parent', 'trusted_adult', 'counsellor'];
@@ -66,8 +72,21 @@ for (const c of card.contacts ?? []) {
   ok(c.verified === true && c.verifiedBy && c.verifiedOn, `contact not fully verified: ${c.name ?? JSON.stringify(c)}`);
 }
 
-// 7. Dev set labels are valid
-dev.forEach((d) => ok(['crisis', 'not_crisis'].includes(d.label) && d.text, `bad dev-set item #${d.id}`));
+// 7. Dev/test set labels are valid (crisis | not_crisis | ambiguous)
+const validLabel = (d) => ['crisis', 'not_crisis', 'ambiguous'].includes(d.label) && d.text;
+dev.forEach((d) => ok(validLabel(d), `bad dev-set item #${d.id}`));
+if (existsSync(new URL('./test-set.json', import.meta.url))) {
+  const test = load('test-set.json');
+  test.forEach((d) => ok(validLabel(d), `bad test-set item #${d.id}`));
+  const devTexts = new Set(dev.map((d) => normalizeText(d.text)));
+  test.forEach((d) => ok(!devTexts.has(normalizeText(d.text)), `test item #${d.id} duplicates a dev-set sentence`));
+}
+
+// 8. Stated limits text exists and names what the app is not
+if (existsSync(new URL('./stated-limits.json', import.meta.url))) {
+  const limits = load('stated-limits.json');
+  ok(limits.ar && limits.ar.includes('مش دكتور'), 'stated-limits.json missing Arabic text');
+} else { ok(false, 'safety/stated-limits.json is missing'); }
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
