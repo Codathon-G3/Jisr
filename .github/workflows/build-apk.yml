@@ -1,0 +1,161 @@
+name: Build & Package Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - feat/apk-mobile-sync
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
+      - feat/apk-mobile-sync
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Publish release asset on GitHub Releases'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Safety & Mobile Config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci || npm install --legacy-peer-deps
+
+      - name: Validate Configurations (app.json, eas.json, package.json, tsconfig.json, babel.config.js)
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8')); console.log('✓ package.json valid');"
+          node -e "JSON.parse(require('fs').readFileSync('app.json', 'utf8')); console.log('✓ app.json valid');"
+          node -e "JSON.parse(require('fs').readFileSync('eas.json', 'utf8')); console.log('✓ eas.json valid');"
+          node -e "JSON.parse(require('fs').readFileSync('tsconfig.json', 'utf8')); console.log('✓ tsconfig.json valid');"
+          node -e "require('./babel.config.js'); console.log('✓ babel.config.js valid');"
+
+      - name: Run Guardian Safety Selftest (450 unit tests)
+        run: node safety/selftest.mjs
+
+      - name: Run Guardian Crisis Benchmark Evaluation
+        run: node safety/evaluate.mjs safety/dev-set.json
+
+      - name: Run Trust & Localization Component Verification
+        run: node tests/verify-trust-components.mjs
+
+  build-apk:
+    name: Build Standalone Android APK
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Dependencies
+        run: |
+          npm ci || npm install --legacy-peer-deps
+
+      - name: Run Safety & Trust Tests
+        run: npm test
+
+      - name: Install EAS CLI & Expo CLI
+        run: |
+          npm install -g eas-cli @expo/cli
+
+      - name: Build Android Release APK
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          mkdir -p builds
+          echo "Starting genuine compilation of Android APK for package com.ai4ly.jisr..."
+
+          if [ -n "$EXPO_TOKEN" ]; then
+            echo "Building via EAS CLI (profile: preview)..."
+            eas build --platform android --profile preview --local --non-interactive --output builds/jisr-v1.0.0.apk
+          else
+            echo "Assembling standalone release APK via Expo prebuild and Gradle..."
+            npx expo prebuild --platform android --clean
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleRelease --no-daemon
+            cd ..
+            APK_FILE=$(find android/app/build/outputs/apk/ -name "*.apk" | head -n 1)
+            if [ -n "$APK_FILE" ]; then
+              cp "$APK_FILE" builds/jisr-v1.0.0.apk
+              echo "✓ Copied $APK_FILE to builds/jisr-v1.0.0.apk"
+            else
+              echo "Error: Gradle did not produce an APK artifact!"
+              exit 1
+            fi
+          fi
+
+      - name: Compute SHA-256 Checksum
+        run: |
+          if [ ! -f "builds/jisr-v1.0.0.apk" ]; then
+            echo "Error: Expected APK artifact at builds/jisr-v1.0.0.apk was not found!"
+            exit 1
+          fi
+          sha256sum builds/jisr-v1.0.0.apk > builds/jisr-v1.0.0.apk.sha256
+          echo "✓ SHA-256 Checksum generated:"
+          cat builds/jisr-v1.0.0.apk.sha256
+
+      - name: Upload APK Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jisr-v1.0.0-apk
+          path: |
+            builds/jisr-v1.0.0.apk
+            builds/jisr-v1.0.0.apk.sha256
+            builds/README.md
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish Release Asset to GitHub Releases
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            builds/jisr-v1.0.0.apk
+            builds/jisr-v1.0.0.apk.sha256
+          name: "Jisr Android Release ${{ github.ref_name }}"
+          body: |
+            ## Jisr (جِسر) Android Release
+            - **Package**: `com.ai4ly.jisr`
+            - **Target Platform**: Android 7.0+ (API Level 24+)
+            - **Build Profile**: Preview standalone APK
+            - **Architecture**: React Native 0.74 / Expo SDK 51
+            - **Privacy Guarantee**: Zero telemetry, on-device sandboxed storage, Guardian Crisis Interception.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

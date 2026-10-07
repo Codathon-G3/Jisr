@@ -67,7 +67,7 @@ The evaluation committee is composed of AI experts, medical/mental health lectur
 > *"Most global mental health apps fail in Libya for three reasons: language, stigma, and infrastructure.  
 > 1. **Language & Dialect**: Young Libyans express stress in Libyan Arabic (*'مضغوط'*, *'حاس روحي بنجنن'*) and Latin-transliterated text (*Arabizi*). Our models and keyword safety lists are specifically calibrated for Libyan dialect.  
 > 2. **Stigma & Family Values**: Mental health in Libya is viewed through family and community lenses. Jisr includes family and trusted adults as recipient choices, using neutral framing (*'ضغط'*, *'امتحانات'*) rather than stigmatizing clinical labels.  
-> 3. **Infrastructure**: Jisr works on ordinary phones, requires minimal bandwidth (short text payloads), features an airplane-mode fallback to pre-written templates, and integrates directly with WhatsApp and Messenger, which are ubiquitous in Libya."*
+> 3. **Infrastructure**: Jisr is distributed as a lightweight, standalone Android APK (`builds/jisr-v1.0.0.apk`) running on ordinary devices, requires minimal bandwidth (short text payloads), features an offline fallback to pre-written templates (`safety/plain-templates.json`), and integrates directly with WhatsApp and Messenger, which are ubiquitous in Libya."*
 
 ---
 
@@ -90,6 +90,6 @@ The evaluation committee is composed of AI experts, medical/mental health lectur
 #### Prepared Answer:
 > *"No private chat logs, social media posts, or vulnerable individuals were scraped—doing so would violate fundamental research ethics and GDPR principles.  
 > Our datasets fall into three distinct, non-personal typologies:  
-> 1. **Crisis Lexicon (375 phrases)**: Hand-curated from native Libyan colloquial idioms (*اللهجة الليبية البيضاء*) and cross-referenced with public clinical crisis guidelines from WHO and IOM.  
-> 2. **Clinical Blacklist (194 terms)**: Curated diagnostic and pharmacological terminology barred from generation.  
+> 1. **Crisis Lexicon (60 phrases, tested across 360+ spelling variants)**: Hand-curated from native Libyan colloquial idioms (*اللهجة الليبية البيضاء*) and cross-referenced with public clinical crisis guidelines from WHO and IOM.  
+> 2. **Clinical Blacklist (55 terms)**: Curated diagnostic and pharmacological terminology barred from generation.  
 > 3. **Evaluation Benchmark (25+ vectors)**: Ethically synthesized gold-standard test vectors representing safe everyday stress, acute crisis, and ambiguous colloquial hyperbole (*'أنا انتهيت بعد الامتحان'*) to objectively measure Recall and False-Alarm rates."*

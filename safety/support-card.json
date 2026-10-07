@@ -3,9 +3,12 @@
   "notes": "Static text, never generated. The UI shows ONLY items in 'contacts' with verified: true. Candidates being checked live in 'pending_contacts' and are never displayed.",
   "title_ar": "تحتاج تتكلم مع حد توا؟",
   "message_ar": "إذا تمر بوقت صعب هلبا أو تحس إنك في خطر، أنت مش بروحك. كلّم توا شخص تثق فيه: حد من عيلتك، صاحبك، أو أستاذ.",
+  "intro_ar": "إذا تمر بوقت صعب هلبا أو تحس إنك في خطر، أنت مش بروحك. كلّم توا شخص تثق فيه: حد من عيلتك، صاحبك، أو أستاذ.",
   "contacts": [],
   "fallbackMessage_ar": "لا نستطيع عرض رقم لم نتحقق منه. تحدث مع شخص تثق فيه الآن، وإذا كنت في خطر مباشر توجّه لأقرب قسم طوارئ.",
+  "fallback_statement_ar": "لا نستطيع عرض رقم لم نتحقق منه. تحدث مع شخص تثق فيه الآن، وإذا كنت في خطر مباشر توجّه لأقرب قسم طوارئ.",
   "continue_ar": "تقدر ترجع وتكمل كتابة رسالتك وقت ما تبي.",
+  "guidance_ar": "تقدر ترجع وتكمل كتابة رسالتك وقت ما تبي.",
   "pending_contacts": [
     {
       "name_ar": "الهلال الأحمر الليبي - الدعم النفسي والاجتماعي",

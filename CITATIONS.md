@@ -31,31 +31,53 @@ This document provides complete, transparent attribution for all third-party mod
 
 ---
 
-## 2. Mobile Client Frameworks & Libraries
+## 2. Mobile Client Frameworks & Build Tooling
 
 ### React Native & Expo
 * **Provider**: Meta Open Source & 650 Industries, Inc. (Expo)
-* **Purpose**: Cross-platform mobile application development targeting Android and iOS with native performance.
+* **Purpose**: Cross-platform mobile application development targeting standalone Android APK distribution and universal web execution.
+* **Citation**:
+  > Expo Team. (2024). *Expo: The React Native Framework*. https://expo.dev  
+  > Meta Open Source. (2024). *React Native: Learn once, write anywhere*. https://reactnative.dev
 * **Key Modules**:
-  * `expo`: Managed runtime and build tooling.
-  * `react-native`: Core mobile UI primitives.
+  * `expo` (SDK 51): Managed mobile runtime and native build tooling.
+  * `react-native`: Core mobile UI primitives and RTL layout engine.
   * `@react-native-async-storage/async-storage`: Sandboxed, local on-device persistence for optional private chip history.
   * `expo-sharing` / React Native `Share`: Native operating system share sheet integration for WhatsApp, Messenger, and Telegram.
 * **License**: MIT License.
+
+### EAS Build (Expo Application Services)
+* **Provider**: 650 Industries, Inc. (Expo)
+* **Purpose**: Cloud and local build infrastructure for compiling and packaging the standalone Android APK (`builds/jisr-v1.0.0.apk`) with optimized package metadata (`com.ai4ly.jisr`).
+* **Citation**:
+  > Expo Team. (2024). *EAS Build: Compile native apps in the cloud or locally*. https://docs.expo.dev/build/introduction/
+* **License / Terms**: Apache 2.0 / Expo Terms of Service.
 
 ---
 
 ## 3. Backend & Deployment Infrastructure
 
-### Next.js / Node.js
-* **Provider**: Vercel, Inc. & OpenJS Foundation
-* **Purpose**: Serverless API routes (`/api/check-risk`, `/api/generate-drafts`) providing a secure boundary between client devices and model provider keys.
+### FastAPI
+* **Provider**: Sebastián Ramírez (tiangolo)
+* **Purpose**: High-performance, modern asynchronous Python web framework providing stateless API endpoints (`/api/check-risk`, `/api/generate-drafts`, `/api/faithfulness`) with strict Pydantic schema validation.
+* **Citation**:
+  > Ramírez, S. (2018). *FastAPI: High performance, easy to learn, fast to code, ready for production*. https://fastapi.tiangolo.com
+* **Key Modules**:
+  * `fastapi` (>=0.115): ASGI web framework with strict Pydantic v2 data validation schemas.
+  * `httpx` (>=0.27): Asynchronous HTTP client for Gemini and Groq model inferences.
 * **License**: MIT License.
 
-### Vercel Serverless Platform
-* **Provider**: Vercel, Inc.
-* **Purpose**: Cloud hosting and edge deployment for backend API endpoints.
-* **Terms**: Free Hobby / Developer Tier.
+### Uvicorn
+* **Provider**: Encode OSS / Tom Christie
+* **Purpose**: Lightning-fast ASGI web server implementation hosting the FastAPI application.
+* **Citation**:
+  > Christie, T. et al. (2017). *Uvicorn: The lightning-fast ASGI server*. https://www.uvicorn.org
+* **License**: BSD-3-Clause License.
+
+### GitHub Actions CI
+* **Provider**: GitHub, Inc.
+* **Purpose**: Automated CI workflow (`.github/workflows/build-apk.yml`) for automated testing, Android APK compilation, and release asset generation.
+* **Terms**: Free Open-Source / Developer Tier.
 
 ---
 

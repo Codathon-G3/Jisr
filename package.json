@@ -1,21 +1,30 @@
 {
   "name": "jisr",
   "version": "1.0.0",
-  "description": "AI-assisted message drafting app that helps users reach out to trusted people for support through safe, private, and adaptive note generation.",
+  "description": "Jisr (جِسر) - Privacy-first AI writing companion & support drafting for Libyan youth",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json && node tests/verify-trust-components.mjs && node tests/verify-crisis-parity.mjs",
+    "test:safety": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json",
+    "test:trust": "node tests/verify-trust-components.mjs",
+    "test:parity": "node tests/verify-crisis-parity.mjs"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Codathon-G3/Jisr.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "ai4ly",
+    "codathon",
+    "mental-health",
+    "libya",
+    "support-drafting"
+  ],
+  "author": "Mohamed Thabet, Rayan, Muatz, Shima",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Codathon-G3/Jisr/issues"
   },
@@ -24,5 +33,8 @@
     "next": "^16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
   }
 }
