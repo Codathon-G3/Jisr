@@ -9,7 +9,6 @@
  * deterministic templates from safety/plain-templates.json with zero interruption.
  */
 
-import { Platform } from 'react-native';
 import {
   Chip,
   Recipient,
@@ -27,10 +26,12 @@ import { sanitizePii } from './piiSanitizer';
 import { checkLocalCrisis } from './crisisCheck';
 import plainTemplatesData from '../../safety/plain-templates.json';
 
-const DEFAULT_TIMEOUT_MS = 3000;
+const DEFAULT_TIMEOUT_MS = 60000;
+const PUBLIC_API_BASE = 'https://jisr-api.onrender.com';
 
 /**
- * Resolves the appropriate base API URL based on platform and environment.
+ * The live drafting service. A phone cannot use localhost.
+ * EXPO_PUBLIC_API_URL overrides this when a build sets it.
  */
 export function getApiBaseUrl(): string {
   if (
@@ -40,10 +41,7 @@ export function getApiBaseUrl(): string {
   ) {
     return (process.env as Record<string, string | undefined>)['EXPO_PUBLIC_API_URL']!;
   }
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:8000';
-  }
-  return 'http://localhost:8000';
+  return PUBLIC_API_BASE;
 }
 
 /**

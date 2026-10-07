@@ -7,6 +7,8 @@ import templates from "../../safety/plain-templates.json";
 import supportCard from "../../safety/support-card.json";
 
 const toneOrder = ["gentle", "direct", "formal"];
+const API_BASE = "https://jisr-api.onrender.com";
+const API_TIMEOUT_MS = 60000;
 
 export default function Home() {
   const [screen, setScreen] = useState("intro");
@@ -25,6 +27,9 @@ export default function Home() {
 
   const [selectedTone, setSelectedTone] = useState("");
   const [editableDraft, setEditableDraft] = useState("");
+  const [draftsByTone, setDraftsByTone] = useState({});
+  const [usedFallback, setUsedFallback] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const [copied, setCopied] = useState(false);
 
@@ -129,15 +134,89 @@ export default function Home() {
     return template.replaceAll("{topic}", topic).replaceAll("[topic]", topic);
   }
 
-  function chooseTone(tone) {
+  function chooseTone(tone, source) {
+    const map = source || draftsByTone;
     setSelectedTone(tone);
-    setEditableDraft(createFallbackDraft(tone));
+    setEditableDraft(map[tone] || "");
   }
 
-  function handleStartDrafting() {
+  async function postJson(path, body) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    try {
+      const response = await fetch(`${API_BASE}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        throw new Error(String(response.status));
+      }
+      return await response.json();
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  function applyDraftMap(map, fallback) {
+    setDraftsByTone(map);
+    setUsedFallback(fallback);
+    setSelectedTone("gentle");
+    setEditableDraft(map.gentle || "");
+  }
+
+  async function handleStartDrafting() {
+    if (busy) {
+      return;
+    }
+
     setShowTrigger(false);
-    chooseTone("gentle");
+    setBusy(true);
     setScreen("drafts");
+    setSelectedTone("");
+    setEditableDraft("");
+
+    try {
+      const risk = await postJson("/api/check-risk", {
+        text,
+        chips: selectedChips,
+        language: "ar",
+      });
+
+      if (risk?.riskDetected) {
+        setShowSupport(true);
+        setScreen("form");
+        return;
+      }
+
+      const data = await postJson("/api/generate-drafts", {
+        text,
+        chips: selectedChips,
+        recipient,
+        language: "ar",
+      });
+      const map = {};
+      for (const draft of data?.drafts || []) {
+        map[draft.tone] = draft.text;
+      }
+      if (!map.gentle || !map.direct || !map.formal) {
+        throw new Error("drafts");
+      }
+      applyDraftMap(map, Boolean(data.usedFallbackTemplate));
+    } catch (error) {
+      console.error("Draft request failed, using templates:", error);
+      applyDraftMap(
+        {
+          gentle: createFallbackDraft("gentle"),
+          direct: createFallbackDraft("direct"),
+          formal: createFallbackDraft("formal"),
+        },
+        true
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleCopy() {
@@ -374,9 +453,16 @@ export default function Home() {
               </div>
 
               <p className="hint">
-                اختار الأسلوب الأقرب ليك،
-                وبعدها تقدر تعدّل أي كلمة قبل المشاركة.
+                {busy
+                  ? "نجهّز ثلاث صياغات من كلامك. أول طلب بعد خمول السيرفر قد يأخذ نحو دقيقة."
+                  : "اختار الأسلوب الأقرب ليك، وبعدها تقدر تعدّل أي كلمة قبل المشاركة."}
               </p>
+
+              {usedFallback && !busy && (
+                <p className="hint">
+                  تعذّر وصول النموذج، فهذه قوالب جاهزة يمكنك تعديلها.
+                </p>
+              )}
 
               <div className="toneButtons">
                 {toneOrder.map((tone) => (
@@ -389,6 +475,7 @@ export default function Home() {
                         : "toneButton"
                     }
                     onClick={() => chooseTone(tone)}
+                    disabled={busy}
                   >
                     <strong>
                       {ar.tones?.[tone]?.label}

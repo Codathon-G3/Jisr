@@ -307,7 +307,7 @@ cd backend
 # With virtual environment activated:
 uvicorn app.main:app --reload --port 8000
 ```
-* **API Documentation**: Interactive OpenAPI Swagger documentation available at [http://localhost:8000/docs](http://localhost:8000/docs).
+* **Live API**: [https://jisr-api.onrender.com](https://jisr-api.onrender.com) — interactive docs at [/docs](https://jisr-api.onrender.com/docs). The web showcase and the phone client call this address. A local server on port 8000 is only for backend development.
 
 ---
 
