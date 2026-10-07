@@ -1,34 +1,40 @@
 {
   "name": "jisr",
   "version": "1.0.0",
-  "description": "Jisr (جِسر) - Privacy-first mental health writing companion for Libyan youth",
-  "main": "expo/AppEntry.js",
+  "description": "Jisr (جِسر) - Privacy-first AI writing companion & support drafting for Libyan youth",
+  "main": "index.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "test": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json && node tests/verify-trust-components.mjs && node tests/verify-crisis-parity.mjs",
     "test:safety": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json",
     "test:trust": "node tests/verify-trust-components.mjs",
-    "export": "expo export"
+    "test:parity": "node tests/verify-crisis-parity.mjs"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Codathon-G3/Jisr.git"
+  },
+  "keywords": [
+    "ai4ly",
+    "codathon",
+    "mental-health",
+    "libya",
+    "support-drafting"
+  ],
+  "author": "Mohamed Thabet, Rayan, Muatz, Shima",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Codathon-G3/Jisr/issues"
+  },
+  "homepage": "https://github.com/Codathon-G3/Jisr#readme",
   "dependencies": {
-    "@expo/metro-runtime": "~3.2.3",
-    "@react-native-async-storage/async-storage": "1.23.1",
-    "expo": "~51.0.38",
-    "expo-sharing": "~12.0.1",
-    "expo-status-bar": "~1.12.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-native": "0.74.5",
-    "react-native-web": "~0.19.10"
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@types/react": "~18.2.45",
-    "babel-preset-expo": "~11.0.15",
-    "typescript": "~5.3.3"
-  },
-  "private": true
+    "typescript": "^5.3.3"
+  }
 }

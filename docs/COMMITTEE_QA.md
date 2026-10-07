@@ -90,6 +90,6 @@ The evaluation committee is composed of AI experts, medical/mental health lectur
 #### Prepared Answer:
 > *"No private chat logs, social media posts, or vulnerable individuals were scraped—doing so would violate fundamental research ethics and GDPR principles.  
 > Our datasets fall into three distinct, non-personal typologies:  
-> 1. **Crisis Lexicon (375 phrases)**: Hand-curated from native Libyan colloquial idioms (*اللهجة الليبية البيضاء*) and cross-referenced with public clinical crisis guidelines from WHO and IOM.  
-> 2. **Clinical Blacklist (194 terms)**: Curated diagnostic and pharmacological terminology barred from generation.  
+> 1. **Crisis Lexicon (60 phrases, tested across 360+ spelling variants)**: Hand-curated from native Libyan colloquial idioms (*اللهجة الليبية البيضاء*) and cross-referenced with public clinical crisis guidelines from WHO and IOM.  
+> 2. **Clinical Blacklist (55 terms)**: Curated diagnostic and pharmacological terminology barred from generation.  
 > 3. **Evaluation Benchmark (25+ vectors)**: Ethically synthesized gold-standard test vectors representing safe everyday stress, acute crisis, and ambiguous colloquial hyperbole (*'أنا انتهيت بعد الامتحان'*) to objectively measure Recall and False-Alarm rates."*

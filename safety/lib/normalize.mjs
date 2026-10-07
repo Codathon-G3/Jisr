@@ -5,7 +5,7 @@
 export function normalizeText(input) {
   return String(input ?? '')
     .toLowerCase()
-    .replace(/[\u064B-\u065F\u0670\u0640]/g, '') // Arabic diacritics + tatweel
+    .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '') // Arabic marks + tatweel (same as Python)
     .replace(/[إأآٱ]/g, 'ا')                     // alef variants
     .replace(/ى/g, 'ي')                          // alef maqsura -> ya
     .replace(/ة/g, 'ه')                          // ta marbuta -> ha

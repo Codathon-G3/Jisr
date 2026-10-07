@@ -104,11 +104,11 @@ Jisr/
 │   ├── master_implementation_plan.md  # Comprehensive project implementation blueprint
 │   └── README.md                      # Documentation index
 ├── safety/                            # Guardian Layer datasets, crisis lexicon & evaluation
-│   ├── crisis-phrases.json            # 375 curated Libyan Arabic dialect crisis phrases
-│   ├── forbidden-terms.json           # 194 diagnostic/clinical terms blocked from generated drafts
+│   ├── crisis-phrases.json            # 60 curated Libyan Arabic dialect crisis phrases (tested across 360+ spelling variants)
+│   ├── forbidden-terms.json           # 55 diagnostic/clinical terms blocked from generated drafts
 │   ├── dev-set.json                   # 25-item gold-standard benchmark for recall evaluation
 │   ├── plain-templates.json           # Deterministic offline fallback & baseline templates
-│   ├── support-card.json              # Verified human emergency support contacts
+│   ├── support-card.json              # Static emergency support card with approved fallback message
 │   ├── contact-verification.md        # Audit verification of crisis helpline numbers
 │   ├── evidence.md                    # Guardian layer safety benchmarks and evidence chain
 │   ├── stated-limits.json             # Explicit system operational and ethical boundaries
