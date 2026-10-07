@@ -1,0 +1,1191 @@
+/* =========================================
+   JISR — BRAND TOKENS
+========================================= */
+
+:root {
+  --cream: #faf6ef;
+
+  --green: #2f6b4f;
+  --green-dark: #24533e;
+  --green-soft: #edf5f0;
+
+  --brown: #3e2b05;
+  --brown-soft: #f2e7d6;
+
+  --navy: #24365c;
+
+  --lavender: #6a58a6;
+  --lavender-soft: #f2effa;
+
+  --safety: #b0432a;
+  --safety-soft: #fff0ec;
+
+  --white: #ffffff;
+  --muted: #74786f;
+
+  --border: rgba(36, 54, 92, 0.13);
+
+  --shadow:
+    0 22px 65px rgba(62, 43, 5, 0.09);
+}
+
+/* =========================================
+   RESET
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  direction: rtl;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  font-family:
+    "IBM Plex Sans Arabic",
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  color: var(--navy);
+
+  background:
+    radial-gradient(
+      circle at 90% 5%,
+      rgba(106, 88, 166, 0.09),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 5% 90%,
+      rgba(47, 107, 79, 0.11),
+      transparent 30%
+    ),
+    var(--cream);
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================
+   PAGE
+========================================= */
+
+.page {
+  min-height: 100svh;
+
+  display: flex;
+  justify-content: center;
+
+  padding: 92px 16px 40px;
+}
+
+.page.introMode {
+  padding: 0;
+  display: block;
+  overflow: hidden;
+}
+
+/* =========================================
+   INTRO / SPLASH
+========================================= */
+
+.introScreen {
+  position: fixed;
+  inset: 0;
+
+  z-index: 100;
+
+  display: flex;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background: var(--cream);
+
+  animation: introAppear 0.65s ease-out;
+}
+
+.introScreen.introLeaving {
+  animation:
+    introLeave 0.65s
+    cubic-bezier(0.4, 0, 0.2, 1)
+    forwards;
+}
+
+.introArtwork {
+  width: min(100vw, 520px);
+  height: 100svh;
+
+  background-image:
+    url("/brand/jisr-intro-mobile.png");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  box-shadow:
+    0 0 70px rgba(36, 54, 92, 0.12);
+
+  animation:
+    introArtworkMove 4.4s ease-out forwards;
+}
+
+.introBottomShade {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(36, 54, 92, 0.13),
+      transparent 21%
+    );
+}
+
+.introStartButton {
+  position: absolute;
+
+  left: 50%;
+  bottom: 26px;
+
+  transform: translateX(-50%);
+
+  z-index: 105;
+
+  min-width: 148px;
+
+  padding: 14px 30px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--green);
+  color: white;
+
+  font-weight: 800;
+  font-size: 16px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 13px 32px
+    rgba(47, 107, 79, 0.28);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.introStartButton:hover {
+  transform:
+    translateX(-50%)
+    translateY(-2px);
+
+  background: var(--green-dark);
+
+  box-shadow:
+    0 17px 36px
+    rgba(47, 107, 79, 0.32);
+}
+
+/* =========================================
+   MAIN APP CARD
+========================================= */
+
+.appCard {
+  width: 100%;
+  max-width: 620px;
+
+  padding: 34px;
+
+  background:
+    rgba(255, 255, 255, 0.93);
+
+  border: 1px solid var(--border);
+
+  border-radius: 34px;
+
+  box-shadow: var(--shadow);
+
+  backdrop-filter: blur(12px);
+
+  animation:
+    appEnter 0.65s
+    cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.screenPanel {
+  animation: panelEnter 0.36s ease-out;
+}
+
+/* =========================================
+   BRAND
+========================================= */
+
+.brand {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.brand h1 {
+  margin: 12px 0 7px;
+
+  color: var(--navy);
+
+  font-family:
+    "Readex Pro",
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  font-size: 44px;
+  font-weight: 800;
+}
+
+.brand p {
+  margin: 0;
+
+  color: var(--green);
+
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+.miniBridgeMark {
+  width: 86px;
+  height: 50px;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--green),
+      var(--green-dark)
+    );
+
+  color: white;
+
+  font-weight: 800;
+
+  box-shadow:
+    0 10px 25px
+    rgba(47, 107, 79, 0.18);
+}
+
+/* =========================================
+   SECTIONS
+========================================= */
+
+.section {
+  margin-bottom: 31px;
+}
+
+.section h2,
+.section label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: var(--navy);
+
+  font-size: 18px;
+  font-weight: 800;
+
+  line-height: 1.7;
+}
+
+.hint {
+  margin: 0 0 15px;
+
+  color: var(--muted);
+
+  font-size: 14px;
+
+  line-height: 1.7;
+}
+
+/* =========================================
+   CHIPS / RECIPIENTS
+========================================= */
+
+.chips,
+.recipients {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+.chip,
+.recipient {
+  padding: 11px 17px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 999px;
+
+  background: white;
+  color: var(--navy);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.chip:hover,
+.recipient:hover {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(47, 107, 79, 0.45);
+
+  box-shadow:
+    0 7px 20px
+    rgba(47, 107, 79, 0.09);
+}
+
+.chip.selected,
+.recipient.selected {
+  background: var(--green);
+  color: white;
+
+  border-color: var(--green);
+
+  box-shadow:
+    0 9px 22px
+    rgba(47, 107, 79, 0.18);
+}
+
+/* =========================================
+   INPUT
+========================================= */
+
+textarea {
+  width: 100%;
+
+  padding: 16px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 21px;
+
+  outline: none;
+
+  resize: vertical;
+
+  direction: rtl;
+
+  background: white;
+  color: var(--navy);
+
+  line-height: 1.9;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+textarea:focus {
+  border-color: var(--green);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(47, 107, 79, 0.10);
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.continueButton,
+.primaryButton {
+  padding: 14px 20px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--green);
+  color: white;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 24px
+    rgba(47, 107, 79, 0.18);
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.continueButton {
+  width: 100%;
+}
+
+.continueButton:hover:not(:disabled),
+.primaryButton:hover {
+  background: var(--green-dark);
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 28px
+    rgba(47, 107, 79, 0.22);
+}
+
+.continueButton:disabled {
+  opacity: 0.36;
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+.secondaryButton,
+.backButton,
+.smallBackButton {
+  padding: 13px 18px;
+
+  border:
+    1px solid
+    rgba(62, 43, 5, 0.18);
+
+  border-radius: 999px;
+
+  background: white;
+  color: var(--brown);
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.secondaryButton:hover,
+.backButton:hover,
+.smallBackButton:hover {
+  background: var(--brown-soft);
+
+  transform: translateY(-1px);
+}
+
+.fullButton {
+  width: 100%;
+}
+
+/* =========================================
+   HUMAN SUPPORT ROUTE
+========================================= */
+
+.humanRouteButton {
+  position: fixed;
+
+  top: 17px;
+  left: 17px;
+
+  z-index: 250;
+
+  padding: 11px 16px;
+
+  border:
+    1px solid
+    rgba(176, 67, 42, 0.25);
+
+  border-radius: 999px;
+
+  background:
+    rgba(255, 240, 236, 0.94);
+
+  color: var(--safety);
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 22px
+    rgba(176, 67, 42, 0.10);
+
+  backdrop-filter: blur(8px);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.humanRouteButton:hover {
+  transform: translateY(-2px);
+}
+
+.introHumanRoute {
+  top: auto;
+  left: 50%;
+  bottom: 88px;
+
+  transform: translateX(-50%);
+
+  white-space: nowrap;
+
+  background:
+    rgba(250, 246, 239, 0.92);
+
+  box-shadow:
+    0 10px 28px
+    rgba(36, 54, 92, 0.12);
+}
+
+.introHumanRoute:hover {
+  transform:
+    translateX(-50%)
+    translateY(-2px);
+}
+
+/* =========================================
+   LIMITS
+========================================= */
+
+.limits {
+  margin-top: 21px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+
+  line-height: 1.9;
+
+  text-align: center;
+}
+
+/* =========================================
+   MODALS
+========================================= */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 400;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    rgba(36, 54, 92, 0.34);
+
+  backdrop-filter: blur(7px);
+
+  animation: overlayEnter 0.2s ease-out;
+}
+
+.modalCard {
+  position: relative;
+
+  width: 100%;
+  max-width: 460px;
+
+  max-height: 86vh;
+  overflow-y: auto;
+
+  padding: 30px;
+
+  background: var(--cream);
+
+  border:
+    1px solid
+    rgba(36, 54, 92, 0.10);
+
+  border-radius: 30px;
+
+  box-shadow:
+    0 25px 75px
+    rgba(36, 54, 92, 0.18);
+
+  animation:
+    modalEnter 0.28s
+    cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.modalCard p {
+  line-height: 1.9;
+}
+
+.modalClose {
+  position: absolute;
+
+  top: 14px;
+  left: 14px;
+
+  width: 35px;
+  height: 35px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background:
+    rgba(36, 54, 92, 0.06);
+
+  color: var(--navy);
+
+  font-size: 23px;
+
+  cursor: pointer;
+}
+
+.modalIcon {
+  width: 46px;
+  height: 46px;
+
+  margin-bottom: 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.greenIcon {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.safetyIcon {
+  background: var(--safety-soft);
+  color: var(--safety);
+}
+
+.triggerText {
+  margin-top: 8px;
+
+  color: var(--navy);
+
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.modalActions {
+  display: flex;
+
+  gap: 10px;
+
+  margin-top: 25px;
+}
+
+.modalActions button {
+  flex: 1;
+}
+
+/* =========================================
+   AI DRAFTS
+========================================= */
+
+.draftHeader {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 13px;
+
+  margin-bottom: 8px;
+}
+
+.smallBackButton {
+  flex: 0 0 auto;
+
+  padding: 9px 14px;
+}
+
+.draftHeader h2 {
+  margin: 7px 0 0;
+
+  color: var(--navy);
+
+  line-height: 1.7;
+}
+
+.aiBadge {
+  display: inline-block;
+
+  padding: 6px 11px;
+
+  border-radius: 999px;
+
+  background: var(--lavender-soft);
+  color: var(--lavender);
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.toneButtons {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 9px;
+
+  margin: 22px 0 28px;
+}
+
+.toneButton {
+  min-height: 94px;
+
+  padding: 13px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 7px;
+
+  border:
+    1px solid
+    rgba(106, 88, 166, 0.18);
+
+  border-radius: 20px;
+
+  background: white;
+  color: var(--navy);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.toneButton:hover {
+  transform: translateY(-2px);
+
+  border-color: var(--lavender);
+}
+
+.toneButton.selected {
+  background: var(--lavender-soft);
+  color: var(--lavender);
+
+  border-color: var(--lavender);
+
+  box-shadow:
+    0 9px 24px
+    rgba(106, 88, 166, 0.12);
+}
+
+.toneDescription {
+  font-size: 11px;
+
+  line-height: 1.6;
+
+  opacity: 0.8;
+}
+
+.editorSection {
+  margin-top: 18px;
+}
+
+.draftEditor {
+  min-height: 180px;
+}
+
+.disclosureBox {
+  margin-top: 15px;
+
+  padding: 16px;
+
+  border:
+    1px solid
+    rgba(106, 88, 166, 0.20);
+
+  border-radius: 19px;
+
+  background: var(--lavender-soft);
+  color: var(--lavender);
+}
+
+.disclosureBox p {
+  margin-bottom: 0;
+
+  font-size: 13px;
+
+  line-height: 1.8;
+}
+
+.draftActions {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 10px;
+
+  margin-top: 22px;
+}
+
+.successMessage {
+  margin-top: 14px;
+
+  color: var(--green);
+
+  text-align: center;
+
+  font-weight: 800;
+}
+
+/* =========================================
+   SAFETY
+========================================= */
+
+.supportModal {
+  border-top:
+    5px solid var(--safety);
+}
+
+.supportModal h2 {
+  margin-top: 0;
+
+  color: var(--safety);
+
+  line-height: 1.7;
+}
+
+.contactsList {
+  margin: 20px 0;
+}
+
+.contactCard {
+  margin-bottom: 10px;
+
+  padding: 16px;
+
+  border:
+    1px solid
+    rgba(176, 67, 42, 0.18);
+
+  border-radius: 18px;
+
+  background: var(--safety-soft);
+}
+
+.fallbackSupport {
+  margin: 20px 0;
+
+  padding: 17px;
+
+  border:
+    1px solid
+    rgba(176, 67, 42, 0.18);
+
+  border-radius: 18px;
+
+  background: var(--safety-soft);
+  color: #783323;
+}
+
+.supportGuidance {
+  color: var(--muted);
+}
+
+/* =========================================
+   READY / HANDOFF
+========================================= */
+
+.readyScreen {
+  padding: 35px 0;
+
+  text-align: center;
+}
+
+.readyIcon {
+  width: 72px;
+  height: 72px;
+
+  margin: 0 auto 19px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 26px;
+
+  background: var(--green);
+  color: white;
+
+  font-size: 34px;
+
+  box-shadow:
+    0 13px 30px
+    rgba(47, 107, 79, 0.18);
+}
+
+.readyBrand {
+  color: var(--navy);
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.readyScreen h2 {
+  color: var(--navy);
+
+  line-height: 1.8;
+}
+
+.readyScreen p {
+  color: var(--muted);
+
+  line-height: 1.9;
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes introAppear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes introArtworkMove {
+  from {
+    transform: scale(1.035);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes introLeave {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+}
+
+@keyframes appEnter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(9px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+@keyframes overlayEnter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px)
+      scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================
+   MOBILE-FIRST FINAL POLISH
+========================================= */
+
+@media (max-width: 600px) {
+  .page:not(.introMode) {
+    padding:
+      80px
+      10px
+      22px;
+  }
+
+  .introArtwork {
+    width: 100vw;
+    height: 100svh;
+
+    background-size: cover;
+    background-position: center;
+  }
+
+  .introStartButton {
+    bottom: 22px;
+  }
+
+  .introHumanRoute {
+    bottom: 82px;
+
+    font-size: 12px;
+  }
+
+  .appCard {
+    width: 100%;
+
+    padding:
+      24px
+      17px;
+
+    border-radius: 28px;
+  }
+
+  .brand {
+    margin-bottom: 31px;
+  }
+
+  .brand h1 {
+    font-size: 39px;
+  }
+
+  .section {
+    margin-bottom: 27px;
+  }
+
+  .humanRouteButton:not(
+      .introHumanRoute
+    ) {
+    top: 11px;
+    left: 11px;
+
+    max-width:
+      calc(100% - 22px);
+
+    font-size: 12px;
+  }
+
+  .toneButtons {
+    grid-template-columns: 1fr;
+  }
+
+  .toneButton {
+    min-height: auto;
+
+    text-align: right;
+  }
+
+  .draftActions {
+    grid-template-columns: 1fr;
+  }
+
+  .modalActions {
+    flex-direction: column;
+  }
+
+  .modalCard {
+    padding:
+      25px
+      19px;
+
+    border-radius: 25px;
+  }
+}
+
+/* =========================================
+   LARGER SCREENS
+========================================= */
+
+@media (min-width: 700px) {
+  .introArtwork {
+    border-radius: 0 0 32px 32px;
+  }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "jisr",
+  "version": "1.0.0",
+  "description": "AI-assisted message drafting app that helps users reach out to trusted people for support through safe, private, and adaptive note generation.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Codathon-G3/Jisr.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Codathon-G3/Jisr/issues"
+  },
+  "homepage": "https://github.com/Codathon-G3/Jisr#readme",
+  "dependencies": {
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}
