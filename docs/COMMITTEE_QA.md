@@ -68,3 +68,28 @@ The evaluation committee is composed of AI experts, medical/mental health lectur
 > 1. **Language & Dialect**: Young Libyans express stress in Libyan Arabic (*'مضغوط'*, *'حاس روحي بنجنن'*) and Latin-transliterated text (*Arabizi*). Our models and keyword safety lists are specifically calibrated for Libyan dialect.  
 > 2. **Stigma & Family Values**: Mental health in Libya is viewed through family and community lenses. Jisr includes family and trusted adults as recipient choices, using neutral framing (*'ضغط'*, *'امتحانات'*) rather than stigmatizing clinical labels.  
 > 3. **Infrastructure**: Jisr works on ordinary phones, requires minimal bandwidth (short text payloads), features an airplane-mode fallback to pre-written templates, and integrates directly with WhatsApp and Messenger, which are ubiquitous in Libya."*
+
+---
+
+### Q6: "Why didn't you train or fine-tune an Arabic LLM on local mental health datasets?"
+
+#### Core Defense Point:
+**Deterministic safety superiority, avoidance of catastrophic forgetting, and mobile edge constraints.**
+
+#### Prepared Answer:
+> *"In safety-critical emotional well-being, fine-tuning smaller open-source models on small datasets is actually an engineering anti-pattern. Fine-tuning introduces catastrophic forgetting and stochastic hallucinations—at temperature > 0, a fine-tuned model cannot guarantee it won't hallucinate dangerous advice.  
+> Instead, we adopted a **Hybrid Architecture**: we utilize high-parameter foundation models (Gemini 1.5 Flash / Groq Llama 3.3) solely for linguistic articulation and tone adaptation, and wrap them inside **deterministic, rule-based state machines** (the Guardian Layer) before and after generation. Safety must be enforceable by code, not left to probabilistic neural weights. Furthermore, running local models on mobile devices in Libya would cause thermal throttling, battery drain, and multi-gigabyte app downloads."*
+
+---
+
+### Q7: "Where did your crisis data come from, and did you scrape private conversations?"
+
+#### Core Defense Point:
+**Strict ethical data provenance, expert curation, and zero scraping of private individuals.**
+
+#### Prepared Answer:
+> *"No private chat logs, social media posts, or vulnerable individuals were scraped—doing so would violate fundamental research ethics and GDPR principles.  
+> Our datasets fall into three distinct, non-personal typologies:  
+> 1. **Crisis Lexicon (375 phrases)**: Hand-curated from native Libyan colloquial idioms (*اللهجة الليبية البيضاء*) and cross-referenced with public clinical crisis guidelines from WHO and IOM.  
+> 2. **Clinical Blacklist (194 terms)**: Curated diagnostic and pharmacological terminology barred from generation.  
+> 3. **Evaluation Benchmark (25+ vectors)**: Ethically synthesized gold-standard test vectors representing safe everyday stress, acute crisis, and ambiguous colloquial hyperbole (*'أنا انتهيت بعد الامتحان'*) to objectively measure Recall and False-Alarm rates."*
