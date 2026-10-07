@@ -1,5 +1,7 @@
 module.exports = function (api) {
-  const isMetro = api.caller((caller) => caller && caller.name === "metro");
+  const isMetro = api.caller((caller) =>
+    Boolean(caller && (caller.name === "metro" || caller.name === "metro-babel-transformer"))
+  );
   api.cache.using(() => (isMetro ? "metro" : "next"));
 
   if (isMetro) {
