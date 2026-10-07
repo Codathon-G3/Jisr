@@ -1,6 +1,11 @@
 module.exports = function(api) {
-  api.cache(true);
+  const isMetro = api.caller((caller) => Boolean(caller && (caller.name === 'metro' || caller.name === 'metro-babel-transformer')));
+  if (isMetro) {
+    return {
+      presets: ['babel-preset-expo'],
+    };
+  }
   return {
-    presets: ['babel-preset-expo'],
+    presets: ['next/babel'],
   };
 };
