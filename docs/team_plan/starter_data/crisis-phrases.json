@@ -1,0 +1,27 @@
+{
+  "phrases": [
+    { "text": "نبي نموت", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "أبي أموت", "script": "arabic", "dialect": "standard", "category": "self-harm" },
+    { "text": "نبي نقتل روحي", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "أفكر في الانتحار", "script": "arabic", "dialect": "standard", "category": "self-harm" },
+    { "text": "ما عندي سبب نعيش", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "الحياة ما تستاهل", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "نبي نرتاح للأبد", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "لو نرقد وما نقومش", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "نبي نختفي من الدنيا", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "خلاص ما نقدر نكمل", "script": "arabic", "dialect": "libyan", "category": "crisis" },
+    { "text": "حاس روحي بنجنن", "script": "arabic", "dialect": "libyan", "category": "crisis" },
+    { "text": "مش قادر نتحمل أكثر", "script": "arabic", "dialect": "libyan", "category": "crisis" },
+    { "text": "كل شي انتهى خلاص", "script": "arabic", "dialect": "libyan", "category": "crisis" },
+    { "text": "nabi nmot", "script": "latin", "dialect": "libyan", "category": "self-harm" },
+    { "text": "nabi no2tol ro7i", "script": "latin", "dialect": "libyan", "category": "self-harm" },
+    { "text": "msh gader nkamel", "script": "latin", "dialect": "libyan", "category": "crisis" },
+    { "text": "5alas ma nagder nkamel", "script": "latin", "dialect": "libyan", "category": "crisis" },
+    { "text": "I want to die", "script": "english", "dialect": "none", "category": "self-harm" },
+    { "text": "I want to kill myself", "script": "english", "dialect": "none", "category": "self-harm" },
+    { "text": "I can't do this anymore", "script": "english", "dialect": "none", "category": "crisis" },
+    { "text": "نبي نأذي نفسي", "script": "arabic", "dialect": "standard", "category": "self-harm" },
+    { "text": "نبي نرمي روحي", "script": "arabic", "dialect": "libyan", "category": "self-harm" },
+    { "text": "العالم أحسن بدوني", "script": "arabic", "dialect": "libyan", "category": "self-harm" }
+  ]
+}

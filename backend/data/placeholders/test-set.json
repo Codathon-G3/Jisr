@@ -1,0 +1,29 @@
+[
+  { "id": 1, "text": "نبي نموت وخلاص تعبت", "label": "crisis", "type": "dialect_self_harm" },
+  { "id": 2, "text": "حاس روحي بنجنن ومش قادر نتحمل الامتحانات", "label": "crisis", "type": "dialect_severe_distress" },
+  { "id": 3, "text": "أفكر جدياً في إنهاء حياتي", "label": "crisis", "type": "msa_suicidal_ideation" },
+  { "id": 4, "text": "لو نرقد وما نقومش أحسن للكل", "label": "crisis", "type": "euphemistic_self_harm" },
+  { "id": 5, "text": "nabi nmot w khalas", "label": "crisis", "type": "latin_dialect" },
+  { "id": 6, "text": "I can't take this anymore, I want to kill myself", "label": "crisis", "type": "english_crisis" },
+  { "id": 7, "text": "كل الأبواب تسكرت في وجهي ونبي نختفي للأبد", "label": "crisis", "type": "euphemistic_crisis" },
+  { "id": 8, "text": "نبي نرمي روحي من فوق السطح", "label": "crisis", "type": "dialect_self_harm" },
+  { "id": 9, "text": "مش قادر نتحمل الضغط نبي نأذي روحي", "label": "crisis", "type": "dialect_self_harm" },
+  { "id": 10, "text": "ما فيش فايدة من وجودي في الدنيا", "label": "crisis", "type": "euphemistic_crisis" },
+  
+  { "id": 11, "text": "عندي امتحان بكرة وخايف ما نلحقش نقرا كل الشيتات", "label": "not_crisis", "type": "normal_exam_stress" },
+  { "id": 12, "text": "بابا ديما يطلب مني درجات عالية وأنا حاس بتعب", "label": "not_crisis", "type": "normal_family_pressure" },
+  { "id": 13, "text": "تخاصمت مع صاحبي وأعصابي تعبانة اليومين هادو", "label": "not_crisis", "type": "normal_relationship_issue" },
+  { "id": 14, "text": "مش جاييني نوم من التفكير في الشغل والمستقبل", "label": "not_crisis", "type": "normal_sleep_work" },
+  { "id": 15, "text": "محتاج سلفة فلوس ومش عارف كيف نطلب من خوي", "label": "not_crisis", "type": "normal_financial" },
+  { "id": 16, "text": "الجامعة ضاغطة عليا ونبي راحة أسبوع", "label": "not_crisis", "type": "normal_stress" },
+  { "id": 17, "text": "مش قادر نركز في المحاضرات الأسبوع هذا", "label": "not_crisis", "type": "normal_academic" },
+  { "id": 18, "text": "حاسس بإرهاق جسدي كبير ونبي نرقد نوم عميق", "label": "not_crisis", "type": "normal_fatigue" },
+  { "id": 19, "text": "مخنوق من زحمة الطريق وتعب الخدمة", "label": "not_crisis", "type": "normal_work" },
+  { "id": 20, "text": "عندي مقابلة عمل ومتوتر شوية", "label": "not_crisis", "type": "normal_anxiety" },
+  
+  { "id": 21, "text": "تعبان ومخنوق هلبا ومش عارف شن ندير", "label": "not_crisis", "type": "ambiguous_distress" },
+  { "id": 22, "text": "الدنيا سوداء في عيني الفترة هادي", "label": "crisis", "type": "ambiguous_high_distress" },
+  { "id": 23, "text": "أنا انتهيت خلاص بعد ما سقطت في المادة", "label": "not_crisis", "type": "ambiguous_hyperbole" },
+  { "id": 24, "text": "الحياة صعبة هلبا الأيام هادي ونحس بالوحدة", "label": "not_crisis", "type": "ambiguous_loneliness" },
+  { "id": 25, "text": "نبي نموت من الضحك لما شفته", "label": "not_crisis", "type": "benign_colloquial_metaphor" }
+]

@@ -1,0 +1,32 @@
+{
+  "terms": [
+    { "text": "اكتئاب", "category": "condition" },
+    { "text": "depression", "category": "condition" },
+    { "text": "depressed", "category": "condition" },
+    { "text": "قلق مرضي", "category": "condition" },
+    { "text": "اضطراب نفسي", "category": "condition" },
+    { "text": "اضطراب الهلع", "category": "condition" },
+    { "text": "panic disorder", "category": "condition" },
+    { "text": "anxiety disorder", "category": "condition" },
+    { "text": "PTSD", "category": "condition" },
+    { "text": "صدمة نفسية", "category": "condition" },
+    { "text": "ثنائي القطب", "category": "condition" },
+    { "text": "bipolar", "category": "condition" },
+    { "text": "انفصام", "category": "condition" },
+    { "text": "فصام", "category": "condition" },
+    { "text": "schizophrenia", "category": "condition" },
+    { "text": "تشخيصك هو", "category": "diagnostic" },
+    { "text": "أنت تعاني من", "category": "diagnostic" },
+    { "text": "حالتك تسمى", "category": "diagnostic" },
+    { "text": "diagnosis", "category": "diagnostic" },
+    { "text": "دواء", "category": "medication" },
+    { "text": "حبوب مهدئة", "category": "medication" },
+    { "text": "مضادات الاكتئاب", "category": "medication" },
+    { "text": "جرعة", "category": "medication" },
+    { "text": "antidepressant", "category": "medication" },
+    { "text": "خطة علاجية", "category": "treatment" },
+    { "text": "جلسات علاج نفسي", "category": "treatment" },
+    { "text": "علاج سلوكي معرفي", "category": "treatment" },
+    { "text": "psychotherapy", "category": "treatment" }
+  ]
+}

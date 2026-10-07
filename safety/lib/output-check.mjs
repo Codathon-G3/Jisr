@@ -8,13 +8,16 @@ export function prepareForbiddenTerms(forbiddenJson) {
   return (forbiddenJson.terms ?? []).map((t) => ({ ...t, norm: normalizeText(t.text) }));
 }
 
-// Returns { passed, flaggedTerms: [{ text, category }] }
+// Matches the team spec: { passed, flaggedTerms: string[] }
+// flaggedDetails adds the category of each match, for logging and the evidence report.
 export function checkDraft(draft, preparedTerms) {
   const norm = ` ${normalizeText(draft)} `;
-  const flaggedTerms = preparedTerms
-    .filter((t) => t.norm && norm.includes(t.norm))
-    .map((t) => ({ text: t.text, category: t.category }));
-  return { passed: flaggedTerms.length === 0, flaggedTerms };
+  const hits = preparedTerms.filter((t) => t.norm && norm.includes(t.norm));
+  return {
+    passed: hits.length === 0,
+    flaggedTerms: hits.map((t) => t.text),
+    flaggedDetails: hits.map((t) => ({ text: t.text, category: t.category })),
+  };
 }
 
 // Convenience: check all three drafts at once.
