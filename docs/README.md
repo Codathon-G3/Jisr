@@ -8,10 +8,18 @@
 
 ```
 Jisr/
-├── README.md                      # [Root] Main project & architecture overview
+├── README.md                      # [Root] Main project & architecture overview (Submission Portal)
 ├── REPORT.md                      # [Root] Comprehensive Technical Report (Submission Deliverable 3)
 ├── CITATIONS.md                   # [Root] Tool, model & framework citations (Submission Requirement)
-└── docs/                          # Dedicated project documentation folder
+├── submission/                    # [Root] Official Codathon 2026 Submission Deliverables Package
+│   ├── README.md                  # Evaluator submission portal & fast-track pathways
+│   ├── SUBMISSION_CHECKLIST.md    # Official 1-to-1 compliance audit against Codathon requirements
+│   ├── PITCH_DECK.pptx            # 16:9 widescreen PowerPoint presentation deck
+│   ├── jisr-flow-demo.mp4         # Working prototype walkthrough video (1.19 MB)
+│   ├── Jisr_Full_Project_Overview.pdf # Formatted complete project dossier (319 KB)
+│   ├── PITCH_DECK.html & .md      # Interactive web deck & timed speaker script
+│   └── COMMITTEE_QA.md            # 7 prepared technical defense responses
+└── docs/                          # Dedicated project engineering documentation folder
     ├── README.md                  # This document (Documentation Table of Contents)
     ├── PITCH_DECK.md              # 5-Slide presentation script for Thursday's evaluation
     ├── COMMITTEE_QA.md            # Committee defense playbook & expected Q&A answers

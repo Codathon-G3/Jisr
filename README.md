@@ -7,28 +7,66 @@
 > **Active Branch**: `main`
 
 [![Live Web Showcase](https://img.shields.io/badge/Web%20Showcase-Next.js%2016-000000?logo=next.js&style=for-the-badge)](#showcase-1-web-showcase-nextjs-16--instant-browser-evaluation)
-[![Android APK](https://img.shields.io/badge/Android%20APK-Download%20v1.0.0-brightgreen?logo=android&style=for-the-badge)](https://github.com/Codathon-G3/Jisr/releases/download/v1.0.0/jisr-v1.0.0.apk)
-[![Expo Go](https://img.shields.io/badge/Expo%20Go-Mobile%20Preview-blue?logo=expo&style=for-the-badge)](#showcase-2-mobile-showcase-react-native--expo--android-apk)
+[![Android APK](https://img.shields.io/badge/Android%20APK-Download%20v1.0.0-brightgreen?logo=android&style=for-the-badge)](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)
+[![Pitch Deck](https://img.shields.io/badge/Presentation-16%3A9%20Pitch%20Deck-purple?style=for-the-badge)](submission/PITCH_DECK.pptx)
+[![Demo Video](https://img.shields.io/badge/Demo%20Video-Prototype%20Walkthrough-red?logo=youtube&style=for-the-badge)](submission/jisr-flow-demo.mp4)
+[![Project Overview](https://img.shields.io/badge/Project%20Overview-PDF%20Dossier-orange?logo=adobe-acrobat-reader&style=for-the-badge)](submission/Jisr_Full_Project_Overview.pdf)
 [![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Uvicorn-009688?logo=fastapi&style=for-the-badge)](backend/)
 [![Safety Tests](https://img.shields.io/badge/Safety%20Tests-450%2F450%20Pass%20(100%25%20Recall)-success?style=for-the-badge)](#automated-verification-suite-npm-test)
-[![Presentation: Pitch Deck](https://img.shields.io/badge/Presentation-16%3A9%20Pitch%20Deck-purple?style=for-the-badge)](docs/PITCH_DECK.pptx)
+[![Compliance](https://img.shields.io/badge/Ai4LY%202026-100%25%20Compliant-blue?style=for-the-badge)](submission/SUBMISSION_CHECKLIST.md)
 
 ---
 
-## Official Submission Deliverables & Requirements Matrix
+## Ai4LY National Codathon 2026 — Official Submission Portal
 
-This repository fulfills all required submission deliverables for the **Ai4LY National Codathon 2026** prior to the 11:50 PM deadline:
+This repository serves as the official submission for the **Ai4LY National Codathon 2026** (Libya Artificial Intelligence Forum), fulfilling all mandated deliverables prior to the October 7, 2026, 11:50 PM deadline:
+
+### Official Submission Deliverables Matrix
 
 | Codathon Deliverable | Specification Scope | In-Repository Artifact / Location | Evaluation Status |
 |---|---|---|:---:|
-| **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.74 / Expo SDK 51)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Gemini 1.5 Flash / Groq Llama 3.3) | **VERIFIED** |
-| **Demo Artifact: Android APK** | Standalone installable mobile prototype ready for instant sideloading | • **Standalone APK**: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63.1 MB, SHA-256 verified)<br>• **Verification & Install Guide**: [`builds/README.md`](builds/README.md) | **VERIFIED** |
-| **Scope B: Documentation** | Root architectural, operational, setup and usage guide | • **Master Guide**: [`README.md`](README.md) (This landing page)<br>• **Documentation Hub**: [`docs/README.md`](docs/README.md) | **VERIFIED** |
+| **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.74 / Expo SDK 51)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Gemini 1.5 Flash / Groq Llama 3.3)<br>• **Live Cloud Backend API**: [`https://jisr-api.onrender.com`](https://jisr-api.onrender.com) (Interactive docs: [/docs](https://jisr-api.onrender.com/docs)) | **VERIFIED** |
+| **Demo Artifact: Android APK** | Standalone installable mobile prototype ready for instant sideloading | • **Standalone APK**: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63.1 MB, SHA-256 verified)<br>• **Direct Raw Download**: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)<br>• **Verification & Install Guide**: [`builds/README.md`](builds/README.md) | **VERIFIED** |
+| **Scope B: Documentation** | Root architectural, operational, setup and usage guide | • **Master Guide**: [`README.md`](README.md) (This landing page)<br>• **Submission Hub**: [`submission/README.md`](submission/README.md)<br>• **Documentation Hub**: [`docs/README.md`](docs/README.md) | **VERIFIED** |
 | **Scope C: Technical Report** | In-depth Markdown report detailing problem alignment, architecture, citations & evaluation | • **Technical Report**: [`REPORT.md`](REPORT.md) (35 KB comprehensive report with Wilson 95% CIs and 12-hour progress log) | **VERIFIED** |
-| **Scope D: Presentation** | 5-minute presentation file / pitch deck with problem, solution & impact | • **PowerPoint Deck**: [`docs/PITCH_DECK.pptx`](docs/PITCH_DECK.pptx) (16:9 widescreen with Arabic RTL)<br>• **Interactive HTML Deck**: [`docs/PITCH_DECK.html`](docs/PITCH_DECK.html)<br>• **Speaker Script**: [`docs/PITCH_DECK.md`](docs/PITCH_DECK.md)<br>• **Committee Defense**: [`docs/COMMITTEE_QA.md`](docs/COMMITTEE_QA.md) | **VERIFIED** |
-| **Section 4: Tool Citations** | Explicit disclosure and academic attribution of all models, APIs, and libraries | • **Attribution Register**: [`CITATIONS.md`](CITATIONS.md) (Gemini, Llama 3.3, Expo, FastAPI, Uvicorn) | **VERIFIED** |
+| **Scope D: Presentation & Deck** | 5-minute presentation file / pitch deck with problem, solution & impact | • **PowerPoint Deck**: [`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx) & [`docs/PITCH_DECK.pptx`](docs/PITCH_DECK.pptx) (16:9 widescreen, Arabic RTL)<br>• **Interactive HTML Deck**: [`submission/PITCH_DECK.html`](submission/PITCH_DECK.html)<br>• **Speaker Script**: [`submission/PITCH_DECK.md`](submission/PITCH_DECK.md)<br>• **Full Project Overview PDF**: [`submission/Jisr_Full_Project_Overview.pdf`](submission/Jisr_Full_Project_Overview.pdf)<br>• **Committee Defense Playbook**: [`submission/COMMITTEE_QA.md`](submission/COMMITTEE_QA.md) | **VERIFIED** |
+| **Scope D: Demo Video** | Demonstration video demonstrating working prototype and AI flows in real time | • **Prototype Walkthrough Video**: [`submission/jisr-flow-demo.mp4`](submission/jisr-flow-demo.mp4) (1.19 MB recording of full mobile & Guardian flow) | **VERIFIED** |
+| **Section 4: Tool Citations** | Explicit disclosure and academic attribution of all models, APIs, and libraries | • **Attribution Register**: [`CITATIONS.md`](CITATIONS.md) (Gemini 1.5 Flash, Groq Llama 3.3, Expo, FastAPI, Uvicorn) | **VERIFIED** |
+| **Official Audit Checklist** | Item-by-item verification against official Codathon requirements | • **Compliance Audit**: [`submission/SUBMISSION_CHECKLIST.md`](submission/SUBMISSION_CHECKLIST.md) (100% compliant across all scopes) | **VERIFIED** |
 | **Safety & Empirical Quality** | Measured recall benchmarks, unit tests & cross-engine parity | • **Master Test Command**: `npm test` (**450 passed, 0 failed**)<br>• **Crisis Recall**: **100.0%** (10/10 caught, 95% CI 72.2%–100.0%)<br>• **Crisis Check Parity**: **756 checks passed** | **VERIFIED** |
-| **Administrative Attribution** | Designated Team Lead and contestant emails | • **Team Leader**: Mohamed Thabet (`abdwadood2000@gmail.com`)<br>• **Team Members**: Rayan, Muatz, Shima | **VERIFIED** |
+| **Administrative Attribution** | Designated Team Lead and contestant emails | • **Team Leader**: Mohamed Thabet (`abdwadood2000@gmail.com`)<br>• **Team Members**: Rayan (Mobile), Muatz (Backend), Shima (Safety) | **VERIFIED** |
+
+---
+
+### Jury Fast-Track Evaluation Pathways (60-Second Quickstart)
+
+Evaluators can choose their preferred evaluation method:
+
+1. **Pathway 1: Instant Browser Evaluation (Zero Install)**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to interact with the full Arabic RTL interface, stress chips, Guardian crisis screening, 3 tone drafts, and trust inspect views.
+
+2. **Pathway 2: Physical Android Device Sideload (Mobile Binary)**
+   * Transfer [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (or download [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)) to an Android phone (API 23+ / Android 6.0+).
+   * Install and launch `com.ai4ly.jisr` to experience native on-device share sheet export to WhatsApp / Messenger.
+
+3. **Pathway 3: Automated Verification Harness (Single Command)**
+   ```bash
+   npm test
+   ```
+   Executes 450 unit tests, 100.0% crisis recall benchmark validation, and 756 cross-engine parity checks in under 5 seconds.
+
+4. **Pathway 4: Presentation & Video Walkthrough**
+   * Download and view the 5-slide deck: [`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx)
+   * Watch the working prototype demo: [`submission/jisr-flow-demo.mp4`](submission/jisr-flow-demo.mp4)
+   * Read the comprehensive dossier: [`submission/Jisr_Full_Project_Overview.pdf`](submission/Jisr_Full_Project_Overview.pdf)
+
+5. **Pathway 5: Live Cloud Microservice & Interactive Swagger Docs**
+   * Live backend URL: [https://jisr-api.onrender.com](https://jisr-api.onrender.com)
+   * Interactive API documentation: [https://jisr-api.onrender.com/docs](https://jisr-api.onrender.com/docs)
+
 
 ---
 
@@ -155,15 +193,20 @@ Jisr/
 │   ├── safety/dev-set.json            # 25-item gold-standard benchmark for recall evaluation
 │   └── safety/lib/                    # Text normalization and zero-latency matching algorithms
 │
-├── 4. DISTRIBUTION & COMPETITION ARTIFACTS
+├── 4. OFFICIAL SUBMISSION & COMPETITION ARTIFACTS
+│   ├── submission/                    # Consolidated competition deliverables package
+│   │   ├── README.md                  # Evaluator submission portal & fast-track pathways
+│   │   ├── SUBMISSION_CHECKLIST.md    # Official 1-to-1 compliance audit against Codathon requirements
+│   │   ├── PITCH_DECK.pptx            # Standalone 16:9 widescreen PowerPoint presentation deck
+│   │   ├── jisr-flow-demo.mp4         # Working prototype walkthrough video (1.19 MB)
+│   │   ├── Jisr_Full_Project_Overview.pdf # Comprehensive formatted project overview dossier (319 KB)
+│   │   ├── PITCH_DECK.html & .md      # Interactive web deck & 5-minute timed speaker script
+│   │   └── COMMITTEE_QA.md            # 7 prepared technical defense responses for evaluation jury
 │   ├── builds/jisr-v1.0.0.apk         # Sideloadable standalone Android APK (63.1 MB, SHA-256 verified)
 │   ├── builds/README.md               # APK package specs, architecture, signing & sideloading guide
-│   ├── docs/PITCH_DECK.pptx           # Standalone 16:9 widescreen PowerPoint presentation deck
-│   ├── docs/PITCH_DECK.md & .html     # 5-minute timed presentation script & interactive visual deck
-│   ├── docs/COMMITTEE_QA.md           # 7 prepared technical defense responses for evaluation jury
-│   ├── docs/scripts/                  # Pitch deck programmatic generation tools
-│   ├── REPORT.md                      # Comprehensive 35 KB Markdown Technical Report
-│   └── CITATIONS.md                   # Complete third-party tools, models & frameworks citations
+│   ├── REPORT.md                      # Comprehensive 35 KB Markdown Technical Report (Scope C)
+│   ├── CITATIONS.md                   # Complete third-party tools, models & frameworks citations (§4)
+│   └── docs/                          # Extended engineering documentation, team plan & pitch scripts
 │
 └── 5. QA & AUTOMATED VERIFICATION SUITE
     ├── safety/selftest.mjs            # Deterministic Guardian unit test runner (450 passing tests)
