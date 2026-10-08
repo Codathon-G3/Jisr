@@ -179,6 +179,20 @@ export default function Home() {
     }, 650);
   }
 
+  // Live on-device Guardian check with 700ms debounce. Opens the crisis card
+  // (with "continue to my note"), unless the user already chose to continue
+  // with this exact text.
+  useEffect(() => {
+    if (!text || text.trim().length === 0) return;
+    const timer = window.setTimeout(() => {
+      const risk = checkLocalCrisis(text);
+      if (risk?.riskDetected && acknowledgedText !== text) {
+        openSupport(true);
+      }
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [text, acknowledgedText]);
+
   const selectedTopic = useMemo(() => {
     return selectedChips
       .map((id) => ar.chips?.[id])
@@ -450,7 +464,7 @@ export default function Home() {
             <div className="screenPanel">
               <div className="brand">
                 <div className="miniBridgeMark">
-                  <span>جسر</span>
+                  <img src="/brand/jisr-logo.png" alt="جسر" />
                 </div>
 
                 <h1>{ar.app_name}</h1>
@@ -706,13 +720,13 @@ export default function Home() {
 
           {screen === "ready" && (
             <div className="screenPanel readyScreen">
-              <div className="readyIcon">
-                
+              <div className="miniBridgeMark" style={{ marginBottom: "16px" }}>
+                <img src="/brand/jisr-logo.png" alt="جسر" style={{ maxWidth: "140px" }} />
               </div>
 
-              <span className="readyBrand">
-                جسر
-              </span>
+              <div className="readyIcon">
+                ✓
+              </div>
 
               <h2>
                 {ar.handoff?.ready_message}

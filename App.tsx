@@ -76,6 +76,7 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 
 // Rayan's intro artwork (shared with the Next.js web showcase)
 const INTRO_IMAGE = require('./public/brand/jisr-intro-mobile.png');
+const LOGO_IMAGE = require('./public/brand/jisr-logo.png');
 const INTRO_IMAGE_SIZE = { width: 941, height: 1672, cornerRadius: 20 };
 const INTRO_AUTO_ENTER_MS = 4200;
 const INTRO_FADE_MS = 650;
@@ -536,6 +537,14 @@ export default function App() {
 
       {/* ================= PERSISTENT HUMAN ROUTE ("تكلم مع حد توا") ================= */}
       <View style={styles.topBar}>
+        {activeScreen !== 'capture' ? (
+          <Image
+            source={LOGO_IMAGE}
+            style={styles.topBarLogo}
+            resizeMode="contain"
+            accessibilityLabel={ar.app_name}
+          />
+        ) : null}
         <View style={styles.topBarSpacer} />
         <TouchableOpacity
           style={styles.humanRouteButton}
@@ -770,10 +779,15 @@ export default function App() {
             {activeScreen === 'encouraged_out' && (
               /* ================= SCREEN 3: HANDOFF / READY ================= */
               <View style={styles.readyScreen}>
+                <Image
+                  source={LOGO_IMAGE}
+                  style={styles.readyLogo}
+                  resizeMode="contain"
+                  accessibilityLabel={ar.app_name}
+                />
                 <View style={styles.readyIcon}>
                   <Text style={styles.readyIconText}>✓</Text>
                 </View>
-                <Text style={styles.readyBrand}>{ar.app_name}</Text>
                 <Text style={styles.readyTitle}>{ar.handoff.ready_message}</Text>
                 <Text style={styles.readyText}>
                   تذكر ديماً: مجرد كسر حاجز الصمت والحديث مع شخص تثق فيه هو البداية الحقيقية للشعور بالراحة.
@@ -869,6 +883,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 10,
     paddingBottom: 8,
+  },
+  topBarLogo: {
+    width: 75,
+    height: 23,
+    marginHorizontal: 4,
   },
   topBarSpacer: {
     flex: 1,
@@ -1110,6 +1129,11 @@ const styles = StyleSheet.create({
   readyScreen: {
     alignItems: 'center',
     paddingVertical: 35,
+  },
+  readyLogo: {
+    width: 150,
+    height: 46,
+    marginBottom: 16,
   },
   readyIcon: {
     width: 72,

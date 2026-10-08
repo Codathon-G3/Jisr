@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   I18nManager,
   Switch,
+  Image,
 } from 'react-native';
 import { Chip, Recipient } from '../types';
 import { colors } from '../theme';
@@ -17,6 +18,8 @@ import statedLimits from '../../safety/stated-limits.json';
 import { OutboundPreview } from '../components/OutboundPreview';
 import { sanitizePii } from '../services/piiSanitizer';
 import { RETENTION_OPTIONS, RetentionDays } from '../services/historyLogic';
+
+const LOGO_IMAGE = require('../../public/brand/jisr-logo.png');
 
 export interface CaptureScreenProps {
   selectedChips: Chip[];
@@ -85,7 +88,12 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
       {/* Brand */}
       <View style={styles.brand}>
         <View style={styles.miniBridgeMark}>
-          <Text style={styles.miniBridgeMarkText}>جسر</Text>
+          <Image
+            source={LOGO_IMAGE}
+            style={styles.logoImage}
+            resizeMode="contain"
+            accessibilityLabel={ar.app_name}
+          />
         </View>
         <Text style={styles.brandTitle}>{ar.app_name}</Text>
         <Text style={styles.brandTagline}>{ar.tagline}</Text>
@@ -280,22 +288,13 @@ const styles = StyleSheet.create({
     marginBottom: 31,
   },
   miniBridgeMark: {
-    width: 86,
-    height: 50,
-    borderRadius: 18,
-    backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 3,
+    marginBottom: 8,
   },
-  miniBridgeMarkText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '800',
+  logoImage: {
+    width: 170,
+    height: 52,
   },
   brandTitle: {
     marginTop: 12,

@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "notes": "Identifier removal lists shared by src/services/piiSanitizer.ts (phone) and backend/app/services/identifier_removal.py (server). Both apply the same rules in the same order: email, phone (7+ digits, Latin or Arabic-Indic), @handle, the word after a name marker (اسمي X / my name is X), then the names below. Family words (بابا, أمي, خوي...) are NOT identifiers and are kept, because the drafts need them. Names that are also everyday words are left out on purpose (علي = 'on me', نور, أمل, حسن, سعيد, منى, إيمان, هبة, ملك...). The outbound preview lets the user catch anything this list misses.",
-  "name_markers_ar": ["اسمي", "إسمي"],
+  "name_markers_ar": ["اسمي هو", "إسمي هو", "اسمي", "إسمي"],
   "name_markers_latin": ["my name is", "ismi", "esmi", "ismy", "esmy"],
   "names_ar": [
     "محمد", "أحمد", "احمد", "محمود", "مصطفى", "عمر", "عمرو", "عثمان", "خالد", "يوسف",

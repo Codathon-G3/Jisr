@@ -285,7 +285,8 @@ Evaluators can install and run the standalone, pre-compiled Android binary witho
 
 1. **Locate APK**:
    * Release download: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/releases/download/v1.0.0/jisr-v1.0.0.apk)
-   * File path: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63,074,501 bytes / 63.1 MB)
+   * Direct GitHub raw download: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)
+   * Local file path: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63,074,501 bytes / 63.1 MB)
    * SHA-256 Checksum: `e2da042e2b8a85da55517fc1ea9552c879e3950b1df7bb152c3c66a0628dbe5b`
 2. **Verify Integrity**:
    ```powershell

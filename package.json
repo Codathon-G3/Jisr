@@ -7,6 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "mobile": "expo start",
+    "mobile:android": "expo start --android",
+    "mobile:web": "expo start --web",
     "test": "npm run test:safety && npm run test:app",
     "test:safety": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json",
     "test:app": "node tests/verify-trust-components.mjs && node tests/verify-crisis-parity.mjs && node tests/test-pii-sanitizer.mjs && node tests/test-api-client.mjs && node tests/test-private-record.mjs && node tests/test-offline-fallback.mjs && node tests/verify-m2-integration.mjs && node tests/verify-honest-ui.mjs",
@@ -33,12 +36,13 @@
   },
   "homepage": "https://github.com/Codathon-G3/Jisr#readme",
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^3.1.1",
-    "expo": "^57.0.27",
-    "expo-status-bar": "^57.0.1",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "expo": "~51.0.38",
+    "expo-status-bar": "~1.12.1",
     "next": "^16.4.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "react-native": "0.74.5"
   },
   "devDependencies": {
     "@types/node": "26.6.4",

@@ -12,6 +12,11 @@
       "removed": [{ "original": "أحمد", "placeholder": "[name]" }]
     },
     {
+      "text": "اسمي هو جُمانة ومحتاجة مساعدة",
+      "sanitised": "اسمي هو [name] ومحتاجة مساعدة",
+      "removed": [{ "original": "جُمانة", "placeholder": "[name]" }]
+    },
+    {
       "text": "اسمي جُمانة وعندي امتحان",
       "sanitised": "اسمي [name] وعندي امتحان",
       "removed": [{ "original": "جُمانة", "placeholder": "[name]" }]
