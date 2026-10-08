@@ -33,16 +33,24 @@
   },
   "homepage": "https://github.com/Codathon-G3/Jisr#readme",
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^3.1.1",
+    "@expo-google-fonts/ibm-plex-sans-arabic": "^0.4.2",
+    "@expo-google-fonts/readex-pro": "^0.4.1",
+    "@expo/metro-runtime": "~57.0.16",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "^57.0.27",
+    "expo-font": "~57.0.4",
     "expo-status-bar": "^57.0.1",
     "next": "^16.4.0",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-svg": "15.15.4",
+    "react-native-web": "^0.21.2"
   },
   "devDependencies": {
     "@types/node": "26.6.4",
-    "@types/react": "19.3.0",
-    "typescript": "^5.3.3"
+    "@types/react": "~19.2.4",
+    "typescript": "~6.0.3"
   }
 }

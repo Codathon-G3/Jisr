@@ -7,12 +7,13 @@ import {
   StyleSheet,
   Linking,
   ScrollView,
-  I18nManager,
 } from 'react-native';
 import supportCardData from '../../safety/support-card.json';
 import ar from '../i18n/ar.json';
 import { SupportContact } from '../types';
-import { colors } from '../theme';
+import { fonts, radius, shadow, space, type } from '../theme/tokens';
+import { backdrop, button, c, rowRtl } from '../theme/ui';
+import { JisrIcon } from './JisrIcon';
 
 export interface SupportCardModalProps {
   visible: boolean;
@@ -63,25 +64,26 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalCard}>
-          {/* Header & Emergency Badge */}
-          <View style={styles.headerRow}>
-            <View style={styles.alertBadge}>
-              <Text style={styles.alertBadgeText}>
-                {isCrisis ? 'تنبيه أمان' : 'دعم إنساني'}
-              </Text>
-            </View>
-            <Text style={styles.title}>{supportCardData.title_ar}</Text>
-          </View>
-
           <ScrollView
             style={styles.scrollArea}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-            {/* Compassionate Message */}
-            <Text style={styles.messageText}>
-              {supportCardData.message_ar}
-            </Text>
+            {/* Safety banner: alert icon, heading in urgent, compassionate message */}
+            <View style={styles.banner} accessibilityRole="alert">
+              <View style={styles.bannerHeader}>
+                <JisrIcon name="alert" size={28} color={c.urgent} />
+                <View style={styles.bannerHeading}>
+                  <Text style={styles.badgeText}>
+                    {isCrisis ? 'تنبيه أمان' : 'دعم إنساني'}
+                  </Text>
+                  <Text style={styles.title}>{supportCardData.title_ar}</Text>
+                </View>
+              </View>
+              <Text style={styles.messageText}>
+                {supportCardData.message_ar}
+              </Text>
+            </View>
 
             {/* Verified Contacts List (if any are verified) */}
             {verifiedContacts.length > 0 ? (
@@ -101,11 +103,12 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
                       )}
                     </View>
                     <TouchableOpacity
-                      style={styles.callButton}
+                      style={[button.base, button.urgent]}
                       onPress={() => handleCall(contact.number)}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.callButtonText}>اتصال الآن</Text>
+                      <JisrIcon name="phone" size={20} color={c.onUrgent} />
+                      <Text style={[button.label, button.labelUrgent]}>اتصال الآن</Text>
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -114,7 +117,7 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
               /* Static Unaltered Fallback Box when no 24/7 hotline is verified */
               <View style={styles.fallbackBox}>
                 <View style={styles.fallbackIconRow}>
-                  
+                  <JisrIcon name="phone" size={20} color={c.urgent} />
                   <Text style={styles.fallbackTitle}>إشعار مهم للسلامة</Text>
                 </View>
                 <Text style={styles.fallbackText}>
@@ -134,26 +137,24 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
           {/* Continue to the note after a risk detection (R10) */}
           {isCrisis && onContinue && (
             <TouchableOpacity
-              style={[styles.actionButton, styles.normalButton, styles.continueButton]}
+              style={[button.base, button.primary, styles.continueButton]}
               onPress={onContinue}
               activeOpacity={0.85}
               accessibilityRole="button"
               accessibilityLabel={ar.buttons.continue_note}
             >
-              <Text style={styles.actionButtonText}>{ar.buttons.continue_note}</Text>
+              <JisrIcon name="edit" size={20} color={c.onGreen} />
+              <Text style={[button.label, button.labelPrimary]}>{ar.buttons.continue_note}</Text>
             </TouchableOpacity>
           )}
 
           {/* Close / Action Button */}
           <TouchableOpacity
-            style={[
-              styles.actionButton,
-              isCrisis ? styles.crisisButton : styles.normalButton,
-            ]}
+            style={[button.base, button.plain]}
             onPress={onClose}
             activeOpacity={0.85}
           >
-            <Text style={styles.actionButtonText}>
+            <Text style={[button.label, button.labelPlain]}>
               {isCrisis ? 'فهمت، والعودة إلى التطبيق' : 'إغلاق'}
             </Text>
           </TouchableOpacity>
@@ -166,181 +167,136 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: colors.overlay,
+    backgroundColor: backdrop,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    padding: space[4],
   },
   modalCard: {
-    backgroundColor: colors.cream,
-    borderRadius: 25,
-    padding: 22,
+    backgroundColor: c.surfaceRaised,
+    borderRadius: radius.lg,
+    padding: space[6],
     width: '100%',
     maxWidth: 480,
     maxHeight: '85%',
-    shadowColor: colors.navy,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(36, 54, 92, 0.1)',
-    borderTopWidth: 5,
-    borderTopColor: colors.safety,
+    borderColor: c.line,
+    ...shadow.lg,
   },
-  headerRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
+  // SafetyBanner (docs/design-system/components/SafetyBanner.md)
+  banner: {
+    backgroundColor: c.urgentSoft,
+    borderRadius: radius.md,
+    paddingVertical: space[4],
+    paddingHorizontal: space[6],
+    marginBottom: space[4],
   },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.safety,
-    textAlign: 'right',
+  bannerHeader: {
+    flexDirection: rowRtl,
+    alignItems: 'flex-start',
+    gap: space[3],
+    marginBottom: space[1],
+  },
+  bannerHeading: {
     flex: 1,
   },
-  alertBadge: {
-    backgroundColor: colors.safetySoft,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.safetyBorder,
-    marginLeft: 8,
+  badgeText: {
+    ...type.label,
+    color: c.urgent,
+    textAlign: 'right',
   },
-  alertBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.safety,
+  title: {
+    ...type.heading,
+    fontFamily: fonts.display,
+    color: c.urgent,
+    textAlign: 'right',
   },
   scrollArea: {
-    marginBottom: 16,
+    marginBottom: space[4],
   },
   scrollContent: {
-    paddingVertical: 4,
+    paddingVertical: space[1],
   },
   messageText: {
-    fontSize: 14,
-    lineHeight: 23,
-    color: colors.navy,
+    ...type.bodySm,
+    color: c.ink,
     textAlign: 'right',
-    marginBottom: 16,
   },
   contactsSection: {
-    marginBottom: 16,
+    marginBottom: space[4],
   },
   contactsSectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.navy,
+    ...type.label,
+    color: c.ink,
     textAlign: 'right',
-    marginBottom: 8,
+    marginBottom: space[2],
   },
   contactItem: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.safetySoft,
-    borderRadius: 18,
-    padding: 12,
-    marginBottom: 8,
+    backgroundColor: c.surfaceRaised,
+    borderRadius: radius.md,
+    padding: space[3],
+    marginBottom: space[2],
     borderWidth: 1,
-    borderColor: 'rgba(176, 67, 42, 0.18)',
+    borderColor: c.line,
+    gap: space[2],
   },
   contactInfo: {
     flex: 1,
     alignItems: 'flex-end',
   },
   contactName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.navy,
+    ...type.label,
+    color: c.ink,
   },
   contactNumber: {
-    fontSize: 13,
-    color: colors.navy,
+    ...type.bodySm,
+    color: c.ink,
     direction: 'ltr',
-    marginTop: 2,
+    marginTop: space[1],
   },
   verifiedMeta: {
-    fontSize: 11,
-    color: colors.green,
-    marginTop: 4,
-  },
-  callButton: {
-    backgroundColor: colors.green,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    marginRight: 8,
-  },
-  callButtonText: {
-    color: colors.white,
-    fontWeight: '700',
-    fontSize: 13,
+    ...type.caption,
+    color: c.green,
+    marginTop: space[1],
   },
   fallbackBox: {
-    backgroundColor: colors.safetySoft,
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(176, 67, 42, 0.18)',
-    marginBottom: 14,
+    backgroundColor: c.surfaceSunken,
+    borderRadius: radius.md,
+    padding: space[4],
+    marginBottom: space[3],
   },
   fallbackIconRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
-  },
-  fallbackIcon: {
-    fontSize: 18,
+    marginBottom: space[2],
+    gap: space[2],
   },
   fallbackTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#783323',
+    ...type.label,
+    color: c.urgent,
     textAlign: 'right',
   },
   fallbackText: {
-    fontSize: 13,
-    lineHeight: 22,
-    color: '#783323',
+    ...type.bodySm,
+    color: c.ink,
     textAlign: 'right',
   },
   limitsBox: {
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    padding: 12,
+    backgroundColor: c.surface,
+    borderRadius: radius.md,
+    padding: space[3],
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: c.line,
   },
   limitsText: {
-    fontSize: 12,
-    color: colors.muted,
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'right',
-    lineHeight: 19,
-  },
-  actionButton: {
-    paddingVertical: 13,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  normalButton: {
-    backgroundColor: colors.green,
   },
   continueButton: {
-    marginBottom: 10,
-  },
-  crisisButton: {
-    backgroundColor: colors.safety,
-  },
-  actionButtonText: {
-    color: colors.white,
-    fontSize: 15,
-    fontWeight: '700',
+    marginBottom: space[3],
   },
 });

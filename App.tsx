@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -9,12 +8,18 @@ import {
   StyleSheet,
   Share,
   Alert,
-  I18nManager,
   Image,
   Animated,
   LayoutChangeEvent,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+// Per-weight imports, so only the four weights in use are bundled into the app.
+import { ReadexPro_500Medium } from '@expo-google-fonts/readex-pro/500Medium';
+import { ReadexPro_600SemiBold } from '@expo-google-fonts/readex-pro/600SemiBold';
+import { IBMPlexSansArabic_400Regular } from '@expo-google-fonts/ibm-plex-sans-arabic/400Regular';
+import { IBMPlexSansArabic_500Medium } from '@expo-google-fonts/ibm-plex-sans-arabic/500Medium';
 
 import {
   Chip,
@@ -52,13 +57,24 @@ import {
   TriggerModal,
 } from './src/components';
 import { CaptureScreen } from './src/screens/CaptureScreen';
-import { colors } from './src/theme';
+import { JisrIcon, JisrIconName } from './src/components/JisrIcon';
+import { radius, shadow, space, type } from './src/theme/tokens';
+import { button, c, rowRtl } from './src/theme/ui';
 
 import ar from './src/i18n/ar.json';
 import plainTemplatesData from './safety/plain-templates.json';
 import statedLimits from './safety/stated-limits.json';
 
 const TONE_KEYS: Tone[] = ['gentle', 'direct', 'formal'];
+
+// Icon per recipient, from the mapping table in jisr-brand/BRAND.md.
+const RECIPIENT_ICONS: Record<Recipient, JisrIconName> = {
+  friend: 'person',
+  sibling: 'relationships',
+  parent: 'family',
+  trusted_adult: 'person',
+  counsellor: 'exams',
+};
 
 // The on-device crisis check waits for a short pause in typing, so the support
 // card does not open in the middle of a phrase such as "نبي نموت من الضحك".
@@ -83,6 +99,14 @@ const INTRO_FADE_MS = 650;
 type Screen = 'intro' | 'capture' | 'drafting' | 'encouraged_out';
 
 export default function App() {
+  // Design-system fonts (names match fonts in src/theme/tokens.ts)
+  const [fontsLoaded, fontError] = useFonts({
+    ReadexPro_500Medium,
+    ReadexPro_600SemiBold,
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_500Medium,
+  });
+
   // Capture inputs
   const [selectedChips, setSelectedChips] = useState<Chip[]>([]);
   const [selectedRecipient, setSelectedRecipient] = useState<Recipient>('friend');
@@ -482,12 +506,20 @@ export default function App() {
     />
   );
 
+  // The bundled fonts load in a moment; render once they are ready (or failed).
+  if (!fontsLoaded && !fontError) {
+    return <View style={styles.introRoot} />;
+  }
+
   // ================= INTRO / SPLASH =================
   if (activeScreen === 'intro') {
     return (
-      <View style={styles.introRoot} onLayout={handleIntroLayout}>
-        <StatusBar style="dark" translucent={false} backgroundColor={colors.introFrame} />
+      <SafeAreaProvider>
+      <SafeAreaView style={styles.introRoot}>
+        <StatusBar style="dark" />
 
+        {/* Measured inside the safe area; the artwork is sized to fit it */}
+        <View style={styles.introFill} onLayout={handleIntroLayout}>
         <Animated.View style={[styles.introContent, { opacity: introOpacity }]}>
           {introArea.width > 0 && (
             <Image
@@ -502,49 +534,54 @@ export default function App() {
           <View style={styles.introActions}>
             {/* PERSISTENT HUMAN ROUTE (also reachable from the intro) */}
             <TouchableOpacity
-              style={[styles.humanRouteButton, styles.introHumanRoute]}
+              style={[button.base, styles.humanRouteButton]}
               onPress={openSupport}
               activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel={ar.triggers.persistent_human_route}
             >
-              <Text style={styles.humanRouteText}>
+              <JisrIcon name="talk" size={20} color={c.urgent} />
+              <Text style={[button.label, styles.humanRouteText]}>
                 {ar.triggers.persistent_human_route}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.introStartButton}
+              style={[button.base, button.primary, styles.introStartButton]}
               onPress={enterApp}
               activeOpacity={0.85}
               accessibilityRole="button"
               accessibilityLabel="ابدأ"
             >
-              <Text style={styles.introStartText}>ابدأ</Text>
+              <Text style={[button.label, button.labelPrimary]}>ابدأ</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
+        </View>
 
         {supportModal}
-      </View>
+      </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 
   return (
+    <SafeAreaProvider>
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" translucent={false} backgroundColor={colors.cream} />
+      <StatusBar style="dark" />
 
       {/* ================= PERSISTENT HUMAN ROUTE ("تكلم مع حد توا") ================= */}
       <View style={styles.topBar}>
         <View style={styles.topBarSpacer} />
         <TouchableOpacity
-          style={styles.humanRouteButton}
+          style={[button.base, styles.humanRouteButton]}
           onPress={openSupport}
           activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel={ar.triggers.persistent_human_route}
         >
-          <Text style={styles.humanRouteText}>
+          <JisrIcon name="talk" size={20} color={c.urgent} />
+          <Text style={[button.label, styles.humanRouteText]}>
             {ar.triggers.persistent_human_route}
           </Text>
         </TouchableOpacity>
@@ -584,21 +621,16 @@ export default function App() {
               <View>
                 <View style={styles.draftHeader}>
                   <View style={styles.draftHeaderText}>
-                    <View style={styles.aiBadge}>
-                      <Text style={styles.aiBadgeText}>
-                        {draftSource === 'ai' ? ar.disclosure.badge : ar.disclosure.template_badge}
-                      </Text>
-                    </View>
                     <Text style={styles.draftTitle}>اختر الصياغة اللي تريحك</Text>
                   </View>
                   <TouchableOpacity
-                    style={styles.smallBackButton}
+                    style={[button.base, button.plain, styles.backButton]}
                     onPress={() => setActiveScreen('capture')}
                     activeOpacity={0.8}
                     accessibilityRole="button"
                     accessibilityLabel="رجوع لتعديل الاختيارات"
                   >
-                    <Text style={styles.smallBackButtonText}>←</Text>
+                    <JisrIcon name="back" size={22} color={c.ink} />
                   </TouchableOpacity>
                 </View>
 
@@ -633,25 +665,70 @@ export default function App() {
                   })}
                 </View>
 
-                {/* In-Place Editable Draft */}
-                <TextInput
-                  style={styles.draftEditor}
-                  multiline
-                  value={editedDraft}
-                  onChangeText={setEditedDraft}
-                  textAlign="right"
-                  textAlignVertical="top"
-                  placeholder="اكتب رسالتك هنا..."
-                  placeholderTextColor={colors.muted}
-                  accessibilityLabel="نص الرسالة القابل للتعديل"
-                />
+                {/* Note card: the recipient strip, the editable draft, and who wrote it */}
+                <View style={styles.noteCard}>
+                  <View style={styles.noteTo}>
+                    <JisrIcon name={RECIPIENT_ICONS[selectedRecipient]} size={18} color={c.wood} />
+                    <Text style={styles.noteToText}>{ar.recipients[selectedRecipient]}</Text>
+                  </View>
+
+                  {/* In-Place Editable Draft */}
+                  <TextInput
+                    style={styles.draftEditor}
+                    multiline
+                    value={editedDraft}
+                    onChangeText={setEditedDraft}
+                    textAlign="right"
+                    textAlignVertical="top"
+                    placeholder="اكتب رسالتك هنا..."
+                    placeholderTextColor={c.inkMuted}
+                    accessibilityLabel="نص الرسالة القابل للتعديل"
+                  />
+
+                  {/* Lavender only when the AI wrote it */}
+                  <View
+                    style={[
+                      styles.noteChip,
+                      draftSource === 'ai' ? styles.noteChipAi : styles.noteChipTemplate,
+                    ]}
+                  >
+                    {draftSource === 'ai' && (
+                      <JisrIcon name="suggestion" size={18} color={c.lavender} />
+                    )}
+                    <Text
+                      style={[
+                        styles.noteChipText,
+                        draftSource === 'ai'
+                          ? styles.noteChipTextAi
+                          : styles.noteChipTextTemplate,
+                      ]}
+                    >
+                      {draftSource === 'ai' ? ar.disclosure.badge : ar.disclosure.template_badge}
+                    </Text>
+                  </View>
+                </View>
 
                 {/* AI Disclosure (R18): says plainly when the text is only a template */}
-                <View style={styles.disclosureBox}>
-                  <Text style={styles.disclosureBadge}>
+                <View
+                  style={[
+                    styles.disclosureBox,
+                    draftSource === 'ai' ? styles.disclosureBoxAi : styles.disclosureBoxTemplate,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.disclosureBadge,
+                      draftSource === 'ai' ? styles.disclosureTextAi : styles.disclosureTextTemplate,
+                    ]}
+                  >
                     {draftSource === 'ai' ? ar.disclosure.badge : ar.disclosure.template_badge}
                   </Text>
-                  <Text style={styles.disclosureNotice}>
+                  <Text
+                    style={[
+                      styles.disclosureNotice,
+                      draftSource === 'ai' ? styles.disclosureTextAi : styles.disclosureTextTemplate,
+                    ]}
+                  >
                     {draftSource === 'ai'
                       ? ar.disclosure.notice
                       : continuedAfterSupport
@@ -659,7 +736,14 @@ export default function App() {
                         : ar.disclosure.template_notice}
                   </Text>
                   {/* Stated limits (R23) */}
-                  <Text style={styles.disclosureNotice}>{statedLimits.ar_short}</Text>
+                  <Text
+                    style={[
+                      styles.disclosureNotice,
+                      draftSource === 'ai' ? styles.disclosureTextAi : styles.disclosureTextTemplate,
+                    ]}
+                  >
+                    {statedLimits.ar_short}
+                  </Text>
                 </View>
 
                 {/* Trust & Control Toggles */}
@@ -670,6 +754,7 @@ export default function App() {
                     activeOpacity={0.8}
                     accessibilityState={{ expanded: showBaseline }}
                   >
+                    <JisrIcon name="suggestion" size={16} color={c.lavender} />
                     <Text
                       style={[styles.trustToggleText, showBaseline && styles.trustToggleTextActive]}
                     >
@@ -686,6 +771,11 @@ export default function App() {
                     activeOpacity={0.8}
                     accessibilityState={{ expanded: showFaithfulness }}
                   >
+                    <JisrIcon
+                      name="check"
+                      size={16}
+                      color={showFaithfulness ? c.green : c.ink}
+                    />
                     <Text
                       style={[
                         styles.trustToggleText,
@@ -704,6 +794,11 @@ export default function App() {
                       activeOpacity={0.8}
                       accessibilityState={{ expanded: showOutbound }}
                     >
+                      <JisrIcon
+                        name="preview"
+                        size={16}
+                        color={showOutbound ? c.green : c.ink}
+                      />
                       <Text
                         style={[styles.trustToggleText, showOutbound && styles.trustToggleTextActive]}
                       >
@@ -753,8 +848,10 @@ export default function App() {
                 {/* Native Share Sheet */}
                 <TouchableOpacity
                   style={[
-                    styles.primaryButton,
-                    !editedDraft && styles.primaryButtonDisabled,
+                    button.base,
+                    button.primary,
+                    styles.shareButton,
+                    !editedDraft && button.disabled,
                   ]}
                   onPress={handleShare}
                   disabled={!editedDraft}
@@ -762,7 +859,8 @@ export default function App() {
                   accessibilityRole="button"
                   accessibilityLabel={ar.buttons.share}
                 >
-                  <Text style={styles.primaryButtonText}>{ar.buttons.share}</Text>
+                  <JisrIcon name="share" size={20} color={c.onGreen} />
+                  <Text style={[button.label, button.labelPrimary]}>{ar.buttons.share}</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -771,7 +869,7 @@ export default function App() {
               /* ================= SCREEN 3: HANDOFF / READY ================= */
               <View style={styles.readyScreen}>
                 <View style={styles.readyIcon}>
-                  <Text style={styles.readyIconText}>✓</Text>
+                  <JisrIcon name="check" size={36} color={c.green} />
                 </View>
                 <Text style={styles.readyBrand}>{ar.app_name}</Text>
                 <Text style={styles.readyTitle}>{ar.handoff.ready_message}</Text>
@@ -780,19 +878,21 @@ export default function App() {
                 </Text>
 
                 <TouchableOpacity
-                  style={[styles.primaryButton, styles.fullWidth]}
+                  style={[button.base, button.primary, styles.fullWidth]}
                   onPress={handleStartNew}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.primaryButtonText}>كتابة رسالة جديدة</Text>
+                  <JisrIcon name="edit" size={20} color={c.onGreen} />
+                  <Text style={[button.label, button.labelPrimary]}>كتابة رسالة جديدة</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.secondaryButton, styles.fullWidth]}
+                  style={[button.base, button.plain, styles.fullWidth]}
                   onPress={() => setActiveScreen('drafting')}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.secondaryButtonText}>رجوع</Text>
+                  <JisrIcon name="back" size={20} color={c.ink} />
+                  <Text style={[button.label, button.labelPlain]}>رجوع</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -812,6 +912,7 @@ export default function App() {
         onDismiss={handleNotNow}
       />
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -819,7 +920,10 @@ const styles = StyleSheet.create({
   // ---------- Intro ----------
   introRoot: {
     flex: 1,
-    backgroundColor: colors.introFrame,
+    backgroundColor: c.surface,
+  },
+  introFill: {
+    flex: 1,
   },
   introContent: {
     flex: 1,
@@ -830,66 +934,36 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 24,
+    bottom: space[6],
     alignItems: 'center',
-    gap: 14,
-  },
-  introHumanRoute: {
-    backgroundColor: 'rgba(250, 246, 239, 0.94)',
-    shadowColor: colors.navy,
-    shadowOpacity: 0.12,
+    gap: space[3],
   },
   introStartButton: {
     minWidth: 148,
-    paddingHorizontal: 30,
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: colors.green,
-    alignItems: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 13 },
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  introStartText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '800',
   },
 
   // ---------- Shell ----------
   safeArea: {
     flex: 1,
-    backgroundColor: colors.cream,
+    backgroundColor: c.surface,
   },
   topBar: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 8,
+    paddingHorizontal: space[4],
+    paddingTop: space[2],
+    paddingBottom: space[2],
   },
   topBarSpacer: {
     flex: 1,
   },
+  // "Talk to someone now": urgent, always with words and an icon
   humanRouteButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.safetyBorder,
-    backgroundColor: colors.safetySoft,
-    shadowColor: colors.safety,
-    shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 0.1,
-    shadowRadius: 11,
-    elevation: 3,
+    backgroundColor: c.urgentSoft,
+    borderColor: c.urgentSoft,
   },
   humanRouteText: {
-    color: colors.safety,
-    fontSize: 13,
-    fontWeight: '800',
+    color: c.urgent,
   },
   contentFade: {
     flex: 1,
@@ -898,255 +972,222 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 10,
-    paddingBottom: 22,
+    paddingHorizontal: space[4],
+    paddingBottom: space[6],
   },
   appCard: {
     width: '100%',
-    paddingHorizontal: 17,
-    paddingVertical: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.93)',
+    paddingHorizontal: space[4],
+    paddingVertical: space[6],
+    backgroundColor: c.surfaceRaised,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 28,
-    shadowColor: colors.brown,
-    shadowOffset: { width: 0, height: 22 },
-    shadowOpacity: 0.09,
-    shadowRadius: 32,
-    elevation: 4,
+    borderColor: c.line,
+    borderRadius: radius.lg,
+    ...shadow.sm,
   },
 
   // ---------- Drafting ----------
   draftHeader: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     alignItems: 'flex-start',
-    gap: 13,
-    marginBottom: 8,
+    gap: space[3],
+    marginBottom: space[2],
   },
   draftHeaderText: {
     flex: 1,
     alignItems: 'flex-end',
   },
-  smallBackButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(62, 43, 5, 0.18)',
-    backgroundColor: colors.white,
-  },
-  smallBackButtonText: {
-    color: colors.brown,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  aiBadge: {
-    paddingHorizontal: 11,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: colors.lavenderSoft,
-  },
-  aiBadgeText: {
-    color: colors.lavender,
-    fontSize: 12,
-    fontWeight: '800',
-  },
   draftTitle: {
-    marginTop: 7,
-    color: colors.navy,
-    fontSize: 20,
-    fontWeight: '800',
+    ...type.title,
+    color: c.ink,
     textAlign: 'right',
-    lineHeight: 32,
+  },
+  backButton: {
+    paddingHorizontal: space[3],
   },
   hint: {
-    marginBottom: 15,
-    color: colors.muted,
-    fontSize: 14,
-    lineHeight: 24,
+    ...type.bodySm,
+    marginBottom: space[4],
+    color: c.inkMuted,
     textAlign: 'right',
   },
   toneButtons: {
-    gap: 9,
-    marginTop: 7,
-    marginBottom: 22,
+    gap: space[2],
+    marginBottom: space[6],
   },
   toneButton: {
-    padding: 13,
-    gap: 5,
-    borderRadius: 20,
+    padding: space[3],
+    gap: space[1],
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(106, 88, 166, 0.18)',
-    backgroundColor: colors.white,
+    borderColor: c.line,
+    backgroundColor: c.surfaceRaised,
   },
   toneButtonSelected: {
-    backgroundColor: colors.lavenderSoft,
-    borderColor: colors.lavender,
+    backgroundColor: c.greenSoft,
+    borderColor: c.green,
   },
   toneLabel: {
-    color: colors.navy,
-    fontSize: 15,
-    fontWeight: '800',
+    ...type.label,
+    color: c.ink,
     textAlign: 'right',
   },
   toneDescription: {
-    color: colors.navy,
-    fontSize: 12,
-    lineHeight: 19,
-    opacity: 0.8,
+    ...type.caption,
+    color: c.inkMuted,
     textAlign: 'right',
   },
   toneTextSelected: {
-    color: colors.lavender,
+    color: c.green,
+  },
+  // NoteCard (docs/design-system/components/NoteCard.md)
+  noteCard: {
+    backgroundColor: c.surfaceRaised,
+    borderWidth: 1,
+    borderColor: c.line,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    ...shadow.sm,
+  },
+  noteTo: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[2],
+    backgroundColor: c.woodSoft,
+    paddingVertical: space[3],
+    paddingHorizontal: space[6],
+  },
+  noteToText: {
+    ...type.label,
+    color: c.wood,
   },
   draftEditor: {
+    ...type.body,
     minHeight: 180,
-    padding: 16,
-    borderRadius: 21,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
-    color: colors.navy,
-    fontSize: 15,
-    lineHeight: 28,
+    paddingTop: space[4],
+    paddingHorizontal: space[6],
+    paddingBottom: space[3],
+    color: c.ink,
+  },
+  noteChip: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    gap: space[2],
+    marginHorizontal: space[6],
+    marginBottom: space[6],
+    paddingVertical: space[2],
+    paddingHorizontal: space[4],
+    borderRadius: radius.full,
+  },
+  noteChipAi: {
+    backgroundColor: c.lavenderSoft,
+  },
+  noteChipTemplate: {
+    backgroundColor: c.surfaceSunken,
+  },
+  noteChipText: {
+    ...type.label,
+  },
+  noteChipTextAi: {
+    color: c.lavender,
+  },
+  noteChipTextTemplate: {
+    color: c.inkMuted,
   },
   disclosureBox: {
-    marginTop: 15,
-    padding: 16,
-    borderRadius: 19,
-    borderWidth: 1,
-    borderColor: 'rgba(106, 88, 166, 0.2)',
-    backgroundColor: colors.lavenderSoft,
+    marginTop: space[4],
+    padding: space[4],
+    gap: space[1],
+    borderRadius: radius.md,
+  },
+  disclosureBoxAi: {
+    backgroundColor: c.lavenderSoft,
+  },
+  disclosureBoxTemplate: {
+    backgroundColor: c.surfaceSunken,
   },
   disclosureBadge: {
-    color: colors.lavender,
-    fontSize: 14,
-    fontWeight: '800',
+    ...type.label,
     textAlign: 'right',
-    marginBottom: 6,
   },
   disclosureNotice: {
-    color: colors.lavender,
-    fontSize: 13,
-    lineHeight: 23,
+    ...type.bodySm,
     textAlign: 'right',
   },
+  disclosureTextAi: {
+    color: c.lavender,
+  },
+  disclosureTextTemplate: {
+    color: c.ink,
+  },
   trustControlsRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 18,
-    marginBottom: 14,
+    gap: space[2],
+    marginTop: space[4],
+    marginBottom: space[3],
   },
   trustToggleBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 999,
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[1],
+    minHeight: 40,
+    paddingHorizontal: space[3],
+    paddingVertical: space[2],
+    borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
+    borderColor: c.line,
+    backgroundColor: c.surfaceRaised,
   },
   trustToggleBtnActive: {
-    backgroundColor: colors.greenSoft,
-    borderColor: colors.green,
+    backgroundColor: c.greenSoft,
+    borderColor: c.green,
   },
   trustToggleText: {
-    color: colors.navy,
-    fontSize: 12,
-    fontWeight: '700',
+    ...type.caption,
+    color: c.ink,
   },
   trustToggleTextActive: {
-    color: colors.green,
+    color: c.green,
   },
   trustModule: {
-    marginBottom: 14,
+    marginBottom: space[3],
   },
-
-  // ---------- Buttons ----------
-  primaryButton: {
-    marginTop: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: colors.green,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.36,
-    elevation: 0,
-    shadowOpacity: 0,
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  secondaryButton: {
-    marginTop: 10,
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(62, 43, 5, 0.18)',
-    backgroundColor: colors.white,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: colors.brown,
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  fullWidth: {
+  shareButton: {
+    marginTop: space[2],
     alignSelf: 'stretch',
   },
 
   // ---------- Ready ----------
   readyScreen: {
     alignItems: 'center',
-    paddingVertical: 35,
+    paddingVertical: space[8],
+    gap: space[3],
   },
   readyIcon: {
     width: 72,
     height: 72,
-    marginBottom: 19,
-    borderRadius: 26,
-    backgroundColor: colors.green,
+    borderRadius: radius.full,
+    backgroundColor: c.greenSoft,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 13 },
-    shadowOpacity: 0.18,
-    shadowRadius: 15,
-    elevation: 4,
-  },
-  readyIconText: {
-    color: colors.white,
-    fontSize: 34,
   },
   readyBrand: {
-    color: colors.navy,
-    fontSize: 15,
-    fontWeight: '800',
+    ...type.label,
+    color: c.ink,
   },
   readyTitle: {
-    marginVertical: 12,
-    color: colors.navy,
-    fontSize: 19,
-    fontWeight: '800',
-    lineHeight: 34,
+    ...type.title,
+    color: c.ink,
     textAlign: 'center',
   },
   readyText: {
-    marginBottom: 18,
-    color: colors.muted,
-    fontSize: 14,
-    lineHeight: 26,
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'center',
+  },
+  fullWidth: {
+    alignSelf: 'stretch',
   },
 });

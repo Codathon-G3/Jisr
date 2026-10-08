@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@400;500;600&display=swap");
+body { margin: 0; font-family: var(--font-sans); background: var(--surface); color: var(--ink); }
+.jisr-stage { padding: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.jisr-btn { font: inherit; font-size: 15px; line-height: 20px; font-weight: 500; min-height: 48px; padding: 0 var(--space-6); border-radius: var(--radius-md); border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--ink); cursor: pointer; }
+.jisr-btn-primary { background: var(--green); border-color: var(--green); color: var(--on-green); }
+.jisr-btn-quiet { background: transparent; border-color: transparent; color: var(--green); }
+.jisr-btn-urgent { background: var(--urgent); border-color: var(--urgent); color: var(--on-urgent); }
+.jisr-btn:focus-visible { outline: 2px solid transparent; box-shadow: var(--focus-ring); }
+.jisr-note { width: 100%; max-width: 420px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.jisr-note-to { background: var(--wood-soft); color: var(--wood); font-size: 15px; font-weight: 500; padding: var(--space-3) var(--space-6); }
+.jisr-note-body { padding: var(--space-4) var(--space-6) var(--space-6); font-size: 17px; line-height: 28px; }
+.jisr-note-meta { margin-top: var(--space-3); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+.jisr-ai { display: inline-flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); padding: var(--space-2) var(--space-4); border-radius: var(--radius-full); background: var(--lavender-soft); color: var(--lavender); font-size: 15px; line-height: 20px; font-weight: 500; }
+.jisr-ai-dot { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--lavender); }
+.jisr-safety { width: 100%; max-width: 420px; box-sizing: border-box; background: var(--urgent-soft); border-radius: var(--radius-md); padding: var(--space-4) var(--space-6); display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-3); align-items: start; }
+.jisr-safety-icon { width: 28px; height: 28px; color: var(--urgent); grid-row: span 2; }
+.jisr-safety h3 { margin: 0; font-family: var(--font-display); font-size: 19px; line-height: 30px; font-weight: 600; color: var(--urgent); }
+.jisr-safety p { margin: 0; font-size: 15px; line-height: 24px; color: var(--ink); }
+.jisr-safety .jisr-btn { grid-column: 2; justify-self: start; margin-top: var(--space-3); }

@@ -1,5 +1,7 @@
 # Jisr (جِسر) — AI-Assisted Writing Companion
 
+![Jisr: a bridge from silence to someone you trust](public/brand/cover-art.svg)
+
 > **AI-Assisted Writing Companion for Young People in Libya**  
 > *Developed for the Ai4LY National Codathon 2026 (Libya Artificial Intelligence Forum)*  
 > **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima  

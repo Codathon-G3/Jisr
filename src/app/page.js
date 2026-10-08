@@ -11,6 +11,29 @@ import { sanitizePii } from "../services/piiSanitizer";
 
 const toneOrder = ["gentle", "direct", "formal"];
 
+// Icon per recipient, from the mapping table in jisr-brand/BRAND.md.
+const recipientIcons = {
+  friend: "person",
+  sibling: "relationships",
+  parent: "family",
+  trusted_adult: "person",
+  counsellor: "exams",
+};
+
+// Icons that point somewhere mirror in right-to-left layouts.
+const mirroredIcons = new Set(["back", "send"]);
+
+/* Jisr line icon (public/icons, from jisr-brand/icons), coloured by the text colour. */
+function Icon({ name }) {
+  return (
+    <span
+      className={mirroredIcons.has(name) ? "jisrIcon mirror" : "jisrIcon"}
+      style={{ "--icon": `url(/icons/${name}.svg)` }}
+      aria-hidden="true"
+    />
+  );
+}
+
 // The live API; set NEXT_PUBLIC_API_URL (e.g. http://localhost:8000) for backend development.
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://jisr-api.onrender.com").replace(/\/+$/, "");
 // The free Render instance can take about a minute to wake up.
@@ -402,11 +425,12 @@ export default function Home() {
         type="button"
         className={
           screen === "intro"
-            ? "humanRouteButton introHumanRoute"
-            : "humanRouteButton"
+            ? "humanRouteButton introHumanRoute withIcon"
+            : "humanRouteButton withIcon"
         }
         onClick={() => openSupport(textRisk && !crisisAcknowledged)}
       >
+        <Icon name="talk" />
         {ar.triggers?.persistent_human_route}
       </button>
 
@@ -449,9 +473,13 @@ export default function Home() {
           {screen === "form" && (
             <div className="screenPanel">
               <div className="brand">
-                <div className="miniBridgeMark">
-                  <span>جسر</span>
-                </div>
+                <img
+                  className="wordmark"
+                  src="/brand/wordmark.png"
+                  alt=""
+                  width="1583"
+                  height="388"
+                />
 
                 <h1>{ar.app_name}</h1>
 
@@ -474,11 +502,12 @@ export default function Home() {
                       type="button"
                       className={
                         selectedChips.includes(id)
-                          ? "chip selected"
-                          : "chip"
+                          ? "chip selected withIcon"
+                          : "chip withIcon"
                       }
                       onClick={() => toggleChip(id)}
                     >
+                      <Icon name={id} />
                       {ar.chips[id]}
                     </button>
                   ))}
@@ -509,7 +538,7 @@ export default function Home() {
 
                 {/* What would leave the device, shown before anything is sent */}
                 {!textRisk && text.trim() !== "" && (
-                  <div className="disclosureBox">
+                  <div className="disclosureBox outboundBox">
                     <strong>
                       {ar.trust?.outbound_preview_title}
                     </strong>
@@ -547,11 +576,12 @@ export default function Home() {
                       type="button"
                       className={
                         recipient === id
-                          ? "recipient selected"
-                          : "recipient"
+                          ? "recipient selected withIcon"
+                          : "recipient withIcon"
                       }
                       onClick={() => setRecipient(id)}
                     >
+                      <Icon name={recipientIcons[id]} />
                       {ar.recipients[id]}
                     </button>
                   ))}
@@ -586,14 +616,15 @@ export default function Home() {
               <div className="draftHeader">
                 <button
                   type="button"
-                  className="smallBackButton"
+                  className="smallBackButton withIcon"
                   onClick={goBackToForm}
+                  aria-label="رجوع"
                 >
-                  ←
+                  <Icon name="back" />
                 </button>
 
                 <div>
-                  <span className="aiBadge">
+                  <span className={draftSource === "ai" ? "aiBadge" : "aiBadge isTemplate"}>
                     {draftSource === "ai"
                       ? ar.disclosure?.badge
                       : ar.disclosure?.template_badge}
@@ -643,16 +674,24 @@ export default function Home() {
 
               {selectedTone && (
                 <div className="editorSection">
-                  <textarea
-                    className="draftEditor"
-                    rows="8"
-                    value={editableDraft}
-                    onChange={(event) =>
-                      setEditableDraft(event.target.value)
-                    }
-                  />
+                  {/* Note card: the recipient strip and the editable draft */}
+                  <div className="noteCard">
+                    <div className="noteTo">
+                      <Icon name={recipientIcons[recipient] || "person"} />
+                      {ar.recipients?.[recipient]}
+                    </div>
 
-                  <div className="disclosureBox">
+                    <textarea
+                      className="draftEditor"
+                      rows="8"
+                      value={editableDraft}
+                      onChange={(event) =>
+                        setEditableDraft(event.target.value)
+                      }
+                    />
+                  </div>
+
+                  <div className={draftSource === "ai" ? "disclosureBox" : "disclosureBox isTemplate"}>
                     <strong>
                       {draftSource === "ai"
                         ? ar.disclosure?.badge
@@ -675,17 +714,19 @@ export default function Home() {
                   <div className="draftActions">
                     <button
                       type="button"
-                      className="secondaryButton"
+                      className="secondaryButton withIcon"
                       onClick={handleCopy}
                     >
+                      <Icon name="copy" />
                       {ar.buttons?.copy}
                     </button>
 
                     <button
                       type="button"
-                      className="primaryButton"
+                      className="primaryButton withIcon"
                       onClick={handleShare}
                     >
+                      <Icon name="share" />
                       {ar.buttons?.share}
                     </button>
                   </div>
@@ -707,7 +748,7 @@ export default function Home() {
           {screen === "ready" && (
             <div className="screenPanel readyScreen">
               <div className="readyIcon">
-                
+                <Icon name="check" />
               </div>
 
               <span className="readyBrand">
@@ -747,11 +788,11 @@ export default function Home() {
               aria-label="إغلاق"
               onClick={() => setShowTrigger(false)}
             >
-              ×
+              <Icon name="close" />
             </button>
 
             <div className="modalIcon greenIcon">
-              
+              <Icon name="edit" />
             </div>
 
             <p className="triggerText">
@@ -795,11 +836,11 @@ export default function Home() {
               aria-label="إغلاق"
               onClick={closeSupport}
             >
-              ×
+              <Icon name="close" />
             </button>
 
             <div className="modalIcon safetyIcon">
-              !
+              <Icon name="alert" />
             </div>
 
             <h2>

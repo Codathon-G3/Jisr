@@ -5,9 +5,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   ViewStyle,
-  I18nManager,
 } from 'react-native';
 import ar from '../i18n/ar.json';
+import { radius, shadow, space, type } from '../theme/tokens';
+import { button, c, rowRtl } from '../theme/ui';
+import { JisrIcon } from './JisrIcon';
 
 export interface IdentifierRemoved {
   /** The sensitive text that was scrubbed (e.g. '0912345678') */
@@ -62,8 +64,12 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
     <View style={[styles.container, style]}>
       {/* Header */}
       <View style={styles.headerRow}>
-        <Text style={styles.title}>{ar.trust.outbound_preview_title}</Text>
+        <View style={styles.titleRow}>
+          <JisrIcon name="preview" size={20} color={c.ink} />
+          <Text style={styles.title}>{ar.trust.outbound_preview_title}</Text>
+        </View>
         <View style={styles.shieldBadge}>
+          <JisrIcon name="on-device" size={14} color={c.inkMuted} />
           <Text style={styles.shieldBadgeText}>تصفية محلية</Text>
         </View>
       </View>
@@ -103,6 +109,7 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
 
       {/* Where the text goes */}
       <View style={styles.guaranteeBox}>
+        <JisrIcon name="privacy" size={16} color={c.inkMuted} />
         <Text style={styles.guaranteeText}>{ar.trust.outbound_server_note}</Text>
       </View>
 
@@ -111,21 +118,22 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
         <View style={styles.actionsRow}>
           {onEdit && (
             <TouchableOpacity
-              style={styles.editButton}
+              style={[button.base, button.plain, styles.editButton]}
               onPress={onEdit}
               activeOpacity={0.8}
             >
-              <Text style={styles.editButtonText}>تعديل النص</Text>
+              <JisrIcon name="edit" size={18} color={c.ink} />
+              <Text style={[button.label, button.labelPlain]}>تعديل النص</Text>
             </TouchableOpacity>
           )}
 
           {onConfirm && (
             <TouchableOpacity
-              style={styles.confirmButton}
+              style={[button.base, button.primary, styles.confirmButton]}
               onPress={onConfirm}
               activeOpacity={0.85}
             >
-              <Text style={styles.confirmButtonText}>متابعة الصياغة</Text>
+              <Text style={[button.label, button.labelPrimary]}>متابعة الصياغة</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -136,150 +144,127 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 18,
-    marginVertical: 10,
+    backgroundColor: c.surfaceRaised,
+    borderRadius: radius.lg,
+    padding: space[4],
+    marginVertical: space[3],
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 5,
-    elevation: 2,
+    borderColor: c.line,
     writingDirection: 'rtl',
+    ...shadow.sm,
   },
   headerRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: space[2],
+    gap: space[2],
+  },
+  titleRow: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[2],
+    flexShrink: 1,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0F172A',
+    ...type.heading,
+    color: c.ink,
     textAlign: 'right',
+    flexShrink: 1,
   },
   shieldBadge: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[1],
+    backgroundColor: c.surfaceSunken,
+    paddingHorizontal: space[3],
+    paddingVertical: space[1],
+    borderRadius: radius.full,
   },
   shieldBadgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#1D4ED8',
+    ...type.caption,
+    color: c.inkMuted,
   },
   subtitle: {
-    fontSize: 13,
-    color: '#64748B',
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'right',
-    lineHeight: 19,
-    marginBottom: 12,
+    marginBottom: space[3],
   },
   textBox: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 14,
+    backgroundColor: c.surface,
+    borderRadius: radius.md,
+    padding: space[4],
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 12,
+    borderColor: c.line,
+    marginBottom: space[3],
   },
   sanitisedContent: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: '#1E293B',
+    ...type.bodySm,
+    color: c.ink,
     textAlign: 'right',
   },
   scrubbedSection: {
-    backgroundColor: '#FFFBEB',
-    borderRadius: 10,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-    marginBottom: 10,
+    backgroundColor: c.surfaceSunken,
+    borderRadius: radius.md,
+    padding: space[3],
+    marginBottom: space[3],
   },
   scrubbedHeader: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#92400E',
+    ...type.label,
+    color: c.ink,
     textAlign: 'right',
-    marginBottom: 8,
+    marginBottom: space[2],
   },
   tagsRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     flexWrap: 'wrap',
-    gap: 6,
+    gap: space[2],
   },
   tagBadge: {
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    backgroundColor: c.surfaceRaised,
+    paddingHorizontal: space[2],
+    paddingVertical: space[1],
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#FCD34D',
+    borderColor: c.line,
   },
   tagText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#78350F',
+    ...type.caption,
+    color: c.ink,
   },
   cleanSection: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 8,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-    marginBottom: 10,
+    backgroundColor: c.greenSoft,
+    borderRadius: radius.md,
+    padding: space[3],
+    marginBottom: space[3],
   },
   cleanText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#166534',
+    ...type.bodySm,
+    color: c.green,
     textAlign: 'right',
   },
   guaranteeBox: {
-    paddingVertical: 4,
-    marginBottom: 12,
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[2],
+    paddingVertical: space[1],
+    marginBottom: space[3],
   },
   guaranteeText: {
-    fontSize: 11,
-    color: '#64748B',
+    ...type.caption,
+    color: c.inkMuted,
     textAlign: 'right',
-    fontStyle: 'italic',
+    flexShrink: 1,
   },
   actionsRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    gap: 10,
+    flexDirection: rowRtl,
+    gap: space[3],
   },
   editButton: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-  },
-  editButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
   },
   confirmButton: {
     flex: 2,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#0284C7',
-    alignItems: 'center',
-  },
-  confirmButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#FFFFFF',
   },
 });

@@ -5,10 +5,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  I18nManager,
 } from 'react-native';
 import ar from '../i18n/ar.json';
-import { colors } from '../theme';
+import { radius, shadow, space, type } from '../theme/tokens';
+import { backdrop, button, c, rowRtl } from '../theme/ui';
+import { JisrIcon } from './JisrIcon';
 
 export interface TriggerModalProps {
   visible: boolean;
@@ -52,7 +53,7 @@ export const TriggerModal: React.FC<TriggerModalProps> = ({
           {/* Header & Icon */}
           <View style={styles.headerRow}>
             <View style={styles.iconCircle}>
-              <Text style={styles.iconText}>•</Text>
+              <JisrIcon name="edit" size={22} color={c.green} />
             </View>
             <Text style={styles.title}>
               {isRecurrence ? 'ملاحظة لطيفة وداعمة' : 'دعوة للمساعدة في الكتابة'}
@@ -66,26 +67,26 @@ export const TriggerModal: React.FC<TriggerModalProps> = ({
           <View style={styles.actionsRow}>
             {/* Primary: Start Drafting */}
             <TouchableOpacity
-              style={styles.confirmButton}
+              style={[button.base, button.primary, styles.confirmButton]}
               onPress={onConfirm}
               activeOpacity={0.85}
               accessibilityRole="button"
               accessibilityLabel={ar.buttons.start_drafting}
             >
-              <Text style={styles.confirmButtonText}>
+              <Text style={[button.label, button.labelPrimary]}>
                 {ar.buttons.start_drafting}
               </Text>
             </TouchableOpacity>
 
             {/* Secondary: Not Now */}
             <TouchableOpacity
-              style={styles.cancelButton}
+              style={[button.base, button.plain, styles.cancelButton]}
               onPress={onDismiss}
               activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel={ar.buttons.not_now}
             >
-              <Text style={styles.cancelButtonText}>
+              <Text style={[button.label, button.labelPlain]}>
                 {ar.buttons.not_now}
               </Text>
             </TouchableOpacity>
@@ -99,86 +100,55 @@ export const TriggerModal: React.FC<TriggerModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: colors.overlay,
+    backgroundColor: backdrop,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: space[4],
   },
   modalCard: {
-    backgroundColor: colors.cream,
-    borderRadius: 25,
-    padding: 22,
+    backgroundColor: c.surfaceRaised,
+    borderRadius: radius.lg,
+    padding: space[6],
     width: '100%',
     maxWidth: 440,
-    shadowColor: colors.navy,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 6,
     borderWidth: 1,
-    borderColor: 'rgba(36, 54, 92, 0.1)',
+    borderColor: c.line,
+    ...shadow.lg,
   },
   headerRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     alignItems: 'center',
-    marginBottom: 14,
-    gap: 10,
+    marginBottom: space[3],
+    gap: space[3],
   },
   iconCircle: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.greenSoft,
+    borderRadius: radius.full,
+    backgroundColor: c.greenSoft,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  iconText: {
-    fontSize: 20,
-  },
   title: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.navy,
+    ...type.heading,
+    color: c.ink,
     textAlign: 'right',
     flex: 1,
   },
   messageText: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: colors.navy,
+    ...type.bodySm,
+    color: c.ink,
     textAlign: 'right',
-    marginBottom: 22,
+    marginBottom: space[6],
   },
   actionsRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-    gap: 10,
+    flexDirection: rowRtl,
+    gap: space[3],
   },
   confirmButton: {
     flex: 2,
-    backgroundColor: colors.green,
-    paddingVertical: 12,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmButtonText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '700',
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: colors.white,
-    paddingVertical: 12,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(62, 43, 5, 0.18)',
-  },
-  cancelButtonText: {
-    color: colors.brown,
-    fontSize: 14,
-    fontWeight: '800',
   },
 });
