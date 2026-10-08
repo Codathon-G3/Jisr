@@ -92,6 +92,9 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 
 // Rayan's intro artwork (shared with the Next.js web showcase)
 const INTRO_IMAGE = require('./public/brand/jisr-intro-mobile.png');
+// Logo for light backgrounds (jisr-brand/web/wordmark.png, 1583 x 388)
+const LOGO_IMAGE = require('./public/brand/wordmark.png');
+const LOGO_ASPECT = 1583 / 388;
 const INTRO_IMAGE_SIZE = { width: 941, height: 1672, cornerRadius: 20 };
 const INTRO_AUTO_ENTER_MS = 4200;
 const INTRO_FADE_MS = 650;
@@ -572,6 +575,14 @@ export default function App() {
 
       {/* ================= PERSISTENT HUMAN ROUTE ("تكلم مع حد توا") ================= */}
       <View style={styles.topBar}>
+        {activeScreen !== 'capture' ? (
+          <Image
+            source={LOGO_IMAGE}
+            style={styles.topBarLogo}
+            resizeMode="contain"
+            accessibilityLabel={ar.app_name}
+          />
+        ) : null}
         <View style={styles.topBarSpacer} />
         <TouchableOpacity
           style={[button.base, styles.humanRouteButton]}
@@ -868,10 +879,15 @@ export default function App() {
             {activeScreen === 'encouraged_out' && (
               /* ================= SCREEN 3: HANDOFF / READY ================= */
               <View style={styles.readyScreen}>
+                <Image
+                  source={LOGO_IMAGE}
+                  style={styles.readyLogo}
+                  resizeMode="contain"
+                  accessibilityLabel={ar.app_name}
+                />
                 <View style={styles.readyIcon}>
                   <JisrIcon name="check" size={36} color={c.green} />
                 </View>
-                <Text style={styles.readyBrand}>{ar.app_name}</Text>
                 <Text style={styles.readyTitle}>{ar.handoff.ready_message}</Text>
                 <Text style={styles.readyText}>
                   تذكر ديماً: مجرد كسر حاجز الصمت والحديث مع شخص تثق فيه هو البداية الحقيقية للشعور بالراحة.
@@ -953,6 +969,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[4],
     paddingTop: space[2],
     paddingBottom: space[2],
+  },
+  topBarLogo: {
+    width: 88,
+    height: 88 / LOGO_ASPECT,
+    marginHorizontal: space[1],
   },
   topBarSpacer: {
     flex: 1,
@@ -1165,6 +1186,10 @@ const styles = StyleSheet.create({
     paddingVertical: space[8],
     gap: space[3],
   },
+  readyLogo: {
+    width: 132,
+    height: 132 / LOGO_ASPECT,
+  },
   readyIcon: {
     width: 72,
     height: 72,
@@ -1172,10 +1197,6 @@ const styles = StyleSheet.create({
     backgroundColor: c.greenSoft,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  readyBrand: {
-    ...type.label,
-    color: c.ink,
   },
   readyTitle: {
     ...type.title,

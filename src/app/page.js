@@ -202,6 +202,20 @@ export default function Home() {
     }, 650);
   }
 
+  // Live on-device Guardian check with 700ms debounce. Opens the crisis card
+  // (with "continue to my note"), unless the user already chose to continue
+  // with this exact text.
+  useEffect(() => {
+    if (!text || text.trim().length === 0) return;
+    const timer = window.setTimeout(() => {
+      const risk = checkLocalCrisis(text);
+      if (risk?.riskDetected && acknowledgedText !== text) {
+        openSupport(true);
+      }
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [text, acknowledgedText]);
+
   const selectedTopic = useMemo(() => {
     return selectedChips
       .map((id) => ar.chips?.[id])
@@ -747,13 +761,17 @@ export default function Home() {
 
           {screen === "ready" && (
             <div className="screenPanel readyScreen">
+              <img
+                className="wordmark"
+                src="/brand/wordmark.png"
+                alt="جسر"
+                width="1583"
+                height="388"
+              />
+
               <div className="readyIcon">
                 <Icon name="check" />
               </div>
-
-              <span className="readyBrand">
-                جسر
-              </span>
 
               <h2>
                 {ar.handoff?.ready_message}

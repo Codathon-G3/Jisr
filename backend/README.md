@@ -40,7 +40,8 @@ Build this service from the `backend` directory on Render.
 
 `CORS_ORIGINS=*` lets any browser origin call the API. A native phone app does not use this check. The API key stays out of the repository.
 
-Live: `https://jisr-api.onrender.com` (interactive docs at `/docs`). The free instance sleeps when idle, so the first request can take about a minute.
+The public base URL is live at:
+**`https://jisr-api.onrender.com`** (Interactive OpenAPI docs at [`https://jisr-api.onrender.com/docs`](https://jisr-api.onrender.com/docs)). The free instance sleeps when idle, so the first request can take about a minute.
 
 ## Tests
 
