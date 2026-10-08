@@ -180,22 +180,42 @@ export default function App() {
 
   // ---------------- Guardian: live crisis interception ----------------
 
-  // Every keystroke is screened on-device against safety/crisis-phrases.json,
-  // both in the capture box and in the editable draft.
-  const inputRisk = useMemo(() => checkLocalCrisis(inputText), [inputText]);
+  const [debouncedInputText, setDebouncedInputText] = useState(inputText);
+  const [debouncedEditedDraft, setDebouncedEditedDraft] = useState(editedDraft);
+  const [dismissedCrisisText, setDismissedCrisisText] = useState('');
+
+  // 700ms debounce prevents mid-phrase false alarms while typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedInputText(inputText);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [inputText]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedEditedDraft(editedDraft);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [editedDraft]);
+
+  const inputRisk = useMemo(() => checkLocalCrisis(debouncedInputText), [debouncedInputText]);
   const draftRisk = useMemo(
-    () => (activeScreen === 'drafting' ? checkLocalCrisis(editedDraft) : null),
-    [activeScreen, editedDraft]
+    () => (activeScreen === 'drafting' ? checkLocalCrisis(debouncedEditedDraft) : null),
+    [activeScreen, debouncedEditedDraft]
   );
   const crisisDetected = inputRisk.riskDetected || Boolean(draftRisk?.riskDetected);
 
-  // A new match immediately blocks drafting and opens the support card.
+  // A new match opens the support card, unless already dismissed for this exact text
   useEffect(() => {
     if (!crisisDetected) return;
+    const currentRiskText = inputRisk.riskDetected ? debouncedInputText : debouncedEditedDraft;
+    if (currentRiskText && currentRiskText === dismissedCrisisText) return;
+
     setShowTriggerModal(false);
     setIsCrisisModal(true);
     setShowSupportModal(true);
-  }, [crisisDetected]);
+  }, [crisisDetected, debouncedInputText, debouncedEditedDraft, dismissedCrisisText, inputRisk.riskDetected]);
 
   const openSupport = () => {
     setIsCrisisModal(crisisDetected);
@@ -365,6 +385,8 @@ export default function App() {
       onClose={() => {
         setShowSupportModal(false);
         setIsCrisisModal(false);
+        const currentRiskText = inputRisk.riskDetected ? debouncedInputText : debouncedEditedDraft;
+        setDismissedCrisisText(currentRiskText);
       }}
     />
   );

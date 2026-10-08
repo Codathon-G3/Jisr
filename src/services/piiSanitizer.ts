@@ -35,9 +35,11 @@ const KINSHIP_RE = new RegExp(
   'g'
 );
 
-const PHONE_RE = /(?<!\d)(?:\+?218[\s-]?\d{2}[\s-]?\d{7}|09\d{8})(?!\d)/g;
+const PHONE_RE = /(?<![\d\u0660-\u0669])(?:\+?218[\s-]?(?:\d{2}|[\u0660-\u0669]{2})[\s-]?(?:\d{7}|[\u0660-\u0669]{7})|(?:09|٠٩)(?:[\d\u0660-\u0669]{8}))(?![\d\u0660-\u0669])/g;
 
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+
+const NAME_INTRO_RE = /(?<=(?:^|\s)اسمي(?:\s+هو)?\s+)[\u0600-\u06FF]+/g;
 
 interface Span {
   start: number;
@@ -92,6 +94,7 @@ export function sanitizePii(text: string): SanitizationResult {
   findMatches(EMAIL_RE, '[email]');
   findMatches(PHONE_RE, '[phone]');
   findMatches(KINSHIP_RE, '[name]');
+  findMatches(NAME_INTRO_RE, '[name]');
 
   spans.sort((a, b) => a.start - b.start);
 

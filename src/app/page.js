@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ar from "../i18n/ar.json";
 import templates from "../../safety/plain-templates.json";
 import supportCard from "../../safety/support-card.json";
+import { checkLocalCrisis } from "../services/crisisCheck";
 
 const toneOrder = ["gentle", "direct", "formal"];
 const API_BASE = "https://jisr-api.onrender.com";
@@ -65,6 +66,18 @@ export default function Home() {
       setIntroLeaving(false);
     }, 650);
   }
+
+  // Live on-device Guardian check with 700ms debounce
+  useEffect(() => {
+    if (!text || text.trim().length === 0) return;
+    const timer = window.setTimeout(() => {
+      const risk = checkLocalCrisis(text);
+      if (risk?.riskDetected) {
+        setShowSupport(true);
+      }
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [text]);
 
   const selectedTopic = useMemo(() => {
     return selectedChips
@@ -333,8 +346,8 @@ export default function Home() {
           {screen === "form" && (
             <div className="screenPanel">
               <div className="brand">
-                <div className="miniBridgeMark">
-                  <span>جسر</span>
+                <div className="miniBridgeMark" style={{ width: "auto", height: "auto" }}>
+                  <img src="/brand/jisr-logo.png" alt="جسر" style={{ maxWidth: "160px", height: "auto", display: "block", margin: "0 auto 8px" }} />
                 </div>
 
                 <h1>{ar.app_name}</h1>
