@@ -652,7 +652,7 @@ def build_slide_4(prs, icon_path):
     set_rtl(p_m0)
 
     metrics = [
-        ("نسبة التقاط الأزمات (Crisis Recall):", "100.0% (10/10 حالات — مجال ويلسون 72.2% – 100%)", ACCENT_GREEN),
+        ("نسبة التقاط الأزمات (Crisis Recall):", "90.9% (10 من 11 حالة على مجموعة التطوير — مجال ويلسون 62.3% – 98.4%)", ACCENT_GREEN),
         ("معدل الإنذار الخاطئ (False-Alarm):", "0.0% (0/11 حالات ضغط آمنة تم تمريرها)", ACCENT_GREEN),
         ("معجم الأزمات الليبية:", "60 عبارة أزمة محققة تغطي 360+ صياغة دارجة", ACCENT_AMBER),
         ("قائمة المصطلحات المحظورة:", "55 مصطلحاً طبياً ودوائياً محظورة قطعياً بنسبة 100%", ACCENT_AMBER)
@@ -710,7 +710,7 @@ def build_slide_4(prs, icon_path):
         slide,
         arabic_notes=(
             "الأمان في هذا المجال أولوية مطلقة. قبل أن يصل النص إلى محرك الصياغة، "
-            "تفحص طبقة الحارس عبارات الأزمة باللهجة الليبية بدقة 100%. "
+            "تفحص طبقة الحارس عبارات الأزمة باللهجة الليبية على الهاتف وعلى الخادم. "
             "وإذا وُجد خطر، تتوقف الصياغة وتظهر بطاقة دعم بشرية موثوقة بدون أرقام وهمية. "
             "وتمنع فلترة المخرجات 55 مصطلحاً طبياً من الظهور في أي مسودة. "
             "وعلى صعيد الخصوصية: جسر لا يطلب حساباً ولا يحتفظ بأي أثر للرسائل على أي سيرفر خارجي. "
@@ -718,10 +718,10 @@ def build_slide_4(prs, icon_path):
         ),
         english_notes=(
             "Safety in this space cannot be an afterthought. Before any text ever reaches drafting, "
-            "our Guardian Layer screens for crisis indicators across Libyan dialect with 100% recall. "
-            "If crisis is detected, drafting stops immediately and a verified human support card is presented. "
-            "Furthermore, our output filter guarantees no clinical diagnoses or medication terms can ever appear. "
-            "And on privacy: Jisr requires no accounts, no logins, and retains zero data on any server."
+            "our Guardian Layer screens for crisis indicators across Libyan dialect, on the phone and again on the server. "
+            "If crisis is detected, drafting stops immediately and a static support card is presented; it shows no unverified numbers. "
+            "Our output filter blocks clinical diagnoses and medication terms. "
+            "And on privacy: Jisr requires no accounts, no logins, and our server keeps nothing; names and numbers are removed before anything is sent."
         )
     )
 
@@ -744,9 +744,9 @@ def build_slide_5(prs, icon_path):
     card_r, tf_r = add_card(slide, Inches(6.8), Inches(2.05), Inches(5.9), Inches(4.8), title="الملائمة لواقع البنية التحتية والمجتمع في ليبيا (Libya Feasibility)")
     feasibility = [
         ("حزمة Android APK مستقلة (builds/jisr-v1.0.0.apk):", "تطبيق حقيقي جاهز للتثبيت الفوري لجميع أجهزة أندرويد دون الحاجة لمتجر Google Play أو بيئات برمجية معقدة.", ACCENT_AMBER),
-        ("صمود تام أمام انقطاع الإنترنت والكهرباء:", "استهلاك شبكة خفيف جداً (<2KB)، مع تحول تلقائي وفوري للقوالب المحلية (safety/plain-templates.json) عند انقطاع الاتصال.", ACCENT_GREEN),
+        ("صمود تام أمام انقطاع الإنترنت والكهرباء:", "استهلاك شبكة خفيف جداً (بضعة أسطر نص فقط)، مع تحول تلقائي وفوري للقوالب المحلية (safety/plain-templates.json) عند انقطاع الاتصال.", ACCENT_GREEN),
         ("اللهجة الليبية البيضاء والثقافة الأسرية:", "مُعاير لعبارات الشباب اليومية (مضغوط، تعبان، مخنوق)، ومراعاة مكانة الوالدين والإخوة كأول خط دعم إنساني طبيعي.", TEXT_PRIMARY),
-        ("التصدير المباشر لواتساب وماسنجر:", "مشاركة بضغطة زر واحدة عبر التطبيقات التي يستخدمها أكثر من 90% من شباب ليبيا دون أي خادم وسيط.", ACCENT_AMBER)
+        ("التصدير المباشر لواتساب وماسنجر:", "مشاركة بضغطة زر واحدة عبر التطبيقات التي يستخدمها شباب ليبيا يومياً دون أي خادم وسيط.", ACCENT_AMBER)
     ]
     for headline, desc, col in feasibility:
         p_h = tf_r.add_paragraph()
@@ -780,7 +780,7 @@ def build_slide_5(prs, icon_path):
     team_members = [
         ("محمد ثابت (Mohamed Thabet) — قائد الفريق (Team Leader):", "المعمارية، التوثيق الفني (REPORT.md)، عروض التحكيم، واجهات الثقة (BaselineComparison, FaithfulnessView, OutboundPreview)، والتدقيق اللغوي.", ACCENT_AMBER),
         ("ريان (Rayan) — مهندس الواجهات وتطبيق المحمول (Mobile Lead):", "تطبيق React Native/Expo، الـ 7 رقائق، زر الطريق البشري («تكلم مع حد توا»)، وحزم الـ APK المستقل (builds/jisr-v1.0.0.apk).", TEXT_PRIMARY),
-        ("معتز (Muatz) — مهندس الذكاء الاصطناعي والخلفية (AI & Backend):", "خادم FastAPI المستقل، توجيه نماذج Gemini 1.5 Flash و Groq Llama 3.3، وتطهير البيانات الحساسة PII.", TEXT_PRIMARY),
+        ("معتز (Muatz) — مهندس الذكاء الاصطناعي والخلفية (AI & Backend):", "خادم FastAPI المستقل، نموذج Google Gemini (gemini-flash-lite-latest)، وتطهير البيانات الحساسة PII.", TEXT_PRIMARY),
         ("شيماء (Shima) — مهندسة الأمان وطبقة الحارس (Safety Engineer):", "معجم الأزمات الليبية (60 عبارة)، قائمة حظر المصطلحات (55 مصطلحاً)، واختبارات الأمان الـ 450 واختبارات Parity.", ACCENT_GREEN)
     ]
     for member, desc, col in team_members:

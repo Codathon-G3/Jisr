@@ -1,6 +1,6 @@
 # Jisr (جِسر) — Master Implementation Plan
 
-> **Source of truth**: [Bridge_Note_Product_Definition.docx](file:///c:/Users/Gigabyte/Desktop/Ai4LY/Bridge_Note_Product_Definition.docx)
+> **Source of truth**: [Bridge_Note_Product_Definition.pdf](Bridge_Note_Product_Definition.pdf) (in this folder)
 > **Deadline**: Wednesday 7 October 2026, 11:50 PM
 > **Presentation**: Thursday 8 October 2026, after noon prayer (~5 min + ~5 min Q&A, online)
 > **Team size**: 4 people

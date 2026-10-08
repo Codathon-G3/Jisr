@@ -10,6 +10,7 @@ import {
   I18nManager,
 } from 'react-native';
 import supportCardData from '../../safety/support-card.json';
+import ar from '../i18n/ar.json';
 import { SupportContact } from '../types';
 import { colors } from '../theme';
 
@@ -17,6 +18,12 @@ export interface SupportCardModalProps {
   visible: boolean;
   onClose: () => void;
   isCrisis?: boolean;
+  /**
+   * Shown after a risk detection (requirement R10): the user may still write their
+   * note to a trusted person. The caller continues with plain templates, so the
+   * flagged text never reaches the drafting model.
+   */
+  onContinue?: () => void;
 }
 
 /**
@@ -32,6 +39,7 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
   visible,
   onClose,
   isCrisis = false,
+  onContinue,
 }) => {
   // Only display contacts that have verified === true
   const verifiedContacts: SupportContact[] = (
@@ -122,6 +130,19 @@ export const SupportCardModal: React.FC<SupportCardModalProps> = ({
               </Text>
             </View>
           </ScrollView>
+
+          {/* Continue to the note after a risk detection (R10) */}
+          {isCrisis && onContinue && (
+            <TouchableOpacity
+              style={[styles.actionButton, styles.normalButton, styles.continueButton]}
+              onPress={onContinue}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={ar.buttons.continue_note}
+            >
+              <Text style={styles.actionButtonText}>{ar.buttons.continue_note}</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Close / Action Button */}
           <TouchableOpacity
@@ -310,6 +331,9 @@ const styles = StyleSheet.create({
   },
   normalButton: {
     backgroundColor: colors.green,
+  },
+  continueButton: {
+    marginBottom: 10,
   },
   crisisButton: {
     backgroundColor: colors.safety,

@@ -1,8 +1,32 @@
+from typing import Literal
+
 from app.config import BACKEND_DIR
 from app.services.llm_client import LlmError, generate_json
 from app.services.phrase_risk import check_phrase_risk
 
 _PROMPT_PATH = BACKEND_DIR / "prompts" / "risk-check.md"
+
+GateStatus = Literal["safe", "risk", "unavailable"]
+
+
+def drafting_gate(text: str) -> tuple[GateStatus, str]:
+    """Risk check that runs inside /api/generate-drafts, before any drafting.
+
+    Unlike assess_risk, a model failure is reported as "unavailable" instead of
+    "risk": the caller then skips the model and returns plain templates, so the
+    text never reaches drafting unchecked and ordinary users are not shown a
+    crisis card just because the model is down.
+    """
+    if text.strip() == "":
+        return "safe", "none"
+    if check_phrase_risk(text)["detected"]:
+        return "risk", "phrase"
+    try:
+        if _model_detects_risk(text):
+            return "risk", "model"
+    except LlmError:
+        return "unavailable", "none"
+    return "safe", "none"
 
 
 def assess_risk(text: str) -> dict[str, object]:

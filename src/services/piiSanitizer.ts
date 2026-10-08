@@ -1,43 +1,59 @@
 /**
- * Local On-Device PII Sanitizer (Privacy & Trust Layer)
+ * Local On-Device Identifier Removal (Privacy & Trust Layer)
  *
- * Scrubs personally identifiable information (PII) before any text leaves
- * the device. Detects:
- * 1. Libyan phone numbers (+218, 091, 092...)
- * 2. Email addresses
- * 3. Family kinship mentions (والدي, أمي, بابا, ماما, خوي, أختي...)
+ * Replaces personal identifiers before any text leaves the device:
+ * 1. Emails -> [email]
+ * 2. Phone numbers and other 7+ digit numbers, Latin or Arabic-Indic digits -> [phone]
+ * 3. @handles, the word after "اسمي" / "my name is", and common names -> [name]
  *
- * Exactly mirrors backend/app/services/identifier_removal.py logic.
+ * Family words (بابا, أمي, خوي...) are not identifiers and are kept, because the
+ * drafts need to know who is involved. Names that are also everyday words are left
+ * out of the list (see safety/identifiers.json), so the outbound preview is the
+ * user's final check.
+ *
+ * Must stay identical to backend/app/services/identifier_removal.py; both are run
+ * against tests/fixtures/pii-cases.json.
  */
 
-import { IdentifierRemoved, PlaceholderType } from '../types';
+import type { IdentifierRemoved, PlaceholderType } from '../types';
+import identifierLists from '../../safety/identifiers.json';
 
-const KINSHIP_TERMS = [
-  'والدتي',
-  'والدي',
-  'أختي',
-  'اخوي',
-  'بابا',
-  'ماما',
-  'أبيّ',
-  'أبي',
-  'أمي',
-  'خوي',
-];
-
-const escapedKinship = [...KINSHIP_TERMS]
-  .sort((a, b) => b.length - a.length)
-  .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-  .join('|');
-
-const KINSHIP_RE = new RegExp(
-  `(?<![\\u0600-\\u06FF])(?:${escapedKinship})(?![\\u0600-\\u06FF])`,
-  'g'
-);
-
-const PHONE_RE = /(?<!\d)(?:\+?218[\s-]?\d{2}[\s-]?\d{7}|09\d{8})(?!\d)/g;
+const ARABIC_LETTER = '\\u0600-\\u06FF';
+const DIGIT = '0-9\\u0660-\\u0669\\u06F0-\\u06F9';
 
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+// 7+ digits, optionally split by single spaces or hyphens.
+const PHONE_RE = new RegExp(
+  `(?<![${DIGIT}])\\+?[${DIGIT}](?:[ \\-]?[${DIGIT}]){6,}(?![${DIGIT}])`,
+  'g'
+);
+const HANDLE_RE = /(?<![A-Za-z0-9_@])@[A-Za-z0-9_.]{2,}/g;
+
+const alternation = (words: string[]): string =>
+  [...words]
+    .sort((a, b) => b.length - a.length)
+    .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+
+// Group 2 is always the part that gets replaced.
+const NAME_PATTERNS: RegExp[] = [
+  new RegExp(
+    `(?<![${ARABIC_LETTER}])(${alternation(identifierLists.name_markers_ar)})\\s+([${ARABIC_LETTER}]+)`,
+    'g'
+  ),
+  new RegExp(
+    `(?<![A-Za-z])(${alternation(identifierLists.name_markers_latin)})\\s+([A-Za-z]+)`,
+    'gi'
+  ),
+  new RegExp(
+    `(?<![${ARABIC_LETTER}])([وفبلك]?)(${alternation(identifierLists.names_ar)})(?![${ARABIC_LETTER}])`,
+    'g'
+  ),
+  new RegExp(
+    `(?<![A-Za-z])()(${alternation(identifierLists.names_latin)})(?![A-Za-z])`,
+    'gi'
+  ),
+];
 
 interface Span {
   start: number;
@@ -66,13 +82,10 @@ export interface SanitizationResult {
 }
 
 /**
- * Sanitizes input text by replacing PII with safe placeholders:
- * - Phone numbers -> "[phone]"
- * - Email addresses -> "[email]"
- * - Kinship terms -> "[name]"
+ * Returns the exact text that may leave the device, plus what was replaced.
  */
 export function sanitizePii(text: string): SanitizationResult {
-  if (!text || text.trim() === '') {
+  if (!text) {
     return {
       sanitisedText: text ?? '',
       identifiersRemoved: [],
@@ -91,7 +104,16 @@ export function sanitizePii(text: string): SanitizationResult {
 
   findMatches(EMAIL_RE, '[email]');
   findMatches(PHONE_RE, '[phone]');
-  findMatches(KINSHIP_RE, '[name]');
+  findMatches(HANDLE_RE, '[name]');
+
+  for (const regex of NAME_PATTERNS) {
+    regex.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(text)) !== null) {
+      const start = match.index + match[0].length - match[2].length;
+      addSpan(spans, start, start + match[2].length, '[name]');
+    }
+  }
 
   spans.sort((a, b) => a.start - b.start);
 

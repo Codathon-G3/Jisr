@@ -8,7 +8,7 @@
  */
 
 import crisisPhrasesData from '../../safety/crisis-phrases.json';
-import { RiskResult } from '../types';
+import type { RiskResult } from '../types';
 
 export function normalizeText(input: string): string {
   return String(input ?? '')

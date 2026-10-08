@@ -43,6 +43,31 @@ def test_generate_drafts_rejects_unknown_recipient() -> None:
         )
 
 
+def test_generate_drafts_response_allows_no_drafts_only_on_risk() -> None:
+    risk = GenerateDraftsResponse.model_validate(
+        {
+            "sanitisedText": "نص",
+            "identifiersRemoved": [],
+            "drafts": [],
+            "outputCheckPassed": True,
+            "usedFallbackTemplate": False,
+            "riskDetected": True,
+            "riskMethod": "model",
+        }
+    )
+    assert risk.drafts == []
+    with pytest.raises(ValidationError):
+        GenerateDraftsResponse.model_validate(
+            {
+                "sanitisedText": "نص",
+                "identifiersRemoved": [],
+                "drafts": [],
+                "outputCheckPassed": True,
+                "usedFallbackTemplate": False,
+            }
+        )
+
+
 def test_generate_drafts_response_requires_three_tones_in_order() -> None:
     with pytest.raises(ValidationError):
         GenerateDraftsResponse.model_validate(

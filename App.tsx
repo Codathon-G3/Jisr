@@ -18,6 +18,8 @@ import { StatusBar } from 'expo-status-bar';
 
 import {
   Chip,
+  Draft,
+  DraftSource,
   Recipient,
   Tone,
   IdentifierRemoved,
@@ -30,13 +32,17 @@ import {
   getOfflineDrafts,
 } from './src/services/api';
 import { checkLocalCrisis } from './src/services/crisisCheck';
-import { sanitizePii } from './src/services/piiSanitizer';
 import {
-  recordChipSelection,
-  getHistory,
+  recordChipSelections,
+  getHistorySummary,
   clearHistory,
   checkChipRecurrence,
+  isHistoryEnabled,
+  setHistoryEnabled,
+  getRetentionDays,
+  setRetentionDays,
 } from './src/services/storage';
+import { DEFAULT_RETENTION_DAYS, RetentionDays } from './src/services/historyLogic';
 
 import {
   BaselineComparison,
@@ -50,8 +56,23 @@ import { colors } from './src/theme';
 
 import ar from './src/i18n/ar.json';
 import plainTemplatesData from './safety/plain-templates.json';
+import statedLimits from './safety/stated-limits.json';
 
 const TONE_KEYS: Tone[] = ['gentle', 'direct', 'formal'];
+
+// The on-device crisis check waits for a short pause in typing, so the support
+// card does not open in the middle of a phrase such as "نبي نموت من الضحك".
+const CRISIS_DEBOUNCE_MS = 700;
+const FAITHFULNESS_DEBOUNCE_MS = 800;
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
+}
 
 // Rayan's intro artwork (shared with the Next.js web showcase)
 const INTRO_IMAGE = require('./public/brand/jisr-intro-mobile.png');
@@ -94,6 +115,11 @@ export default function App() {
   });
   const [currentTone, setCurrentTone] = useState<Tone>('gentle');
   const [editedDraft, setEditedDraft] = useState('');
+  // Whether the drafts came from the AI or from the plain templates (R18)
+  const [draftSource, setDraftSource] = useState<DraftSource>('ai');
+  const [continuedAfterSupport, setContinuedAfterSupport] = useState(false);
+  // The text the user chose to continue with after the support card (R10)
+  const [acknowledgedText, setAcknowledgedText] = useState<string | null>(null);
 
   // Trust & Control Views
   const [showBaseline, setShowBaseline] = useState(false);
@@ -108,13 +134,20 @@ export default function App() {
   });
   const [alignments, setAlignments] = useState<Alignment[]>([]);
 
-  // Sandboxed On-Device History
-  const [historyCount, setHistoryCount] = useState(0);
+  // Private on-device record (R5): off until the user turns it on
+  const [historyOn, setHistoryOn] = useState(false);
+  const [retentionDays, setRetention] = useState<RetentionDays>(DEFAULT_RETENTION_DAYS);
+  const [historySummary, setHistorySummary] = useState<Partial<Record<Chip, number>>>({});
 
-  // Load history count on mount
-  useEffect(() => {
-    getHistory().then((items) => setHistoryCount(items.length));
+  const refreshHistory = useCallback(async () => {
+    setHistorySummary(await getHistorySummary());
   }, []);
+
+  useEffect(() => {
+    isHistoryEnabled().then(setHistoryOn);
+    getRetentionDays().then(setRetention);
+    refreshHistory();
+  }, [refreshHistory]);
 
   // Update live draft editor when switching tones or when drafts load
   useEffect(() => {
@@ -123,15 +156,22 @@ export default function App() {
     }
   }, [currentTone, drafts]);
 
-  // Update faithfulness alignments when edited draft changes
+  // Faithfulness alignments: only while the view is open, only for AI drafts, and
+  // only after a pause in editing, so typing does not fire one model call per key.
+  const debouncedDraft = useDebouncedValue(editedDraft, FAITHFULNESS_DEBOUNCE_MS);
   useEffect(() => {
-    if (activeScreen === 'drafting' && editedDraft) {
-      const source = inputText || (selectedChips[0] ? ar.chips[selectedChips[0]] : '');
-      checkFaithfulness(source, editedDraft).then((res) => {
-        setAlignments(res.alignments || []);
-      });
+    if (activeScreen !== 'drafting' || !showFaithfulness || draftSource !== 'ai' || !debouncedDraft) {
+      return;
     }
-  }, [activeScreen, editedDraft, inputText, selectedChips]);
+    let cancelled = false;
+    const source = inputText || (selectedChips[0] ? ar.chips[selectedChips[0]] : '');
+    checkFaithfulness(source, debouncedDraft).then((res) => {
+      if (!cancelled) setAlignments(res.alignments || []);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeScreen, showFaithfulness, draftSource, debouncedDraft, inputText, selectedChips]);
 
   // ---------------- Intro ----------------
 
@@ -180,25 +220,36 @@ export default function App() {
 
   // ---------------- Guardian: live crisis interception ----------------
 
-  // Every keystroke is screened on-device against safety/crisis-phrases.json,
-  // both in the capture box and in the editable draft.
-  const inputRisk = useMemo(() => checkLocalCrisis(inputText), [inputText]);
+  // The capture box and the editable draft are screened on-device against
+  // safety/crisis-phrases.json after a short pause in typing. Drafting itself is
+  // also gated on the server (/api/generate-drafts) with the model layer.
+  const debouncedInput = useDebouncedValue(inputText, CRISIS_DEBOUNCE_MS);
+  const debouncedDraftForRisk = useDebouncedValue(editedDraft, CRISIS_DEBOUNCE_MS);
+  const inputRisk = useMemo(() => checkLocalCrisis(debouncedInput), [debouncedInput]);
   const draftRisk = useMemo(
-    () => (activeScreen === 'drafting' ? checkLocalCrisis(editedDraft) : null),
-    [activeScreen, editedDraft]
+    () => (activeScreen === 'drafting' ? checkLocalCrisis(debouncedDraftForRisk) : null),
+    [activeScreen, debouncedDraftForRisk]
   );
   const crisisDetected = inputRisk.riskDetected || Boolean(draftRisk?.riskDetected);
+  // The user already saw the card for this exact text and chose to continue (R10).
+  const crisisAcknowledged = acknowledgedText !== null && acknowledgedText === inputText;
 
-  // A new match immediately blocks drafting and opens the support card.
+  // A new match opens the support card, unless the user already chose to continue.
   useEffect(() => {
-    if (!crisisDetected) return;
+    if (!crisisDetected || crisisAcknowledged) return;
     setShowTriggerModal(false);
     setIsCrisisModal(true);
     setShowSupportModal(true);
-  }, [crisisDetected]);
+  }, [crisisDetected, crisisAcknowledged]);
 
   const openSupport = () => {
-    setIsCrisisModal(crisisDetected);
+    setIsCrisisModal(crisisDetected && !crisisAcknowledged);
+    setShowSupportModal(true);
+  };
+
+  const showCrisisCard = () => {
+    setShowTriggerModal(false);
+    setIsCrisisModal(true);
     setShowSupportModal(true);
   };
 
@@ -227,9 +278,20 @@ export default function App() {
   };
 
   // "Continue" opens the writing invitation, as on the web showcase. A chip
-  // picked 3+ times before gets the pattern prompt instead.
+  // picked 3+ times inside the retention window gets the pattern prompt instead.
   const handleContinue = async () => {
-    if (selectedChips.length === 0 || crisisDetected) return;
+    if (selectedChips.length === 0) return;
+
+    // Guardian: a crisis phrase shows the support card instead of drafting. If the
+    // user already chose to continue, they get plain templates (R10).
+    if (checkLocalCrisis(inputText).riskDetected || crisisAcknowledged) {
+      if (crisisAcknowledged) {
+        continueWithTemplates();
+      } else {
+        showCrisisCard();
+      }
+      return;
+    }
 
     if (selectionKey === dismissedSelectionKey) {
       handleStartDrafting();
@@ -254,38 +316,63 @@ export default function App() {
     setShowTriggerModal(false);
   };
 
-  // Main submission handler: triggers Guardian risk screening and drafting engine
+  const showDrafts = (draftList: Draft[], source: DraftSource) => {
+    const pick = (tone: Tone) => draftList.find((d) => d.tone === tone)?.text || '';
+    const next: Record<Tone, string> = {
+      gentle: pick('gentle'),
+      direct: pick('direct'),
+      formal: pick('formal'),
+    };
+    setDrafts(next);
+    setDraftSource(source);
+    setAlignments([]);
+    setCurrentTone('gentle');
+    setEditedDraft(next.gentle);
+    setActiveScreen('drafting');
+  };
+
+  // After the support card, the user may still write to a trusted person (R10).
+  // Plain templates only: the flagged text is never sent to the drafting model.
+  const continueWithTemplates = () => {
+    const chips: Chip[] = selectedChips.length > 0 ? selectedChips : ['other'];
+    const fallback = getOfflineDrafts(chips, selectedRecipient);
+    setSanitizedData({ sanitisedText: '', identifiersRemoved: [] });
+    setContinuedAfterSupport(true);
+    showDrafts(fallback.drafts, 'template');
+  };
+
+  // Main submission handler. /api/generate-drafts runs the Guardian risk check
+  // (phrase list + model) on the server before any drafting.
   const handleStartDrafting = async () => {
     if (selectedChips.length === 0) {
       Alert.alert('تنبيه', 'يرجى اختيار موضوع واحد على الأقل للمتابعة.');
       return;
     }
+    if (checkLocalCrisis(inputText).riskDetected && !crisisAcknowledged) {
+      showCrisisCard();
+      return;
+    }
 
     setShowTriggerModal(false);
     setIsLoading(true);
+    setContinuedAfterSupport(false);
 
     try {
-      // 1. GUARDIAN LAYER PRE-DRAFTING CHECK (Zero-latency regex + backend /api/check-risk)
-      const riskCheckResult = await checkRisk(inputText, selectedChips);
+      // Private on-device record: chips only, and only if the user turned it on
+      await recordChipSelections(selectedChips);
+      refreshHistory();
 
-      if (riskCheckResult.riskDetected) {
-        // Crisis detected: HALT drafting immediately and present unalterable SupportCardModal
-        setIsLoading(false);
-        setIsCrisisModal(true);
-        setShowSupportModal(true);
-        return;
+      // Guardian, model layer: risk check before any drafting (identifier-free text).
+      // /api/generate-drafts checks again on the server.
+      if (inputText.trim()) {
+        const risk = await checkRisk(inputText, selectedChips);
+        if (risk.riskDetected) {
+          showCrisisCard();
+          return;
+        }
       }
 
-      // 2. PRIVACY & PII SANITIZATION
-      const pii = sanitizePii(inputText);
-      setSanitizedData(pii);
-
-      // 3. SANDBOXED ON-DEVICE HISTORY RECORDING
-      await recordChipSelection(selectedChips[0], selectedRecipient);
-      const updatedHistory = await getHistory();
-      setHistoryCount(updatedHistory.length);
-
-      // 4. 3-TONE DRAFTING ENGINE (FastAPI with deterministic safety/plain-templates.json fallback)
+      // Identifiers are removed inside generateDrafts before anything is sent
       const response = await generateDrafts({
         text: inputText,
         chips: selectedChips,
@@ -293,34 +380,33 @@ export default function App() {
         language: 'ar',
       });
 
-      const gentle = response.drafts.find((d) => d.tone === 'gentle')?.text || '';
-      const direct = response.drafts.find((d) => d.tone === 'direct')?.text || '';
-      const formal = response.drafts.find((d) => d.tone === 'formal')?.text || '';
+      if (response.riskDetected) {
+        showCrisisCard();
+        return;
+      }
 
-      setDrafts({ gentle, direct, formal });
-      setCurrentTone('gentle');
-      setEditedDraft(gentle);
-      setActiveScreen('drafting');
+      setSanitizedData({
+        sanitisedText: response.sanitisedText,
+        identifiersRemoved: response.identifiersRemoved,
+      });
+      showDrafts(response.drafts, response.usedFallbackTemplate ? 'template' : 'ai');
     } catch (error) {
       console.warn('Drafting error, falling back to offline templates:', error);
       const fallback = getOfflineDrafts(selectedChips, selectedRecipient, inputText);
-      const fallbackDrafts: Record<Tone, string> = {
-        gentle: fallback.drafts.find((d) => d.tone === 'gentle')?.text || '',
-        direct: fallback.drafts.find((d) => d.tone === 'direct')?.text || '',
-        formal: fallback.drafts.find((d) => d.tone === 'formal')?.text || '',
-      };
-      setDrafts(fallbackDrafts);
-      setCurrentTone('gentle');
-      setEditedDraft(fallbackDrafts.gentle);
-      setActiveScreen('drafting');
+      setSanitizedData({
+        sanitisedText: fallback.sanitisedText,
+        identifiersRemoved: fallback.identifiersRemoved,
+      });
+      showDrafts(fallback.drafts, 'template');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Share via OS native share sheet (WhatsApp, Messenger, SMS handoff) with 0 telemetry
+  // Share via OS native share sheet (WhatsApp, Messenger, SMS handoff) with 0 telemetry.
+  // Never blocked by the crisis check: sending a message to a person is the human route.
   const handleShare = async () => {
-    if (!editedDraft || crisisDetected) return;
+    if (!editedDraft) return;
 
     try {
       const result = await Share.share({
@@ -337,10 +423,22 @@ export default function App() {
     }
   };
 
-  // Clear local sandboxed history
+  // Private on-device record controls (R5)
+  const handleToggleHistory = async (enabled: boolean) => {
+    await setHistoryEnabled(enabled); // turning it off also erases it
+    setHistoryOn(enabled);
+    refreshHistory();
+  };
+
+  const handleSelectRetention = async (days: RetentionDays) => {
+    await setRetentionDays(days);
+    setRetention(days);
+    refreshHistory();
+  };
+
   const handleClearHistory = async () => {
     await clearHistory();
-    setHistoryCount(0);
+    refreshHistory();
     Alert.alert('تم المسح', 'تم مسح السجل المحلي لجهازك بالكامل بنجاح.');
   };
 
@@ -352,20 +450,35 @@ export default function App() {
     setCurrentTone('gentle');
     setEditedDraft('');
     setDismissedSelectionKey('');
+    setAcknowledgedText(null);
+    setContinuedAfterSupport(false);
     setShowBaseline(false);
     setShowFaithfulness(false);
     setShowOutbound(false);
     setActiveScreen('capture');
   };
 
+  const closeSupport = () => {
+    setShowSupportModal(false);
+    setIsCrisisModal(false);
+  };
+
+  // R10: after the card the user may still write their note to someone they trust.
+  const handleContinueAfterSupport = () => {
+    setAcknowledgedText(inputText);
+    closeSupport();
+    // On the drafting screen keep the user's own edits; otherwise start from templates.
+    if (activeScreen !== 'drafting') {
+      continueWithTemplates();
+    }
+  };
+
   const supportModal = (
     <SupportCardModal
       visible={showSupportModal}
       isCrisis={isCrisisModal}
-      onClose={() => {
-        setShowSupportModal(false);
-        setIsCrisisModal(false);
-      }}
+      onClose={closeSupport}
+      onContinue={isCrisisModal ? handleContinueAfterSupport : undefined}
     />
   );
 
@@ -457,7 +570,11 @@ export default function App() {
                 isLoading={isLoading}
                 crisisDetected={inputRisk.riskDetected}
                 onOpenSupport={openSupport}
-                historyCount={historyCount}
+                historyEnabled={historyOn}
+                onToggleHistory={handleToggleHistory}
+                retentionDays={retentionDays}
+                onSelectRetention={handleSelectRetention}
+                historySummary={historySummary}
                 onClearHistory={handleClearHistory}
               />
             )}
@@ -468,7 +585,9 @@ export default function App() {
                 <View style={styles.draftHeader}>
                   <View style={styles.draftHeaderText}>
                     <View style={styles.aiBadge}>
-                      <Text style={styles.aiBadgeText}>{ar.disclosure.badge}</Text>
+                      <Text style={styles.aiBadgeText}>
+                        {draftSource === 'ai' ? ar.disclosure.badge : ar.disclosure.template_badge}
+                      </Text>
                     </View>
                     <Text style={styles.draftTitle}>اختر الصياغة اللي تريحك</Text>
                   </View>
@@ -527,10 +646,20 @@ export default function App() {
                   accessibilityLabel="نص الرسالة القابل للتعديل"
                 />
 
-                {/* AI Disclosure */}
+                {/* AI Disclosure (R18): says plainly when the text is only a template */}
                 <View style={styles.disclosureBox}>
-                  <Text style={styles.disclosureBadge}>{ar.disclosure.badge}</Text>
-                  <Text style={styles.disclosureNotice}>{ar.disclosure.notice}</Text>
+                  <Text style={styles.disclosureBadge}>
+                    {draftSource === 'ai' ? ar.disclosure.badge : ar.disclosure.template_badge}
+                  </Text>
+                  <Text style={styles.disclosureNotice}>
+                    {draftSource === 'ai'
+                      ? ar.disclosure.notice
+                      : continuedAfterSupport
+                        ? ar.disclosure.after_support_notice
+                        : ar.disclosure.template_notice}
+                  </Text>
+                  {/* Stated limits (R23) */}
+                  <Text style={styles.disclosureNotice}>{statedLimits.ar_short}</Text>
                 </View>
 
                 {/* Trust & Control Toggles */}
@@ -567,26 +696,30 @@ export default function App() {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[styles.trustToggleBtn, showOutbound && styles.trustToggleBtnActive]}
-                    onPress={() => setShowOutbound(!showOutbound)}
-                    activeOpacity={0.8}
-                    accessibilityState={{ expanded: showOutbound }}
-                  >
-                    <Text
-                      style={[styles.trustToggleText, showOutbound && styles.trustToggleTextActive]}
+                  {/* Nothing left the device after the support card, so no outbound view */}
+                  {!continuedAfterSupport && (
+                    <TouchableOpacity
+                      style={[styles.trustToggleBtn, showOutbound && styles.trustToggleBtnActive]}
+                      onPress={() => setShowOutbound(!showOutbound)}
+                      activeOpacity={0.8}
+                      accessibilityState={{ expanded: showOutbound }}
                     >
-                      {showOutbound ? 'إخفاء الخصوصية' : 'فحص الخصوصية'}
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={[styles.trustToggleText, showOutbound && styles.trustToggleTextActive]}
+                      >
+                        {showOutbound ? 'إخفاء الخصوصية' : 'فحص الخصوصية'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 {/* TRUST VIEW 1: Baseline Comparison */}
                 {showBaseline && (
                   <BaselineComparison
-                    aiDraft={editedDraft}
+                    aiDraft={drafts[currentTone]}
                     baselineTemplate={activeBaselineTemplate}
                     recipientLabel={ar.recipients[selectedRecipient]}
+                    aiAvailable={draftSource === 'ai'}
                     onSelectDraft={(text) => setEditedDraft(text)}
                     style={styles.trustModule}
                   />
@@ -605,7 +738,7 @@ export default function App() {
                 )}
 
                 {/* TRUST VIEW 3: Outbound PII Preview */}
-                {showOutbound && (
+                {showOutbound && !continuedAfterSupport && (
                   <OutboundPreview
                     sanitisedText={
                       sanitizedData.sanitisedText ||
@@ -621,10 +754,10 @@ export default function App() {
                 <TouchableOpacity
                   style={[
                     styles.primaryButton,
-                    (!editedDraft || crisisDetected) && styles.primaryButtonDisabled,
+                    !editedDraft && styles.primaryButtonDisabled,
                   ]}
                   onPress={handleShare}
-                  disabled={!editedDraft || crisisDetected}
+                  disabled={!editedDraft}
                   activeOpacity={0.85}
                   accessibilityRole="button"
                   accessibilityLabel={ar.buttons.share}

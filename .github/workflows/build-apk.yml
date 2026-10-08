@@ -55,8 +55,32 @@ jobs:
       - name: Run Guardian Crisis Benchmark Evaluation
         run: node safety/evaluate.mjs safety/dev-set.json
 
-      - name: Run Trust & Localization Component Verification
-        run: node tests/verify-trust-components.mjs
+      - name: Run App, Privacy, Parity & Trust Tests
+        run: npm test
+
+  backend-tests:
+    name: Backend Tests (FastAPI)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install Backend Dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run Backend Tests
+        working-directory: backend
+        env:
+          GEMINI_API_KEY: ''
+          REQUIRE_SAFETY_DIR: '1'
+        run: python -m pytest -q
 
   build-apk:
     name: Build Standalone Android APK

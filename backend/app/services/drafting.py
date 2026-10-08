@@ -4,6 +4,7 @@ from app.services.fallback import CHIP_TOPICS, plain_drafts
 from app.services.identifier_removal import remove_identifiers
 from app.services.llm_client import LlmError, generate_json
 from app.services.output_check import check_drafts
+from app.services.risk_check import drafting_gate
 
 _PROMPT_PATH = BACKEND_DIR / "prompts" / "drafting.md"
 _RETRY_NOTE = (
@@ -21,6 +22,15 @@ _RECIPIENTS = {
 
 def generate_drafts(text: str, chips: list[str], recipient: str) -> dict[str, object]:
     sanitised, removed = remove_identifiers(text)
+
+    # Guardian Layer first: crisis text never reaches the drafting model, even
+    # if the client skipped or timed out on /api/check-risk.
+    gate, method = drafting_gate(sanitised)
+    if gate == "risk":
+        return _risk_response(sanitised, removed, method)
+    if gate == "unavailable":
+        return _response(sanitised, removed, plain_drafts(recipient, chips), used_fallback=True)
+
     drafts = _accepted_model_drafts(sanitised, chips, recipient)
     if drafts is None:
         drafts = plain_drafts(recipient, chips)
@@ -96,4 +106,18 @@ def _response(
         "drafts": drafts,
         "outputCheckPassed": passed,
         "usedFallbackTemplate": used_fallback,
+        "riskDetected": False,
+        "riskMethod": "none",
+    }
+
+
+def _risk_response(sanitised: str, removed: list[dict[str, str]], method: str) -> dict[str, object]:
+    return {
+        "sanitisedText": sanitised,
+        "identifiersRemoved": removed,
+        "drafts": [],
+        "outputCheckPassed": True,
+        "usedFallbackTemplate": False,
+        "riskDetected": True,
+        "riskMethod": method,
     }

@@ -6,6 +6,7 @@ import {
   ViewStyle,
   I18nManager,
 } from 'react-native';
+import ar from '../i18n/ar.json';
 
 export interface Alignment {
   /** The phrase inside the generated draft */
@@ -28,9 +29,10 @@ export interface FaithfulnessViewProps {
 /**
  * FaithfulnessView Component (Layer 4: Trust & Verification)
  *
- * Visually proves that the AI drafting engine stayed 100% faithful to the user's
- * source words without inventing backstory, exaggerating feelings, or hallucinating.
- * Matches the /api/faithfulness contract from the backend.
+ * Highlights the draft phrases that trace back to the user's own words (pairs the
+ * backend has checked really occur in both texts, via /api/faithfulness). Anything
+ * not highlighted was written by the AI, and the view says so, so the user knows
+ * what to check before sending.
  */
 export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
   draftText,
@@ -67,16 +69,13 @@ export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
     <View style={[styles.container, style]}>
       {/* Title & Integrity Badge */}
       <View style={styles.headerRow}>
-        <Text style={styles.title}>مطابقة المصدر (الأمانة اللغوية)</Text>
+        <Text style={styles.title}>{ar.trust.faithfulness_title}</Text>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>بدون تأليف أو هلوسة</Text>
+          <Text style={styles.badgeText}>مربوط بكلامك</Text>
         </View>
       </View>
 
-      <Text style={styles.description}>
-        الكلمات الملونة بالأخضر مأخوذة مباشرة من تعبيرك الخاص، مما يثبت أن الذكاء
-        الاصطناعي لم يخترع أي تفاصيل لم تذكرها:
-      </Text>
+      <Text style={styles.description}>{ar.trust.faithfulness_desc}</Text>
 
       {/* Draft Display with Highlighting */}
       <View style={styles.draftBox}>
@@ -110,7 +109,7 @@ export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
       {alignments.length > 0 && (
         <View style={styles.counterRow}>
           <Text style={styles.counterText}>
-            تم التحقق من مطابقة {alignments.length} عبارة رئيسية بنجاح
+            {alignments.length} عبارة مربوطة بكلامك. الباقي من صياغة الذكاء الاصطناعي.
           </Text>
         </View>
       )}

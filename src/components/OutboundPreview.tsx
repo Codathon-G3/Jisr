@@ -7,6 +7,7 @@ import {
   ViewStyle,
   I18nManager,
 } from 'react-native';
+import ar from '../i18n/ar.json';
 
 export interface IdentifierRemoved {
   /** The sensitive text that was scrubbed (e.g. '0912345678') */
@@ -31,9 +32,9 @@ export interface OutboundPreviewProps {
 /**
  * OutboundPreview Component (Layer 4: Trust, Privacy & PII Transparency)
  *
- * Shows the user and evaluators exactly what data leaves the mobile device.
- * Proves that personal identifiers (Libyan phone numbers, emails, names)
- * were scrubbed locally on-device before any network payload was dispatched.
+ * Shows the user exactly what would leave the device for drafting, before it is
+ * sent (requirement R16). Identifiers the sanitizer found are replaced; the user
+ * corrects anything it missed by editing their own text.
  */
 export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
   sanitisedText,
@@ -49,7 +50,7 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
       case '[phone]':
         return 'رقم هاتف';
       case '[name]':
-        return 'اسم شخصي';
+        return 'اسم';
       case '[email]':
         return 'بريد إلكتروني';
       default:
@@ -61,23 +62,20 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
     <View style={[styles.container, style]}>
       {/* Header */}
       <View style={styles.headerRow}>
-        <Text style={styles.title}>معاينة البيانات الصادرة (حماية الخصوصية)</Text>
+        <Text style={styles.title}>{ar.trust.outbound_preview_title}</Text>
         <View style={styles.shieldBadge}>
           <Text style={styles.shieldBadgeText}>تصفية محلية</Text>
         </View>
       </View>
 
-      <Text style={styles.subtitle}>
-        هذا النص هو الوحيد الذي سيتم إرساله للذكاء الاصطناعي للمساعدة في الصياغة.
-        تمت تصفية أي معلومات خاصة على جهازك مباشرة:
-      </Text>
+      <Text style={styles.subtitle}>{ar.trust.outbound_preview_desc}</Text>
 
       {/* Sanitized Text Preview Box */}
       <View style={styles.textBox}>
         <Text style={styles.sanitisedContent}>
           {sanitisedText.trim().length > 0
             ? sanitisedText
-            : '(لا توجد كلمات شخصية - سيتم الاعتماد على خيارات المواضيع فقط)'}
+            : '(ما كتبتش نص، الصياغة بتعتمد على المواضيع بس)'}
         </Text>
       </View>
 
@@ -99,17 +97,13 @@ export const OutboundPreview: React.FC<OutboundPreviewProps> = ({
         </View>
       ) : (
         <View style={styles.cleanSection}>
-          <Text style={styles.cleanText}>
-            النص نظيف تماماً ولا يحتوي على أرقام هواتف أو بيانات اتصال حساسة.
-          </Text>
+          <Text style={styles.cleanText}>{ar.trust.outbound_clean}</Text>
         </View>
       )}
 
-      {/* Zero Retention Guarantee */}
+      {/* Where the text goes */}
       <View style={styles.guaranteeBox}>
-        <Text style={styles.guaranteeText}>
-          ضمان جسر: لا يتم تخزين هذا النص في أي خادم أو قاعدة بيانات سحابية.
-        </Text>
+        <Text style={styles.guaranteeText}>{ar.trust.outbound_server_note}</Text>
       </View>
 
       {/* Action Buttons */}

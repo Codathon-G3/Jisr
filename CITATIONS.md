@@ -11,23 +11,17 @@ This document provides complete, transparent attribution for all third-party mod
 
 ### Google Gemini API
 * **Provider**: Google DeepMind / Google AI Studio
-* **Models Evaluated/Used**:
-  * `gemini-1.5-flash` / `gemini-2.0-flash`
+* **Model Used**: `gemini-flash-lite-latest` (default of `GEMINI_MODEL` in `backend/app/config.py`; the only model the backend calls).
 * **Purpose**:
   1. Restructuring unstructured free-text into situation, impact, and implicit needs.
   2. Adapting message tone across 3 distinct registers (gentle, direct, formal) for 5 recipient types.
-  3. High-recall safety classification in Arabic natural language alongside local keyword filtering.
+  3. High-recall safety classification in Arabic natural language alongside local keyword filtering (the Guardian gate inside `/api/generate-drafts`, and `/api/check-risk`).
+  4. Faithfulness alignment between the draft and the user's words (`/api/faithfulness`).
 * **Citation**:
   > Gemini Team, Google. (2024). *Gemini: A Family of Highly Capable Multimodal Models*. arXiv:2312.11805.
-* **License & Terms**: Google AI Studio Terms of Service. Data processed in accordance with stateless API policies (no model training on customer API prompts).
+* **License & Terms**: Gemini API Additional Terms of Service. On the paid tier, Google does not use prompts or responses to improve its products; on the free (unpaid) tier it may, and human reviewers may read them. Jisr sends only identifier-free text; a deployment for real users must use a paid-tier key.
 
-### Groq Cloud (Llama 3.3 / Gemma 2 Inference)
-* **Provider**: Groq, Inc.
-* **Model Used as High-Speed Alternative/Fallback**: `llama-3.3-70b-versatile` (Meta AI)
-* **Purpose**: High-throughput Arabic draft generation and dialect processing.
-* **Citation**:
-  > Meta AI. (2024). *The Llama 3 Herd of Models*. arXiv:2407.21783.
-* **License**: Llama 3.3 Community License Agreement.
+> **Not used**: no Groq, Llama or other second model provider is called anywhere in the code. Earlier drafts of the documentation listed Groq / Llama 3.3 as a fallback; that was never implemented.
 
 ---
 
@@ -40,7 +34,7 @@ This document provides complete, transparent attribution for all third-party mod
   > Expo Team. (2024). *Expo: The React Native Framework*. https://expo.dev  
   > Meta Open Source. (2024). *React Native: Learn once, write anywhere*. https://reactnative.dev
 * **Key Modules**:
-  * `expo` (SDK 51): Managed mobile runtime and native build tooling.
+  * `expo` (the committed APK was built with SDK 51): Managed mobile runtime and native build tooling.
   * `react-native`: Core mobile UI primitives and RTL layout engine.
   * `@react-native-async-storage/async-storage`: Sandboxed, local on-device persistence for optional private chip history.
   * `expo-sharing` / React Native `Share`: Native operating system share sheet integration for WhatsApp, Messenger, and Telegram.
@@ -53,6 +47,20 @@ This document provides complete, transparent attribution for all third-party mod
   > Expo Team. (2024). *EAS Build: Compile native apps in the cloud or locally*. https://docs.expo.dev/build/introduction/
 * **License / Terms**: Apache 2.0 / Expo Terms of Service.
 
+### Next.js & React (Web Showcase)
+* **Provider**: Vercel, Inc. & Meta Open Source
+* **Purpose**: The browser version of Jisr in `src/app/` (`next`, `react`, `react-dom`).
+* **Citation**:
+  > Vercel. (2024). *Next.js: The React Framework*. https://nextjs.org  
+  > Meta Open Source. (2024). *React*. https://react.dev
+* **License**: MIT License.
+
+### TypeScript
+* **Provider**: Microsoft
+* **Purpose**: Typed mobile source; also used by the test runners to transpile and test the shipped `.ts` modules.
+* **Citation**: > Microsoft. *TypeScript*. https://www.typescriptlang.org
+* **License**: Apache 2.0.
+
 ---
 
 ## 3. Backend & Deployment Infrastructure
@@ -64,8 +72,16 @@ This document provides complete, transparent attribution for all third-party mod
   > Ramírez, S. (2018). *FastAPI: High performance, easy to learn, fast to code, ready for production*. https://fastapi.tiangolo.com
 * **Key Modules**:
   * `fastapi` (>=0.115): ASGI web framework with strict Pydantic v2 data validation schemas.
-  * `httpx` (>=0.27): Asynchronous HTTP client for Gemini and Groq model inferences.
+  * `httpx` (>=0.27): HTTP client for the Gemini API calls.
+  * `pydantic` / `pydantic-settings` (>=2.0): request/response schemas and environment settings.
+  * `python-dotenv` (>=1.0): loads `backend/.env` in development.
+  * `pytest` (>=8.0): backend test suite.
 * **License**: MIT License.
+
+### Render (deployment configuration)
+* **Provider**: Render Services, Inc.
+* **Purpose**: Hosts the backend at `https://jisr-api.onrender.com` (free instance; configured in `backend/render.yaml`).
+* **Terms**: Render Terms of Service.
 
 ### Uvicorn
 * **Provider**: Encode OSS / Tom Christie
@@ -83,7 +99,18 @@ This document provides complete, transparent attribution for all third-party mod
 
 ## 4. Safety & Linguistic Datasets
 
-### Ai4LY Synthetic Crisis Benchmark
-* **Curator**: Jisr Team (Libyan Arabic Localization)
-* **Description**: A team-maintained dataset of 25 synthetic Arabic, Libyan dialect, Latin-transliterated, and euphemistic expressions designed for measuring recall and false-alarm rates without using real crisis data from vulnerable individuals.
+### Jisr Team Dev Set (`safety/dev-set.json`)
+* **Curator**: Jisr Team (Libyan Arabic Localization). This is the team's own data, not an official Ai4LY benchmark.
+* **Description**: A team-maintained dataset of 25 synthetic Arabic, Libyan dialect, Latin-transliterated, and euphemistic expressions for measuring recall and false-alarm rates without using real crisis data from vulnerable individuals. It was also used to tune the phrase list.
 * **Ethical Standard**: In accordance with lecture requirements [L§3], no real personal crisis text was scraped, stored, or exposed.
+
+### Team-Written Safety Lists
+* `safety/crisis-phrases.json` (60 phrases), `safety/forbidden-terms.json` (55 terms), `safety/plain-templates.json`, `safety/identifiers.json` (common Arabic and Latin-script given names used for identifier removal). All written by the team; no external dataset was copied.
+
+---
+
+## 5. AI-Assisted Development Tools
+
+* **Cursor** (Anysphere, Inc.): AI coding assistant used during backend development (credited as co-author in the commit history).
+* **Claude Code** (Anthropic): used on 8 October 2026 for a repository review and for the fixes listed in `docs/REVIEW_REPORT.md`.
+* Team: please add any other assistants used for code, text, translation or images (for example, the source of `public/brand/jisr-intro-mobile.png` and the pitch-deck visuals).

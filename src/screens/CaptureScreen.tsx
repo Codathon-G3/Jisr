@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,16 @@ import {
   StyleSheet,
   ActivityIndicator,
   I18nManager,
+  Switch,
 } from 'react-native';
 import { Chip, Recipient } from '../types';
 import { colors } from '../theme';
 import ar from '../i18n/ar.json';
 import supportCardData from '../../safety/support-card.json';
+import statedLimits from '../../safety/stated-limits.json';
+import { OutboundPreview } from '../components/OutboundPreview';
+import { sanitizePii } from '../services/piiSanitizer';
+import { RETENTION_OPTIONS, RetentionDays } from '../services/historyLogic';
 
 export interface CaptureScreenProps {
   selectedChips: Chip[];
@@ -25,7 +30,13 @@ export interface CaptureScreenProps {
   /** True while the free text matches a crisis phrase; drafting is blocked. */
   crisisDetected?: boolean;
   onOpenSupport: () => void;
-  historyCount: number;
+  /** Private on-device record (R5): off by default */
+  historyEnabled: boolean;
+  onToggleHistory: (enabled: boolean) => void;
+  retentionDays: RetentionDays;
+  onSelectRetention: (days: RetentionDays) => void;
+  /** What is remembered: count per chip inside the retention window */
+  historySummary: Partial<Record<Chip, number>>;
   onClearHistory: () => void;
 }
 
@@ -38,10 +49,12 @@ const RECIPIENT_IDS = Object.keys(ar.recipients) as Recipient[];
  * RTL native port of the web showcase's home form (src/app/page.js on main):
  * 1. Brand block with the Jisr mark, name and tagline.
  * 2. 7 everyday stress chips with multi-select support.
- * 3. Optional free text, screened live by the Guardian crisis check.
+ * 3. Optional free text, screened live by the Guardian crisis check, with a live
+ *    preview of exactly what would leave the device (R16) before anything is sent.
  * 4. 5 recipient selectors tailored to Libyan youth social dynamics.
- * 5. Sandboxed on-device history indicator with one-tap erase.
- * 6. Stated limits notice explaining Jisr is a writing companion, not a doctor.
+ * 5. Private on-device record: off by default, retention window, what is
+ *    remembered, one-tap erase (R5).
+ * 6. Stated limits from safety/stated-limits.json (R23).
  */
 export const CaptureScreen: React.FC<CaptureScreenProps> = ({
   selectedChips,
@@ -54,10 +67,18 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
   isLoading = false,
   crisisDetected = false,
   onOpenSupport,
-  historyCount,
+  historyEnabled,
+  onToggleHistory,
+  retentionDays,
+  onSelectRetention,
+  historySummary,
   onClearHistory,
 }) => {
-  const isSubmitDisabled = selectedChips.length === 0 || isLoading || crisisDetected;
+  const isSubmitDisabled = selectedChips.length === 0 || isLoading;
+  const outbound = useMemo(() => sanitizePii(inputText), [inputText]);
+  const rememberedChips = (Object.keys(historySummary) as Chip[]).filter(
+    (chip) => (historySummary[chip] ?? 0) > 0
+  );
 
   return (
     <View style={styles.container}>
@@ -129,6 +150,15 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
             </TouchableOpacity>
           </View>
         )}
+
+        {/* What would leave the device, shown before anything is sent (R16) */}
+        {!crisisDetected && inputText.trim().length > 0 && (
+          <OutboundPreview
+            sanitisedText={outbound.sanitisedText}
+            identifiersRemoved={outbound.identifiersRemoved}
+            style={styles.outboundPreview}
+          />
+        )}
       </View>
 
       {/* SECTION 3: Recipient Selection */}
@@ -173,26 +203,70 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
         )}
       </TouchableOpacity>
 
-      {/* SECTION 4: Sandboxed History & Privacy */}
+      {/* SECTION 4: Private on-device record (R5) */}
       <View style={styles.privacyCard}>
-        <Text style={styles.privacyTitle}>الحفظ المحلي على جهازك</Text>
+        <View style={styles.privacyToggleRow}>
+          <Text style={[styles.privacyTitle, styles.privacyToggleLabel]}>
+            {ar.history.toggle_label}
+          </Text>
+          <Switch
+            value={historyEnabled}
+            onValueChange={onToggleHistory}
+            trackColor={{ false: colors.border, true: colors.green }}
+            accessibilityLabel={ar.history.toggle_label}
+          />
+        </View>
         <Text style={styles.privacyDescription}>
-          بياناتك محفوظة على جهازك فقط ({historyCount} موضوع مسجل). لا نملك خوادم تخزن أسرارك أو تتتبعك.
+          {historyEnabled ? ar.history.on_description : ar.history.off_description}
         </Text>
 
-        {historyCount > 0 && (
-          <TouchableOpacity
-            style={styles.clearHistoryButton}
-            onPress={onClearHistory}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.clearHistoryText}>{ar.buttons.clear_history}</Text>
-          </TouchableOpacity>
+        {historyEnabled && (
+          <>
+            <Text style={styles.privacyDescription}>{ar.history.retention_label}</Text>
+            <View style={styles.retentionRow}>
+              {RETENTION_OPTIONS.map((days) => {
+                const isSelected = retentionDays === days;
+                return (
+                  <TouchableOpacity
+                    key={days}
+                    style={[styles.pill, isSelected && styles.pillSelected]}
+                    onPress={() => onSelectRetention(days)}
+                    activeOpacity={0.8}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isSelected }}
+                  >
+                    <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
+                      {ar.history.retention_options[String(days) as '1' | '7' | '30']}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <Text style={styles.privacyDescription}>
+              {ar.history.remembered}{' '}
+              {rememberedChips.length > 0
+                ? rememberedChips
+                    .map((chip) => `${ar.chips[chip]} (${historySummary[chip]})`)
+                    .join('، ')
+                : ar.history.empty}
+            </Text>
+
+            {rememberedChips.length > 0 && (
+              <TouchableOpacity
+                style={styles.clearHistoryButton}
+                onPress={onClearHistory}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.clearHistoryText}>{ar.buttons.clear_history}</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
 
-      {/* Stated Limits Notice */}
-      <Text style={styles.limits}>{ar.limits.notice}</Text>
+      {/* Stated Limits Notice (R23) */}
+      <Text style={styles.limits}>{statedLimits.ar}</Text>
     </View>
   );
 };
@@ -358,6 +432,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(47, 107, 79, 0.18)',
     backgroundColor: colors.greenSoft,
+  },
+  outboundPreview: {
+    marginTop: 12,
+  },
+  privacyToggleRow: {
+    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  privacyToggleLabel: {
+    flex: 1,
+  },
+  retentionRow: {
+    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginVertical: 8,
   },
   privacyTitle: {
     marginBottom: 6,

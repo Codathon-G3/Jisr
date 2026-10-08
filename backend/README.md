@@ -22,9 +22,11 @@ Put `GEMINI_API_KEY` in `.env` only. Do not commit that file.
 
 Send `Content-Type: application/json`.
 
-- `POST /api/check-risk`
-- `POST /api/generate-drafts`
-- `POST /api/faithfulness`
+- `POST /api/check-risk`: phrase list + Gemini classifier. Fails closed: if the model errors, it reports risk.
+- `POST /api/generate-drafts`: removes identifiers, then runs the Guardian gate before any drafting. On risk it returns `riskDetected: true`, `riskMethod` and no drafts. If the risk model is unavailable, it returns the plain templates (`usedFallbackTemplate: true`) instead of drafting unchecked text.
+- `POST /api/faithfulness`: aligns draft phrases with the user's words; keeps only pairs that occur in both texts.
+
+Identifier removal (`app/services/identifier_removal.py`) must stay identical to `src/services/piiSanitizer.ts`. Both read `safety/identifiers.json` and are tested against `tests/fixtures/pii-cases.json`.
 
 The model timeout is 10 seconds. The interface should wait about 15 seconds.
 
@@ -38,7 +40,7 @@ Build this service from the `backend` directory on Render.
 
 `CORS_ORIGINS=*` lets any browser origin call the API. A native phone app does not use this check. The API key stays out of the repository.
 
-The public base URL will be written here after the service is live.
+Live: `https://jisr-api.onrender.com` (interactive docs at `/docs`). The free instance sleeps when idle, so the first request can take about a minute.
 
 ## Tests
 

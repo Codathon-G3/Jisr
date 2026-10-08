@@ -26,20 +26,28 @@ import { sanitizePii } from './piiSanitizer';
 import { checkLocalCrisis } from './crisisCheck';
 import plainTemplatesData from '../../safety/plain-templates.json';
 
-const DEFAULT_TIMEOUT_MS = 60000;
+// The live drafting service. A phone cannot use localhost.
 const PUBLIC_API_BASE = 'https://jisr-api.onrender.com';
 
+// The free Render instance can take about a minute to wake up, and a draft request
+// may call the model up to three times (risk check, draft, one regeneration), so the
+// client waits long enough for a real answer before falling back to templates.
+const RISK_TIMEOUT_MS = 60000;
+const DRAFTS_TIMEOUT_MS = 60000;
+const FAITHFULNESS_TIMEOUT_MS = 15000;
+
 /**
- * The live drafting service. A phone cannot use localhost.
- * EXPO_PUBLIC_API_URL overrides this when a build sets it.
+ * Resolves the backend base URL: the live service, unless a build sets
+ * EXPO_PUBLIC_API_URL (for example http://localhost:8000 for backend development).
+ *
+ * Expo only inlines the variable when written exactly as
+ * `process.env.EXPO_PUBLIC_API_URL` (dot notation), so do not change the access
+ * below. Release Android builds block plain http, so a phone build needs https.
  */
 export function getApiBaseUrl(): string {
-  if (
-    typeof process !== 'undefined' &&
-    process.env &&
-    (process.env as Record<string, string | undefined>)['EXPO_PUBLIC_API_URL']
-  ) {
-    return (process.env as Record<string, string | undefined>)['EXPO_PUBLIC_API_URL']!;
+  const configured = process.env.EXPO_PUBLIC_API_URL;
+  if (configured) {
+    return configured.replace(/\/+$/, '');
   }
   return PUBLIC_API_BASE;
 }
@@ -106,7 +114,7 @@ export function getOfflineDrafts(
 async function fetchWithTimeout(
   url: string,
   options: RequestInit,
-  timeoutMs: number = DEFAULT_TIMEOUT_MS
+  timeoutMs: number
 ): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -125,8 +133,13 @@ async function fetchWithTimeout(
 }
 
 /**
- * Pre-drafting crisis screening:
- * Checks local Guardian regexes first (zero latency), then falls back to FastAPI /api/check-risk.
+ * Pre-drafting crisis screening: local phrase list first, then /api/check-risk.
+ *
+ * The app calls this before generateDrafts. /api/generate-drafts also runs the same
+ * Guardian check on the server, so the model layer still runs if this call fails, as
+ * long as the server has that gate (older deployments do not). If the server cannot
+ * be reached this returns riskDetected: false, meaning only the on-device phrase
+ * layer ran; the persistent human-route button never depends on it.
  */
 export async function checkRisk(
   text: string,
@@ -149,16 +162,24 @@ export async function checkRisk(
     };
   }
 
-  // 2. Remote check via FastAPI backend
+  // 2. Remote check via FastAPI backend, with identifiers removed first
   try {
     const baseUrl = getApiBaseUrl();
-    const payload: CheckRiskRequest = { text, chips, language: 'ar' };
+    const payload: CheckRiskRequest = {
+      text: sanitizePii(text).sanitisedText,
+      chips,
+      language: 'ar',
+    };
 
-    const response = await fetchWithTimeout(`${baseUrl}/api/check-risk`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const response = await fetchWithTimeout(
+      `${baseUrl}/api/check-risk`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      },
+      RISK_TIMEOUT_MS
+    );
 
     if (response.ok) {
       const data: CheckRiskResponse = await response.json();
@@ -175,8 +196,13 @@ export async function checkRisk(
 }
 
 /**
- * Generates drafts for the user:
- * Tries FastAPI /api/generate-drafts; falls back to safety/plain-templates.json on any error.
+ * Generates drafts for the user.
+ *
+ * Sends only identifier-free text to /api/generate-drafts, which runs the
+ * Guardian risk check before any drafting. If the server flags risk, the result
+ * has riskDetected: true and no drafts. Any network error or timeout falls back
+ * to safety/plain-templates.json (usedFallbackTemplate: true), so no unchecked
+ * text ever reaches a model from this path.
  */
 export async function generateDrafts(
   request: GenerateDraftsRequest
@@ -185,7 +211,7 @@ export async function generateDrafts(
 
   try {
     const baseUrl = getApiBaseUrl();
-    // Scrub PII before sending over the network
+    // Scrub identifiers before sending over the network
     const pii = sanitizePii(request.text);
 
     const payload: GenerateDraftsRequest = {
@@ -195,14 +221,29 @@ export async function generateDrafts(
       language: 'ar',
     };
 
-    const response = await fetchWithTimeout(`${baseUrl}/api/generate-drafts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const response = await fetchWithTimeout(
+      `${baseUrl}/api/generate-drafts`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      },
+      DRAFTS_TIMEOUT_MS
+    );
 
     if (response.ok) {
       const data = await response.json();
+      if (data && data.riskDetected === true) {
+        return {
+          sanitisedText: pii.sanitisedText,
+          identifiersRemoved: pii.identifiersRemoved,
+          drafts: [],
+          outputCheckPassed: true,
+          usedFallbackTemplate: false,
+          riskDetected: true,
+          riskMethod: data.riskMethod ?? 'model',
+        };
+      }
       if (data && Array.isArray(data.drafts) && data.drafts.length === 3) {
         return {
           sanitisedText: data.sanitisedText ?? pii.sanitisedText,
@@ -222,6 +263,7 @@ export async function generateDrafts(
 
 /**
  * Fetches faithfulness phrase alignments between user input and generated draft.
+ * The user's text is sent identifier-free, the same text the drafts were made from.
  */
 export async function checkFaithfulness(
   originalText: string,
@@ -231,15 +273,21 @@ export async function checkFaithfulness(
     return { alignments: [] };
   }
 
+  const sanitisedOriginal = sanitizePii(originalText).sanitisedText;
+
   try {
     const baseUrl = getApiBaseUrl();
-    const payload: FaithfulnessRequest = { originalText, draft };
+    const payload: FaithfulnessRequest = { originalText: sanitisedOriginal, draft };
 
-    const response = await fetchWithTimeout(`${baseUrl}/api/faithfulness`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const response = await fetchWithTimeout(
+      `${baseUrl}/api/faithfulness`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      },
+      FAITHFULNESS_TIMEOUT_MS
+    );
 
     if (response.ok) {
       const data: FaithfulnessResponse = await response.json();
@@ -252,7 +300,7 @@ export async function checkFaithfulness(
   }
 
   // Offline heuristic: find words >= 3 letters from original text that appear in draft
-  const words = originalText
+  const words = sanitisedOriginal
     .split(/\s+/)
     .map((w) => w.trim())
     .filter((w) => w.length >= 3 && draft.includes(w));

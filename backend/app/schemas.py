@@ -52,10 +52,18 @@ class GenerateDraftsResponse(BaseModel):
     drafts: list[Draft]
     outputCheckPassed: bool
     usedFallbackTemplate: bool
+    riskDetected: bool = False
+    riskMethod: RiskMethod = "none"
 
     @model_validator(mode="after")
     def drafts_are_three_tones_in_order(self) -> "GenerateDraftsResponse":
         tones = [draft.tone for draft in self.drafts]
+        if self.riskDetected:
+            if tones:
+                raise ValueError("no drafts may be returned when risk is detected")
+            if self.riskMethod == "none":
+                raise ValueError("riskMethod cannot be none when risk is detected")
+            return self
         if tones != list(DRAFT_ORDER):
             raise ValueError("drafts must be exactly gentle, direct, then formal")
         return self

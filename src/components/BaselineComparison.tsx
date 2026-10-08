@@ -7,6 +7,7 @@ import {
   ViewStyle,
   I18nManager,
 } from 'react-native';
+import ar from '../i18n/ar.json';
 
 export interface BaselineComparisonProps {
   /** The AI-generated, tone-adapted message draft */
@@ -15,6 +16,8 @@ export interface BaselineComparisonProps {
   baselineTemplate: string;
   /** Label for the recipient (e.g. 'صاحبي / صاحبتي') */
   recipientLabel?: string;
+  /** False when the drafts are templates (AI unavailable), so the view says so */
+  aiAvailable?: boolean;
   /** Optional callback when the user picks which version to send */
   onSelectDraft?: (selectedText: string, isAi: boolean) => void;
   /** Optional container style override */
@@ -24,14 +27,16 @@ export interface BaselineComparisonProps {
 /**
  * BaselineComparison Component (Layer 4: Trust & Transparency)
  *
- * Demonstrates the tangible value of the AI drafting engine by allowing
- * the user and evaluators to compare the personalized, tone-softened AI note
- * directly against a static, generic, non-AI baseline template.
+ * Lets the user and evaluators compare the AI draft with the plain template and
+ * judge for themselves. Product definition §4.4: if the AI output is not better,
+ * the toggle must show that too, so the labels stay neutral and the view says
+ * plainly when the "AI" draft is only the template.
  */
 export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
   aiDraft,
   baselineTemplate,
   recipientLabel,
+  aiAvailable = true,
   onSelectDraft,
   style,
 }) => {
@@ -47,9 +52,9 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
     <View style={[styles.container, style]}>
       {/* Header & Purpose Badge */}
       <View style={styles.headerRow}>
-        <Text style={styles.title}>مقارنة المحتوى</Text>
+        <Text style={styles.title}>{ar.trust.comparison_title}</Text>
         <View style={styles.trustBadge}>
-          <Text style={styles.trustBadgeText}>إثبات دور الذكاء الاصطناعي</Text>
+          <Text style={styles.trustBadgeText}>الذكاء الاصطناعي مقابل القالب</Text>
         </View>
       </View>
 
@@ -112,9 +117,7 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
       >
         <View style={styles.cardHeader}>
           <Text style={styles.cardIndicator}>
-            {activeTab === 'ai'
-              ? 'كلام مهذب ومخصص لمشاعرك'
-              : 'نص جاهز وجامد'}
+            {activeTab === 'ai' ? ar.trust.ai_draft_label : ar.trust.baseline_template_label}
           </Text>
         </View>
 
@@ -124,9 +127,7 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
       {/* Insight Footer */}
       <View style={styles.insightBox}>
         <Text style={styles.insightText}>
-          {activeTab === 'ai'
-            ? 'الذكاء الاصطناعي يساعدك تكسر حاجز البداية بدون إحراج وبلهجة طبيعية يفهمها قريبك.'
-            : 'القالب الثابت كلام عام جداً وقد يبدو بارداً أو غير معبر عن حالتك الحقيقية.'}
+          {aiAvailable ? ar.trust.why_different : ar.trust.template_only}
         </Text>
       </View>
 

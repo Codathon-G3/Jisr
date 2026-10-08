@@ -7,10 +7,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json && node tests/verify-trust-components.mjs && node tests/verify-crisis-parity.mjs",
+    "test": "npm run test:safety && npm run test:app",
     "test:safety": "node safety/selftest.mjs && node safety/evaluate.mjs safety/dev-set.json",
+    "test:app": "node tests/verify-trust-components.mjs && node tests/verify-crisis-parity.mjs && node tests/test-pii-sanitizer.mjs && node tests/test-api-client.mjs && node tests/test-private-record.mjs && node tests/test-offline-fallback.mjs && node tests/verify-m2-integration.mjs && node tests/verify-honest-ui.mjs",
     "test:trust": "node tests/verify-trust-components.mjs",
-    "test:parity": "node tests/verify-crisis-parity.mjs"
+    "test:parity": "node tests/verify-crisis-parity.mjs",
+    "test:backend": "cd backend && python -m pytest -q",
+    "test:all": "npm test && npm run test:backend"
   },
   "repository": {
     "type": "git",

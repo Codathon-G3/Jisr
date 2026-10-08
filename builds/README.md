@@ -126,11 +126,20 @@ Permissions declared in the APK manifest:
 
 | Permission | Why it is there |
 |---|---|
-| `android.permission.INTERNET` | Optional stateless calls to the FastAPI backend (`/api/check-risk`, `/api/generate-drafts`). Without a connection the app drafts from `safety/plain-templates.json` offline. |
+| `android.permission.INTERNET` | Optional stateless calls to the FastAPI backend (`/api/generate-drafts`, `/api/faithfulness`). Without a connection the app drafts from `safety/plain-templates.json` offline. **This build has no backend URL** (it was built without `EXPO_PUBLIC_API_URL`, and release builds block plain `http`), so on a phone it always uses the templates. |
 | `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `SYSTEM_ALERT_WINDOW`, `VIBRATE` | Added by the default Expo/React Native template. Jisr never requests them at runtime, so storage and overlay access are never granted. They can be removed with `android.blockedPermissions` in `app.json`. |
 | `com.ai4ly.jisr.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Internal AndroidX permission scoped to this app. |
 
 - **No analytics SDKs**: no trackers, advertising identifiers or analytics libraries.
-- **On-device history only**: chip and draft history stays in `AsyncStorage` on the phone.
+- **On-device history only**: chip history stays in `AsyncStorage` on the phone.
 - **One-tap wipe**: the capture screen erases all stored history.
-- **Guardian crisis check on-device**: every keystroke is screened against `safety/crisis-phrases.json`; a match blocks drafting and opens the static support card.
+- **Guardian crisis check on-device**: typed text is screened against `safety/crisis-phrases.json`; a match blocks drafting and opens the static support card.
+
+> **Rebuild needed**: `jisr-v1.0.0.apk` predates the 8 October fixes listed in `docs/REVIEW_REPORT.md`:
+> - the private record is off by default with expiry and backup excluded;
+> - the privacy preview appears before sending;
+> - names are removed, and family words kept;
+> - "continue to my note" after the support card;
+> - the backend URL setting.
+>
+> Rebuild from the current source (it calls the live API `https://jisr-api.onrender.com` by default), then update the size and SHA-256 above.

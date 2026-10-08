@@ -10,7 +10,7 @@
 [![Android APK](https://img.shields.io/badge/Android%20APK-Download%20v1.0.0-brightgreen?logo=android&style=for-the-badge)](https://github.com/Codathon-G3/Jisr/releases/download/v1.0.0/jisr-v1.0.0.apk)
 [![Expo Go](https://img.shields.io/badge/Expo%20Go-Mobile%20Preview-blue?logo=expo&style=for-the-badge)](#showcase-2-mobile-showcase-react-native--expo--android-apk)
 [![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Uvicorn-009688?logo=fastapi&style=for-the-badge)](backend/)
-[![Safety Tests](https://img.shields.io/badge/Safety%20Tests-450%2F450%20Pass%20(100%25%20Recall)-success?style=for-the-badge)](#automated-verification-suite-npm-test)
+[![Safety Tests](https://img.shields.io/badge/Safety%20Tests-npm%20test%20passing%20%7C%20Recall%2010%2F11%20(dev%20set)-success?style=for-the-badge)](#automated-verification-suite-npm-test)
 [![Presentation: Pitch Deck](https://img.shields.io/badge/Presentation-16%3A9%20Pitch%20Deck-purple?style=for-the-badge)](docs/PITCH_DECK.pptx)
 
 ---
@@ -21,13 +21,13 @@ This repository fulfills all required submission deliverables for the **Ai4LY Na
 
 | Codathon Deliverable | Specification Scope | In-Repository Artifact / Location | Evaluation Status |
 |---|---|---|:---:|
-| **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.74 / Expo SDK 51)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Gemini 1.5 Flash / Groq Llama 3.3) | **VERIFIED** |
+| **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.74 / Expo SDK 51)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Google Gemini `gemini-flash-lite-latest`) | **VERIFIED** |
 | **Demo Artifact: Android APK** | Standalone installable mobile prototype ready for instant sideloading | • **Standalone APK**: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63.1 MB, SHA-256 verified)<br>• **Verification & Install Guide**: [`builds/README.md`](builds/README.md) | **VERIFIED** |
 | **Scope B: Documentation** | Root architectural, operational, setup and usage guide | • **Master Guide**: [`README.md`](README.md) (This landing page)<br>• **Documentation Hub**: [`docs/README.md`](docs/README.md) | **VERIFIED** |
 | **Scope C: Technical Report** | In-depth Markdown report detailing problem alignment, architecture, citations & evaluation | • **Technical Report**: [`REPORT.md`](REPORT.md) (35 KB comprehensive report with Wilson 95% CIs and 12-hour progress log) | **VERIFIED** |
 | **Scope D: Presentation** | 5-minute presentation file / pitch deck with problem, solution & impact | • **PowerPoint Deck**: [`docs/PITCH_DECK.pptx`](docs/PITCH_DECK.pptx) (16:9 widescreen with Arabic RTL)<br>• **Interactive HTML Deck**: [`docs/PITCH_DECK.html`](docs/PITCH_DECK.html)<br>• **Speaker Script**: [`docs/PITCH_DECK.md`](docs/PITCH_DECK.md)<br>• **Committee Defense**: [`docs/COMMITTEE_QA.md`](docs/COMMITTEE_QA.md) | **VERIFIED** |
-| **Section 4: Tool Citations** | Explicit disclosure and academic attribution of all models, APIs, and libraries | • **Attribution Register**: [`CITATIONS.md`](CITATIONS.md) (Gemini, Llama 3.3, Expo, FastAPI, Uvicorn) | **VERIFIED** |
-| **Safety & Empirical Quality** | Measured recall benchmarks, unit tests & cross-engine parity | • **Master Test Command**: `npm test` (**450 passed, 0 failed**)<br>• **Crisis Recall**: **100.0%** (10/10 caught, 95% CI 72.2%–100.0%)<br>• **Crisis Check Parity**: **756 checks passed** | **VERIFIED** |
+| **Section 4: Tool Citations** | Explicit disclosure and academic attribution of all models, APIs, and libraries | • **Attribution Register**: [`CITATIONS.md`](CITATIONS.md) (Gemini, Expo, React Native, Next.js, FastAPI, Uvicorn, Pydantic) | **VERIFIED** |
+| **Safety & Empirical Quality** | Measured recall benchmarks, unit tests & cross-engine parity | • **Master Test Command**: `npm test` (selftest 450 passed, 0 failed, plus 9 app/privacy/parity suites) and `npm run test:backend` (89 passed)<br>• **Crisis Recall (phrase layer)**: **10/11 = 90.9%** (95% CI 62.3%–98.4%) on the 25-item dev set, which was also used to tune the list. A blind test set and the model layer's recall are not measured yet.<br>• **Crisis Check Parity**: **756 checks passed** | **VERIFIED** |
 | **Administrative Attribution** | Designated Team Lead and contestant emails | • **Team Leader**: Mohamed Thabet (`abdwadood2000@gmail.com`)<br>• **Team Members**: Rayan, Muatz, Shima | **VERIFIED** |
 
 ---
@@ -61,8 +61,9 @@ The hardest step in reaching out during times of emotional distress is often wri
                │                                                     │
                ▼                                                     ▼
      Local PII Sanitizer                               Zero-Latency Crisis Screener
- (Strips Libyan phone numbers +218,               (Matches 60 Libyan dialect markers
-  emails & personal kinship names)                 across 360+ orthographic variants)
+ (Replaces phone numbers, emails,                 (Matches 60 Libyan dialect markers
+  @handles & names; shown to the user              across 360+ orthographic variants)
+  in the Outbound Preview before sending)
                │                                                     │
                ▼                                                     ▼
     Sanitized Text & Chips                            [ Acute Crisis Detected? ]
@@ -74,13 +75,17 @@ The hardest step in reaching out during times of emotional distress is often wri
                ▼
    [ DRAFTING ENGINE (ONLINE OR OFFLINE) ]
                │
-               ├── ONLINE PATH (Network Available, Timeout: 2.5s)
+               ├── ONLINE PATH (Network Available, Timeout: 60 s)
                │      │
                │      ▼
                │   FastAPI Service (uvicorn app.main:app)
-               │      ├── POST /api/check-risk (Zero-shot classification)
-               │      ├── POST /api/generate-drafts (Gemini 1.5 Flash / Groq Llama 3.3)
-               │      └── Deterministic Output Filter (55 clinical/diagnostic terms blocked)
+               │      ├── POST /api/generate-drafts
+               │      │      ├── 1. Guardian gate: phrase list + Gemini risk check
+               │      │      │      (risk → no drafts, support card; model down → templates)
+               │      │      ├── 2. Gemini drafting (gemini-flash-lite-latest)
+               │      │      └── 3. Deterministic Output Filter (55 terms; retry once, then template)
+               │      ├── POST /api/check-risk (called by the clients first, scrubbed text)
+               │      └── POST /api/faithfulness (phrase alignment, checked against both texts)
                │
                └── OFFLINE PATH (Network Down / Electrical Blackout / Timeout Exceeded)
                       │
@@ -118,7 +123,7 @@ The hardest step in reaching out during times of emotional distress is often wri
    * **Mobile Client (`App.tsx`, `src/`)**: Built on React Native 0.74 / Expo SDK 51, providing native mobile sharing (`Share.share()`), sandboxed on-device recurrence memory (`AsyncStorage`), and APK distribution.
 2. **AI Microservice (`backend/app/`)**:
    * Stateless FastAPI backend with asynchronous endpoints (`/api/check-risk`, `/api/generate-drafts`, `/api/faithfulness`).
-   * Powered by Google Gemini 1.5 Flash (sub-800ms latency, native Arabic tokenization) with Groq LPU (Llama 3.3 70B) high-speed fallback.
+   * Powered by Google Gemini (`gemini-flash-lite-latest`, set with `GEMINI_MODEL`). There is no second model provider: if Gemini is unreachable, the backend returns the plain templates instead of drafting unchecked text.
 3. **Guardian Safety Engine (`safety/`)**:
    * Pre-generation lexicon of 60 dialect crisis phrases (tested across 360+ spelling variants) with 7 whitelisted colloquial idioms.
    * Deterministic post-generation blacklist intercepting 55 diagnostic and pharmaceutical terms.
@@ -144,7 +149,7 @@ Jisr/
 ├── 2. AI CORE & MICROSERVICE (Stateless FastAPI Backend)
 │   ├── backend/app/main.py            # FastAPI service entry point & CORS configuration
 │   ├── backend/app/routers/           # Endpoints (/api/check-risk, /api/generate-drafts, /api/faithfulness)
-│   ├── backend/app/services/          # Multi-LLM client (Gemini 1.5 Flash, Groq Llama 3.3), PII sanitizer
+│   ├── backend/app/services/          # Gemini client, Guardian gate, identifier removal, output check
 │   └── backend/prompts/               # System prompt definitions for 3-tone drafting and grounding
 │
 ├── 3. GUARDIAN SAFETY ENGINE (Linguistic Datasets & Safety Gates)
@@ -152,7 +157,9 @@ Jisr/
 │   ├── safety/forbidden-terms.json    # 55 blocked clinical, diagnostic, and medication terms
 │   ├── safety/plain-templates.json    # 35 deterministic offline fallback & baseline templates
 │   ├── safety/support-card.json       # Static emergency support card with approved fallback message
-│   ├── safety/dev-set.json            # 25-item gold-standard benchmark for recall evaluation
+│   ├── safety/identifiers.json        # Name lists shared by the app's and the backend's identifier removal
+│   ├── safety/stated-limits.json      # What Jisr is not (shown on the app and the web page)
+│   ├── safety/dev-set.json            # 25-item dev set (also used to tune the phrase list)
 │   └── safety/lib/                    # Text normalization and zero-latency matching algorithms
 │
 ├── 4. DISTRIBUTION & COMPETITION ARTIFACTS
@@ -166,12 +173,16 @@ Jisr/
 │   └── CITATIONS.md                   # Complete third-party tools, models & frameworks citations
 │
 └── 5. QA & AUTOMATED VERIFICATION SUITE
-    ├── safety/selftest.mjs            # Deterministic Guardian unit test runner (450 passing tests)
-    ├── safety/evaluate.mjs            # Crisis benchmark recall evaluation runner (100.0% recall)
+    ├── safety/selftest.mjs            # 450 generated checks over the safety data files
+    ├── safety/evaluate.mjs            # Crisis recall & false-alarm rates with Wilson 95% CIs
     ├── tests/verify-crisis-parity.mjs # 756 parity checks between mobile TypeScript & Node Guardian engine
     ├── tests/verify-trust-components.mjs # Validates trust views & Arabic localization dictionary
     ├── tests/test-offline-fallback.mjs# Validates all 35 offline fallback templates & permutations
-    └── tests/test-pii-sanitizer.mjs   # Validates Libyan phone (+218), email & kinship scrubbing
+    ├── tests/test-pii-sanitizer.mjs   # Runs the shipped sanitizer on tests/fixtures/pii-cases.json
+    ├── tests/test-api-client.mjs      # Only identifier-free text leaves the app; risk flag; offline fallback
+    ├── tests/test-private-record.mjs  # Record off by default, chips only, expiry, erase on disable
+    ├── tests/verify-honest-ui.mjs     # Stated limits, continue-after-card, honest trust wording
+    └── backend/tests/                 # 89 pytest tests (same identifier cases as the app)
 ```
 
 ---
@@ -196,12 +207,19 @@ Environment variables are configured in `backend/.env` (template provided in `ba
 
 | Variable | Description | Required? | Default Value |
 |---|---|:---:|---|
-| `GEMINI_API_KEY` | Google AI Studio API key for Gemini 1.5 Flash | Optional* | `""` (Empty string) |
+| `GEMINI_API_KEY` | Google AI Studio API key for the Gemini API. Use a paid-tier key for real users: on the free tier Google may use prompts to improve its products | Optional* | `""` (Empty string) |
 | `GEMINI_MODEL` | Foundation model identifier | Optional | `gemini-flash-lite-latest` |
 | `LLM_TIMEOUT_SECONDS` | Gateway timeout before falling back | Optional | `10` |
 | `CORS_ORIGINS` | Permitted origins for frontend CORS | Optional | `*` |
 
-> **Zero-Key Offline Guarantee**: An API key is **NOT required** to evaluate the application. If `GEMINI_API_KEY` is not provided or the backend is offline, both the Web Showcase and Mobile Client automatically fall back to the local deterministic template engine (`safety/plain-templates.json`), maintaining 100% functionality with zero network or cloud dependency.
+Both clients call the live API (`https://jisr-api.onrender.com`) by default. To point them at another backend (for example a local one), set one variable each in your shell or a root `.env` file before starting or building:
+
+| Variable | Used by | Example | Notes |
+|---|---|---|---|
+| `NEXT_PUBLIC_API_URL` | Web Showcase (`src/app/`) | `http://localhost:8000` | Default: the live API |
+| `EXPO_PUBLIC_API_URL` | Mobile app (`App.tsx`) | `http://localhost:8000` | Default: the live API. Baked in at build time; a release APK needs an `https` URL (Android blocks plain `http` in release builds) |
+
+> **Works without a key, but without AI**: If `GEMINI_API_KEY` is not set or the backend is unreachable, both clients fall back to the plain templates (`safety/plain-templates.json`) and say so on screen ("قالب جاهز"). The on-device crisis check, the support card and sharing keep working. The four AI functions (structuring, tone adaptation, faithfulness, model risk check) need the backend and a key.
 
 ---
 
@@ -250,8 +268,8 @@ npm run dev
   1. Select 1 or more situation chips (`الامتحانات`, `العائلة`, etc.).
   2. Choose a recipient (`صديق`, `أخ/أخت`, etc.).
   3. Optionally type 1–2 lines of stressful thoughts.
-  4. Notice immediate crisis screening and 3-tone drafting.
-  5. Inspect the live Baseline Comparison and Outbound PII preview.
+  4. Before anything is sent, check the preview under your text: it shows exactly what will leave the device.
+  5. Notice the crisis screening and the 3 tone drafts (labelled "قالب جاهز" if the backend is not running).
 
 To create a production-optimized build:
 ```bash
@@ -289,14 +307,20 @@ Evaluators can install and run the standalone, pre-compiled Android binary witho
    ```
 *(Detailed APK specifications, signing information, and architecture notes are documented in [`builds/README.md`](builds/README.md).)*
 
-#### Option B: Running Mobile App from Source (Expo SDK 51)
+> **Note**: `builds/jisr-v1.0.0.apk` was built before the backend was deployed, so it has no backend address. It runs the on-device crisis check and the plain templates only. A rebuild from the current source calls the live API by default and gets AI drafts on a phone.
+
+#### Option B: Running Mobile App from Source
 ```bash
+# Optional: use a local backend instead of the live API
+export EXPO_PUBLIC_API_URL=http://localhost:8000      # PowerShell: $env:EXPO_PUBLIC_API_URL="http://localhost:8000"
+
 # Option 1: Mobile preview via Expo Go (scan terminal QR code)
 npx expo start
 
 # Option 2: Mobile Web preview (React Native Web)
 npx expo start --web
 ```
+Expo Go only runs projects on the SDK version it supports. If it reports an incompatible SDK, use the APK, an emulator (`npx expo run:android`), or the web preview.
 
 ---
 
@@ -307,7 +331,8 @@ cd backend
 # With virtual environment activated:
 uvicorn app.main:app --reload --port 8000
 ```
-* **Live API**: [https://jisr-api.onrender.com](https://jisr-api.onrender.com) — interactive docs at [/docs](https://jisr-api.onrender.com/docs). The web showcase and the phone client call this address. A local server on port 8000 is only for backend development.
+* **Live API**: [https://jisr-api.onrender.com](https://jisr-api.onrender.com) — interactive docs at [/docs](https://jisr-api.onrender.com/docs). The web showcase and the phone client call this address. A local server on port 8000 is only for backend development. The free instance sleeps when idle, so the first request can take about a minute.
+* **Backend tests**: `npm run test:backend` (or `cd backend && python -m pytest -q`).
 
 ---
 
@@ -320,13 +345,13 @@ npm test
 ```
 
 ### What `npm test` Executes:
-1. **Guardian Layer Unit Tests (`safety/selftest.mjs`)**:
-   * Executes **450 safety test cases** with **0 failures**.
+1. **Guardian Layer Data Checks (`safety/selftest.mjs`)**:
+   * Runs **450 generated checks** (one per phrase, term and template) with **0 failures**.
    * Validates regex normalization, phrase detection, boundary conditions, and output screening across 55 forbidden clinical terms.
-2. **Synthetic Crisis Benchmark Recall (`safety/evaluate.mjs safety/dev-set.json`)**:
-   * Evaluates gold-standard benchmark dev set (25 dialect test vectors across 60 crisis phrases).
-   * Verifies **100.0% recall** (10/10 crisis cases caught, 95% CI 72.2%–100.0%).
-   * Verifies **0.0% false-alarm rate** (0/11 non-crisis inputs flagged).
+2. **Crisis Recall on the Dev Set (`safety/evaluate.mjs safety/dev-set.json`)**:
+   * Runs the phrase layer on the 25-item dev set. This set was also used to tune the phrase list, so these are not blind figures.
+   * Main items: 10/10 crisis caught, 0/11 false alarms. **All labelled items, including the 4 marked ambiguous: recall 10/11 = 90.9% (95% CI 62.3%–98.4%)**, false alarms 0/14. The miss is item #22, *"الدنيا سوداء في عيني الفترة هادي"*.
+   * The model layer is not included; run it with `RISK_API_URL=... node safety/evaluate.mjs <set>` once a blind set exists.
 3. **Trust & Arabic Localization Verification (`tests/verify-trust-components.mjs`)**:
    * Validates `src/i18n/ar.json` structure and completeness.
    * Validates all 4 trust UI components: `BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`, and component barrel export.
@@ -335,12 +360,15 @@ npm test
    * Verifies all 60 crisis phrases caught on-device across 360 spelling variations.
    * Matches `safety/lib/crisis-check.mjs` on 385 inputs.
    * Verifies that 7 benign everyday idioms remain unflagged.
+5. **Identifier Removal (`tests/test-pii-sanitizer.mjs`)**: runs the shipped `piiSanitizer.ts` on the 18 shared cases in `tests/fixtures/pii-cases.json`; the backend tests run the same file, so phone and server stay identical.
+6. **API Client (`tests/test-api-client.mjs`)**: every request carries identifier-free text, a server risk flag returns no drafts, network errors fall back to templates.
+7. **Private Record (`tests/test-private-record.mjs`)**: off by default, chips and time only, expiry, erase on disable.
+8. **Honest UI (`tests/verify-honest-ui.mjs`)**: stated limits, continue-after-card, neutral trust-view wording, Android backup off.
+9. Offline templates (`tests/test-offline-fallback.mjs`) and integration wiring (`tests/verify-m2-integration.mjs`).
 
-### Specialized Auxiliary Test Runners:
 ```bash
-node tests/test-offline-fallback.mjs    # Validates all 35 offline fallback templates & permutations
-node tests/test-pii-sanitizer.mjs       # Validates Libyan phone (+218), email & kinship scrubbing
-node tests/verify-m2-integration.mjs    # Validates complete Milestone 2 mobile integration flow
+npm run test:backend   # 89 FastAPI tests (Guardian gate, identifier removal, schemas, statelessness)
+npm run test:all       # everything
 ```
 
 ---
@@ -350,8 +378,11 @@ node tests/verify-m2-integration.mjs    # Validates complete Milestone 2 mobile 
 * **Not a Doctor or Therapist**: Jisr does not diagnose, screen, score, or provide therapy.
 * **No Automatic Actions**: Jisr never messages third parties or contacts emergency services automatically.
 * **No Tracking**: No user profiling, no account required, no message logging.
-* **Identifiers Removed**: Libyan phone numbers (+218, 091, 092), emails, and kinship mentions are scrubbed on-device before drafting.
+* **Identifiers Removed, and Shown First**: phone numbers (Latin or Arabic-Indic digits), emails, @handles and names (after "اسمي" / "my name is", or from a list of common names) are replaced on-device. The user sees exactly what will leave the phone before anything is sent. Family words (بابا، أمي، خوي) are kept, because the drafts need them. A name outside the list can still slip through, so the preview is the user's final check.
+* **Guardian Before Drafting, on the Server Too**: `/api/generate-drafts` runs the phrase list and the Gemini risk check before any drafting. On risk, no drafts are made and the support card is shown; the user may then continue with plain templates (their text is not sent to the model).
+* **Private Record Off by Default**: the on-device memory of chip topics is off until the user turns it on. It keeps chips and time only, expires after 1, 7 or 30 days, is erased in one tap or when turned off, and is excluded from Android backup.
 * **Persistent Human Route**: The *"تكلم مع حد توا"* button is unblocked and reachable on every screen.
+* **Minors**: no account, no data kept, nobody contacted, and the user chooses who receives the note. We recommend that under-18s use Jisr with a trusted adult's knowledge.
 * **Emergency Contact Ethics**: In active crisis, displaying unresponsive phone numbers introduces severe hazard. Jisr maintains `contacts: []` with an unalterable direct statement guiding users to a trusted person or the nearest emergency department.
 
 ---
@@ -362,8 +393,8 @@ node tests/verify-m2-integration.mjs    # Validates complete Milestone 2 mobile 
 |---|---|---|
 | **Mohamed Thabet** (Team Leader, Person 4) | Trust Views, Arabic Quality, Documentation & Presentation Lead | Arabic linguistic review, technical report (`REPORT.md`), pitch deck (`docs/PITCH_DECK.pptx`), committee defense (`docs/COMMITTEE_QA.md`), trust views (`BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`), citations & benchmarks. |
 | **Rayan** (Person 1) | Mobile App & Interaction Engineer | React Native/Expo UI, 7 RTL stress chips, recipient selectors, persistent human route button, native share sheet, standalone Android APK packaging. |
-| **Muatz** (Person 2) | AI Core & Backend Engineer | FastAPI service (`uvicorn app.main:app`), LLM system prompts (Gemini 1.5 Flash & Groq Llama 3.3 70B), risk check API router, PII stripping. |
-| **Shima** (Person 3) | Safety, Guardian & Evidence Engineer | Crisis phrase list (60 phrases, 360+ Libyan dialect spellings), clinical blacklist (55 terms), output check, safety recall metrics (100% recall). |
+| **Muatz** (Person 2) | AI Core & Backend Engineer | FastAPI service (`uvicorn app.main:app`), LLM system prompts (Google Gemini), risk check API router, PII stripping. |
+| **Shima** (Person 3) | Safety, Guardian & Evidence Engineer | Crisis phrase list (60 phrases, 360+ Libyan dialect spellings), clinical blacklist (55 terms), output check, safety recall metrics (10/11 on the dev set). |
 
 ---
 

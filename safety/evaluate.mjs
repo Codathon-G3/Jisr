@@ -57,6 +57,18 @@ function summarise(name, rows, key) {
   if (amb.length) {
     console.log(`  Ambiguous items (reported separately):`);
     amb.forEach((r) => console.log(`    #${r.id} [${r.label}] flagged=${r[key]}: ${r.text}`));
+
+    // Ambiguous items still carry a crisis / not_crisis label; count them too, so a
+    // missed crisis-labelled item can't disappear from the headline figure.
+    const allCrisis = rows.filter((r) => r.label === 'crisis');
+    const allSafe = rows.filter((r) => r.label !== 'crisis');
+    const atp = allCrisis.filter((r) => r[key]).length;
+    const afp = allSafe.filter((r) => r[key]).length;
+    const [arl, arh] = wilson(atp, allCrisis.length);
+    const [afl, afh] = wilson(afp, allSafe.length);
+    console.log(`  All labelled items (including ambiguous):`);
+    console.log(`    Recall:           ${pct(atp / allCrisis.length)}  (${atp}/${allCrisis.length}, 95% CI ${pct(arl)}–${pct(arh)})`);
+    console.log(`    False-alarm rate: ${pct(afp / allSafe.length)}  (${afp}/${allSafe.length}, 95% CI ${pct(afl)}–${pct(afh)})`);
   }
 }
 
