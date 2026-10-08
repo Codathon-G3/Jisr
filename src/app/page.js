@@ -15,6 +15,8 @@ const toneOrder = ["gentle", "direct", "formal"];
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://jisr-api.onrender.com").replace(/\/+$/, "");
 // The free Render instance can take about a minute to wake up.
 const DRAFTS_TIMEOUT_MS = 60000;
+// Longest note the API accepts (MAX_TEXT_CHARS in backend/app/schemas.py).
+const MAX_NOTE_CHARS = 4000;
 
 /*
   Guardian, model layer: /api/check-risk before any drafting, with identifiers
@@ -507,6 +509,7 @@ export default function Home() {
                 <textarea
                   id="message"
                   rows="4"
+                  maxLength={MAX_NOTE_CHARS}
                   value={text}
                   onChange={(event) =>
                     setText(event.target.value)

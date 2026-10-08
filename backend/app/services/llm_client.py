@@ -5,8 +5,10 @@ from typing import Literal
 import httpx
 
 from app.config import get_settings
+from app.logging_setup import logger
+from app.services.model_budget import get_model_budget
 
-LlmErrorKind = Literal["timeout", "http", "bad_json", "missing_key"]
+LlmErrorKind = Literal["timeout", "http", "bad_json", "missing_key", "rate_limited"]
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
 
 
@@ -20,6 +22,9 @@ def generate_json(system_prompt: str, user_prompt: str) -> dict:
     settings = get_settings()
     if not settings.gemini_api_key.strip():
         raise LlmError("missing_key")
+    if not get_model_budget().try_acquire():
+        logger.warning("model call budget reached; treating the model as unavailable")
+        raise LlmError("rate_limited")
 
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
@@ -32,7 +37,9 @@ def generate_json(system_prompt: str, user_prompt: str) -> dict:
     }
     try:
         with httpx.Client(timeout=settings.llm_timeout_seconds) as client:
-            response = client.post(url, params={"key": settings.gemini_api_key}, json=body)
+            # The key goes in a header, not the URL, so it cannot end up in proxy
+            # logs or in the text of an httpx error.
+            response = client.post(url, headers={"x-goog-api-key": settings.gemini_api_key}, json=body)
     except httpx.TimeoutException as exc:
         raise LlmError("timeout") from exc
     except httpx.HTTPError as exc:

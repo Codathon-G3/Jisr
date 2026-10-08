@@ -254,6 +254,8 @@ Environment variables are configured in `backend/.env` (template provided in `ba
 | `GEMINI_MODEL` | Foundation model identifier | Optional | `gemini-flash-lite-latest` |
 | `LLM_TIMEOUT_SECONDS` | Gateway timeout before falling back | Optional | `10` |
 | `CORS_ORIGINS` | Permitted origins for frontend CORS | Optional | `*` |
+| `MODEL_CALLS_PER_MINUTE` | Process-wide cap on model calls per minute (`0` = off). When reached, the risk check fails closed and drafting uses templates | Optional | `60` |
+| `MODEL_CALLS_PER_DAY` | Process-wide cap on model calls per 24 hours (`0` = off) | Optional | `2000` |
 
 Both clients call the live API (`https://jisr-api.onrender.com`) by default. To point them at another backend (for example a local one), set one variable each in your shell or a root `.env` file before starting or building:
 
