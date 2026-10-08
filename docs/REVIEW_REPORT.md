@@ -5,6 +5,14 @@
 > **Reviewed against**: the product definition (`docs/Bridge_Note_Product_Definition.pdf`), `docs/master_implementation_plan.md`, `docs/team_plan/`, and the challenge criteria from the lecture  
 > **Reviewer**: Claude Code (Anthropic), at the team's request
 
+> **Update, 8 October, later the same day.** Everything below is now committed on `feat/apk-mobile-sync` (pushed) and merged into `visual-identity`. Since the first version of this report:
+> - **Held-out safety evaluation done** (`safety/heldout-set.json`, 64 synthetic sentences not used for tuning, written by the reviewer, so not blind). Live service, phrase + model: **26/26 crisis caught (95% CI 87–100%), 3/30 false alarms**; model alone 26/26 and 0/30; phrase list alone 6/26. Details in `safety/evidence.md` §3b and `REPORT.md` §8.4.
+> - **Main's final `REPORT.md` (PR #9) kept, with factual corrections:** family words are kept (not replaced) by identifier scrubbing; the client timeout is 60 s, not 2.5 s; the 11/11 figure is labelled as the dev set; the server-side gate, continue-after-card, private record and minors notice are described.
+> - **`submission/Jisr_Full_Project_Overview.pdf` regenerated from `REPORT.md`** (`docs/scripts/build_overview_pdf.py`). The previous version still described a Groq/Llama 3.3 failover and "Gemini 1.5 Flash (sub-800ms)", none of which exist, a 2.5 s timeout, "safety is 100% deterministic", and "100.0% crisis recall" from the dev set.
+> - **Minors notice in the app** (product definition Q5) and **unused Android permissions blocked**.
+> - **Backend hardening:** key in the `x-goog-api-key` header, uvicorn's IP access log off, a process-wide model-call cap, a 4,000-character text limit. Backend tests: **102 passed**.
+> - **Still for the team:** redeploy the backend on Render (the live service still runs the old code; set the start command in the dashboard if it does not use `render.yaml`), native review of the new Arabic strings, a blind test set, verifying a helpline, and the personal-email decision. The pitch deck numbers are updated in `submission/`; check slide 4 if you present from another file.
+
 ---
 
 ## 1. Summary

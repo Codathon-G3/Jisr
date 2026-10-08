@@ -21,8 +21,6 @@ Jisr/
 │   └── COMMITTEE_QA.md            # 7 prepared technical defense responses
 └── docs/                          # Dedicated project engineering documentation folder
     ├── README.md                  # This document (Documentation Table of Contents)
-    ├── PITCH_DECK.md              # 5-Slide presentation script for Thursday's evaluation
-    ├── COMMITTEE_QA.md            # Committee defense playbook & expected Q&A answers
     ├── master_implementation_plan.md # 10-Stage full pipeline from product definition DOCX
     ├── codathon_submission_requirements.md # Ai4LY official requirements checklist
     ├── scripts/                       # Presentation tools (generate_pitch_deck.py)
@@ -58,5 +56,5 @@ Jisr/
    * `CITATIONS.md` satisfies the third-party models and tools disclosure rule [T§4].
    * The repository URL is submitted on the Discord/portal.
 3. **For Presentation & Defense (Thursday)**:
-   * `docs/PITCH_DECK.md` provides the exact 5-slide slides and 5-minute script.
-   * `docs/COMMITTEE_QA.md` equips the team to answer all tough evaluator questions with confidence.
+   * `submission/PITCH_DECK.md` provides the exact 5-slide slides and 5-minute script.
+   * `submission/COMMITTEE_QA.md` equips the team to answer all tough evaluator questions with confidence.

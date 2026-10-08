@@ -14,7 +14,7 @@
 [![Demo Video](https://img.shields.io/badge/Demo%20Video-Prototype%20Walkthrough-red?logo=youtube&style=for-the-badge)](submission/jisr-flow-demo.mp4)
 [![Project Overview](https://img.shields.io/badge/Project%20Overview-PDF%20Dossier-orange?logo=adobe-acrobat-reader&style=for-the-badge)](submission/Jisr_Full_Project_Overview.pdf)
 [![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Uvicorn-009688?logo=fastapi&style=for-the-badge)](backend/)
-[![Safety Tests](https://img.shields.io/badge/Safety%20Tests-npm%20test%20passing%20%7C%20Recall%2010%2F11%20(dev%20set)-success?style=for-the-badge)](#automated-verification-suite-npm-test)
+[![Safety Tests](https://img.shields.io/badge/Safety%20Tests-npm%20test%20passing%20%7C%20Held--out%20recall%2026%2F26%20(phrase%20%2B%20model)-success?style=for-the-badge)](#automated-verification-suite-npm-test)
 [![Compliance](https://img.shields.io/badge/Ai4LY%202026-100%25%20Compliant-blue?style=for-the-badge)](submission/SUBMISSION_CHECKLIST.md)
 
 ---
@@ -30,12 +30,12 @@ This repository serves as the official submission for the **Ai4LY National Codat
 | **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.86 / Expo SDK 57)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Google Gemini `gemini-flash-lite-latest`)<br>• **Live Cloud Backend API**: [`https://jisr-api.onrender.com`](https://jisr-api.onrender.com) (Interactive docs: [/docs](https://jisr-api.onrender.com/docs)) | **VERIFIED** |
 | **Demo Artifact: Android APK** | Standalone installable mobile prototype ready for instant sideloading | • **Standalone APK**: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63.1 MB, SHA-256 verified)<br>• **Direct Raw Download**: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)<br>• **Verification & Install Guide**: [`builds/README.md`](builds/README.md) | **VERIFIED** |
 | **Scope B: Documentation** | Root architectural, operational, setup and usage guide | • **Master Guide**: [`README.md`](README.md) (This landing page)<br>• **Submission Hub**: [`submission/README.md`](submission/README.md)<br>• **Documentation Hub**: [`docs/README.md`](docs/README.md) | **VERIFIED** |
-| **Scope C: Technical Report** | In-depth Markdown report detailing problem alignment, architecture, citations & evaluation | • **Technical Report**: [`REPORT.md`](REPORT.md) (35 KB comprehensive report with Wilson 95% CIs and 12-hour progress log) | **VERIFIED** |
-| **Scope D: Presentation & Deck** | 5-minute presentation file / pitch deck with problem, solution & impact | • **PowerPoint Deck**: [`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx) & [`docs/PITCH_DECK.pptx`](docs/PITCH_DECK.pptx) (16:9 widescreen, Arabic RTL)<br>• **Interactive HTML Deck**: [`submission/PITCH_DECK.html`](submission/PITCH_DECK.html)<br>• **Speaker Script**: [`submission/PITCH_DECK.md`](submission/PITCH_DECK.md)<br>• **Full Project Overview PDF**: [`submission/Jisr_Full_Project_Overview.pdf`](submission/Jisr_Full_Project_Overview.pdf)<br>• **Committee Defense Playbook**: [`submission/COMMITTEE_QA.md`](submission/COMMITTEE_QA.md) | **VERIFIED** |
+| **Scope C: Technical Report** | In-depth Markdown report detailing problem alignment, architecture, citations & evaluation | • **Technical Report**: [`REPORT.md`](REPORT.md) (15 sections: problem alignment, architecture, team contributions, safety and privacy, evaluation with Wilson 95% CIs, development log) | **VERIFIED** |
+| **Scope D: Presentation & Deck** | 5-minute presentation file / pitch deck with problem, solution & impact | • **PowerPoint Deck**: [`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx) (16:9 widescreen, Arabic RTL)<br>• **Interactive HTML Deck**: [`submission/PITCH_DECK.html`](submission/PITCH_DECK.html)<br>• **Speaker Script**: [`submission/PITCH_DECK.md`](submission/PITCH_DECK.md)<br>• **Full Project Overview PDF**: [`submission/Jisr_Full_Project_Overview.pdf`](submission/Jisr_Full_Project_Overview.pdf)<br>• **Committee Defense Playbook**: [`submission/COMMITTEE_QA.md`](submission/COMMITTEE_QA.md) | **VERIFIED** |
 | **Scope D: Demo Video** | Demonstration video demonstrating working prototype and AI flows in real time | • **Prototype Walkthrough Video**: [`submission/jisr-flow-demo.mp4`](submission/jisr-flow-demo.mp4) (1.19 MB recording of full mobile & Guardian flow) | **VERIFIED** |
 | **Section 4: Tool Citations** | Explicit disclosure and academic attribution of all models, APIs, and libraries | • **Attribution Register**: [`CITATIONS.md`](CITATIONS.md) (Gemini, Expo, React Native, Next.js, FastAPI, Uvicorn, Pydantic) | **VERIFIED** |
 | **Official Audit Checklist** | Item-by-item verification against official Codathon requirements | • **Compliance Audit**: [`submission/SUBMISSION_CHECKLIST.md`](submission/SUBMISSION_CHECKLIST.md) (100% compliant across all scopes) | **VERIFIED** |
-| **Safety & Empirical Quality** | Measured recall benchmarks, unit tests & cross-engine parity | • **Master Test Command**: `npm test` (selftest 450 passed, 0 failed, plus 9 app/privacy/parity suites) and `npm run test:backend` (89 passed)<br>• **Crisis Recall (phrase layer)**: **10/11 = 90.9%** (95% CI 62.3%–98.4%) on the 25-item dev set, which was also used to tune the list. A blind test set and the model layer's recall are not measured yet.<br>• **Crisis Check Parity**: **756 checks passed** | **VERIFIED** |
+| **Safety & Empirical Quality** | Measured recall benchmarks, unit tests & cross-engine parity | • **Master Test Command**: `npm test` (selftest 450 passed, 0 failed, plus 8 app/privacy/parity suites) and `npm run test:backend` (102 passed)<br>• **Crisis Recall, held-out set of 64 synthetic sentences (not used for tuning; written by the AI code reviewer, so not blind)**: phrase list + model **26/26** (95% CI 87–100%), 3/30 false alarms; the phrase list alone 6/26, so the model does most of the detection on new wording ([`safety/evidence.md`](safety/evidence.md)). Dev set (used for tuning): phrase layer 10/11.<br>• **Crisis Check Parity**: **756 checks passed** | **VERIFIED** |
 | **Administrative Attribution** | Designated Team Lead and contestant emails | • **Team Leader**: Mohamed Thabet (`abdwadood2000@gmail.com`)<br>• **Team Members**: Rayan (Mobile), Muatz (Backend), Shima (Safety) | **VERIFIED** |
 
 ---
@@ -58,7 +58,7 @@ Evaluators can choose their preferred evaluation method:
    ```bash
    npm test
    ```
-   Runs the 450 safety data checks, the crisis evaluation (phrase-layer recall 10/11 on the dev set, with 95% CIs), the 756 cross-engine parity checks and the app, privacy and API-client suites. `npm run test:backend` runs the backend tests.
+   Runs the 450 safety data checks, the phrase-layer crisis evaluation on the dev set (10/11) and on the held-out set (6/26, with 95% CIs), the 756 cross-engine parity checks and the app, privacy and API-client suites. `npm run test:backend` runs the backend tests.
 
 4. **Pathway 4: Presentation & Video Walkthrough**
    * Download and view the 5-slide deck: [`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx)
@@ -213,7 +213,7 @@ Jisr/
 │   │   └── COMMITTEE_QA.md            # 7 prepared technical defense responses for evaluation jury
 │   ├── builds/jisr-v1.0.0.apk         # Sideloadable standalone Android APK (63.1 MB, SHA-256 verified)
 │   ├── builds/README.md               # APK package specs, architecture, signing & sideloading guide
-│   ├── REPORT.md                      # Comprehensive 35 KB Markdown Technical Report (Scope C)
+│   ├── REPORT.md                      # Technical report, 15 sections (Scope C)
 │   ├── CITATIONS.md                   # Complete third-party tools, models & frameworks citations (§4)
 │   └── docs/                          # Extended engineering documentation, team plan & pitch scripts
 │
@@ -256,6 +256,8 @@ Environment variables are configured in `backend/.env` (template provided in `ba
 | `GEMINI_MODEL` | Foundation model identifier | Optional | `gemini-flash-lite-latest` |
 | `LLM_TIMEOUT_SECONDS` | Gateway timeout before falling back | Optional | `10` |
 | `CORS_ORIGINS` | Permitted origins for frontend CORS | Optional | `*` |
+| `MODEL_CALLS_PER_MINUTE` | Process-wide cap on model calls per minute (`0` = off). When reached, the risk check fails closed and drafting uses templates | Optional | `60` |
+| `MODEL_CALLS_PER_DAY` | Process-wide cap on model calls per 24 hours (`0` = off) | Optional | `2000` |
 
 Both clients call the live API (`https://jisr-api.onrender.com`) by default. To point them at another backend (for example a local one), set one variable each in your shell or a root `.env` file before starting or building:
 
@@ -397,7 +399,8 @@ npm test
 2. **Crisis Recall on the Dev Set (`safety/evaluate.mjs safety/dev-set.json`)**:
    * Runs the phrase layer on the 25-item dev set. This set was also used to tune the phrase list, so these are not blind figures.
    * Main items: 10/10 crisis caught, 0/11 false alarms. **All labelled items, including the 4 marked ambiguous: recall 10/11 = 90.9% (95% CI 62.3%–98.4%)**, false alarms 0/14. The miss is item #22, *"الدنيا سوداء في عيني الفترة هادي"*.
-   * The model layer is not included; run it with `RISK_API_URL=... node safety/evaluate.mjs <set>` once a blind set exists.
+   * Then the same on the held-out set (`safety/heldout-set.json`, 64 sentences not used for tuning): the phrase layer alone catches 6/26.
+   * The model layer needs the API, so it is not part of `npm test`. Run it with `RISK_API_URL=https://jisr-api.onrender.com/api/check-risk RISK_API_DELAY_MS=6000 node safety/evaluate.mjs safety/heldout-set.json`. On 8 October 2026 the combined check caught 26/26 (95% CI 87–100%) with 3/30 false alarms, and the model alone 26/26 with 0/30 (see `safety/evidence.md`).
 3. **Trust & Arabic Localization Verification (`tests/verify-trust-components.mjs`)**:
    * Validates `src/i18n/ar.json` structure and completeness.
    * Validates all 4 trust UI components: `BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`, and component barrel export.
@@ -437,7 +440,7 @@ npm run test:all       # everything
 
 | Member | Workstream | Primary Deliverables |
 |---|---|---|
-| **Mohamed Thabet** (Team Leader, Person 4) | Trust Views, Arabic Quality, Documentation & Presentation Lead | Arabic linguistic review, technical report (`REPORT.md`), pitch deck (`docs/PITCH_DECK.pptx`), committee defense (`docs/COMMITTEE_QA.md`), trust views (`BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`), citations & benchmarks. |
+| **Mohamed Thabet** (Team Leader, Person 4) | Trust Views, Arabic Quality, Documentation & Presentation Lead | Arabic linguistic review, technical report (`REPORT.md`), pitch deck ([`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx)), committee defense ([`submission/COMMITTEE_QA.md`](submission/COMMITTEE_QA.md)), trust views (`BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`), citations & benchmarks. |
 | **Rayan** (Person 1) | Mobile App & Interaction Engineer | React Native/Expo UI, 7 RTL stress chips, recipient selectors, persistent human route button, native share sheet, standalone Android APK packaging. |
 | **Muatz** (Person 2) | AI Core & Backend Engineer | FastAPI service (`uvicorn app.main:app`), LLM system prompts (Google Gemini), risk check API router, PII stripping. |
 | **Shima** (Person 3) | Safety, Guardian & Evidence Engineer | Crisis phrase list (60 phrases, 360+ Libyan dialect spellings), clinical blacklist (55 terms), output check, safety recall metrics (10/11 on the dev set). |

@@ -113,5 +113,5 @@ This document provides complete, transparent attribution for all third-party mod
 ## 5. AI-Assisted Development Tools
 
 * **Cursor** (Anysphere, Inc.): AI coding assistant used during backend development (credited as co-author in the commit history).
-* **Claude Code** (Anthropic): used on 8 October 2026 for a repository review and for the fixes listed in `docs/REVIEW_REPORT.md`.
+* **Claude Code** (Anthropic): used on 8 October 2026 for a repository review, for the fixes listed in `docs/REVIEW_REPORT.md`, and to write the held-out evaluation sentences in `safety/heldout-set.json` (labelled as such in the file).
 * Team: please add any other assistants used for code, text, translation or images (for example, the source of `public/brand/jisr-intro-mobile.png` and the pitch-deck visuals).

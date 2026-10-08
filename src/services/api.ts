@@ -36,6 +36,9 @@ const RISK_TIMEOUT_MS = 60000;
 const DRAFTS_TIMEOUT_MS = 60000;
 const FAITHFULNESS_TIMEOUT_MS = 15000;
 
+// Longest note the API accepts (MAX_TEXT_CHARS in backend/app/schemas.py).
+export const MAX_NOTE_CHARS = 4000;
+
 /**
  * Resolves the backend base URL: the live service, unless a build sets
  * EXPO_PUBLIC_API_URL (for example http://localhost:8000 for backend development).

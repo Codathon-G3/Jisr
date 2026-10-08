@@ -89,17 +89,18 @@ The evaluation committee is composed of AI experts, medical/mental health lectur
 
 #### Prepared Answer:
 > *"No private chat logs, social media posts, or vulnerable individuals were scraped—doing so would violate fundamental research ethics.  
-> Our datasets fall into three distinct, non-personal typologies, all written by the team:  
+> Our datasets fall into four non-personal typologies; the first three were written by the team:  
 > 1. **Crisis Lexicon (60 phrases, tested across 360+ spelling variants)**: written by team members in Libyan colloquial Arabic, MSA, Arabizi and English. It has not yet had an independent native or clinical review; that is on our list.  
 > 2. **Clinical Blacklist (55 terms)**: Curated diagnostic and pharmacological terminology barred from generation.  
-> 3. **Dev Set (25 items)**: synthetic examples of everyday stress, crisis, and ambiguous hyperbole (*'أنا انتهيت بعد الامتحان'*) used to measure recall and false alarms, and also to tune the list. A blind test set is the next step."*
+> 3. **Dev Set (25 items)**: synthetic examples of everyday stress, crisis, and ambiguous hyperbole (*'أنا انتهيت بعد الامتحان'*) used to measure recall and false alarms, and also to tune the list. A blind test set is the next step.  
+> 4. **Held-out Set (64 items)**: synthetic sentences written by our AI code reviewer and never used for tuning, labelled as such in the file. Results are in `safety/evidence.md`."*
 
 ---
 
 ### Q8: "Is that 100% recall measured on the same data you tuned on?"
 
 #### Prepared Answer:
-> *"Yes, and we say so. On our 25-item dev set the phrase list catches 10 of 11 crisis items, 90.9%, with a 95% confidence range of 62 to 98%. The one miss, 'الدنيا سوداء في عيني', is exactly the kind of indirect phrasing the model layer is there for. We have not yet measured the model layer or a blind set, so we do not claim a final number. That is also why the 'talk to someone now' button never depends on either check."*
+> *"Yes, and we say so. On our 25-item dev set the phrase list catches 10 of 11 crisis items, 90.9%, with a 95% confidence range of 62 to 98%. The one miss, 'الدنيا سوداء في عيني', is exactly the kind of indirect phrasing the model layer is there for. So we also built a held-out set of 64 sentences that were never used for tuning, and ran the live system on it: the phrase list plus the model caught 26 of 26 crisis sentences, 95% range 87 to 100%, with 3 false alarms out of 30. The phrase list alone caught only 6 of 26, so the model is doing the real detection on new wording. One caveat: our AI code reviewer wrote that set and had seen the list, so it is held-out but not blind, and a blind set with native reviewers is next. That is also why the 'talk to someone now' button never depends on either check."*
 
 ---
 

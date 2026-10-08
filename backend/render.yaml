@@ -3,7 +3,9 @@ services:
     name: jisr-api
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # --no-access-log: uvicorn's own access log records the caller's IP address.
+    # The app logs only path, status and timing (app/logging_setup.py).
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --no-access-log
     envVars:
       - key: GEMINI_MODEL
         value: gemini-flash-lite-latest

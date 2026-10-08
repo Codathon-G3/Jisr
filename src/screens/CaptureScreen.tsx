@@ -18,6 +18,7 @@ import supportCardData from '../../safety/support-card.json';
 import statedLimits from '../../safety/stated-limits.json';
 import { OutboundPreview } from '../components/OutboundPreview';
 import { sanitizePii } from '../services/piiSanitizer';
+import { MAX_NOTE_CHARS } from '../services/api';
 import { RETENTION_OPTIONS, RetentionDays } from '../services/historyLogic';
 
 export interface CaptureScreenProps {
@@ -145,6 +146,7 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
           style={[styles.textInput, crisisDetected && styles.textInputAlert]}
           multiline
           numberOfLines={4}
+          maxLength={MAX_NOTE_CHARS}
           value={inputText}
           onChangeText={onChangeInputText}
           textAlign="right"

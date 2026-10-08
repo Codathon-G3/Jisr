@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-flash-lite-latest"
     llm_timeout_seconds: float = 10
+    # Process-wide cap on model calls (see app/services/model_budget.py); 0 turns a window off.
+    model_calls_per_minute: int = 60
+    model_calls_per_day: int = 2000
     cors_origins: str = "*"
 
     model_config = SettingsConfigDict(
