@@ -305,6 +305,8 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
 
       {/* Stated Limits Notice (R23) */}
       <Text style={styles.limits}>{statedLimits.ar}</Text>
+      {/* Minors and consent (product definition Q5) */}
+      <Text style={styles.limits}>{statedLimits.minors_ar}</Text>
     </View>
   );
 };
