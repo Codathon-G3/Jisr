@@ -46,7 +46,7 @@ This directory contains the consolidated presentation, demonstration, and evalua
 | **Evaluate in Web Browser** | Instant Next.js 16 Web Showcase | `npm run dev` -> Open [http://localhost:3000](http://localhost:3000) |
 | **Evaluate on Physical Android** | Install Standalone Pre-compiled APK | Sideload [`builds/jisr-v1.0.0.apk`](../builds/jisr-v1.0.0.apk) |
 | **Verify All Safety & Unit Tests** | Master Test Harness | `npm test` (**450 passed, 0 failed**) |
-| **Inspect Technical Report** | Comprehensive Markdown Report | Read [`REPORT.md`](../REPORT.md) (35 KB) |
+| **Inspect Technical Report** | Comprehensive Markdown Report | Read [`REPORT.md`](../REPORT.md) (15 sections) |
 | **Inspect Third-Party Citations** | Academic & Library Attributions | Read [`CITATIONS.md`](../CITATIONS.md) |
 | **Inspect Live Cloud API** | Interactive Swagger / OpenAPI Docs | Visit [https://jisr-api.onrender.com/docs](https://jisr-api.onrender.com/docs) |
 

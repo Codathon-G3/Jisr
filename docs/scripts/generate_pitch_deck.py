@@ -2,7 +2,7 @@
 """
 Standalone PowerPoint Pitch Deck Generator for Jisr (جِسر)
 Ai4LY National Codathon 2026 — منتدى ليبيا للذكاء الاصطناعي
-Deliverable: docs/PITCH_DECK.pptx
+Deliverable: submission/PITCH_DECK.pptx
 
 Strictly adheres to Rayan's dark & amber brand palette:
 - Background: #0E131B (Deep Navy)
@@ -643,7 +643,7 @@ def build_slide_4(prs, icon_path):
     tf_m.margin_bottom = Inches(0.1)
 
     p_m0 = tf_m.paragraphs[0]
-    p_m0.text = "نتائج القياس على معيار الأزمات التخليقي (N=25 — Dev Set):"
+    p_m0.text = "نتائج القياس على مجموعة اختبار منفصلة (N=64، لم تُستخدم في الضبط):"
     p_m0.font.name = FONT_FAMILY
     p_m0.font.size = Pt(11)
     p_m0.font.bold = True
@@ -652,8 +652,8 @@ def build_slide_4(prs, icon_path):
     set_rtl(p_m0)
 
     metrics = [
-        ("نسبة التقاط الأزمات (Crisis Recall):", "90.9% (10 من 11 حالة على مجموعة التطوير — مجال ويلسون 62.3% – 98.4%)", ACCENT_GREEN),
-        ("معدل الإنذار الخاطئ (False-Alarm):", "0.0% (0/11 حالات ضغط آمنة تم تمريرها)", ACCENT_GREEN),
+        ("نسبة التقاط الأزمات (Crisis Recall):", "26 من 26 على 64 جملة لم تُستخدم في الضبط (العبارات + النموذج، مجال ويلسون 87% – 100%)", ACCENT_GREEN),
+        ("معدل الإنذار الخاطئ (False-Alarm):", "3 من 30 (10%)؛ قائمة العبارات وحدها التقطت 6 من 26", ACCENT_GREEN),
         ("معجم الأزمات الليبية:", "60 عبارة أزمة محققة تغطي 360+ صياغة دارجة", ACCENT_AMBER),
         ("قائمة المصطلحات المحظورة:", "55 مصطلحاً طبياً ودوائياً محظورة قطعياً بنسبة 100%", ACCENT_AMBER)
     ]
@@ -864,5 +864,5 @@ def generate_deck(output_path):
 
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else os.path.join("docs", "PITCH_DECK.pptx")
+    target = sys.argv[1] if len(sys.argv) > 1 else os.path.join("submission", "PITCH_DECK.pptx")
     generate_deck(target)

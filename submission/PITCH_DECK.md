@@ -79,10 +79,10 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
     * Fixed Support Card (never generated; shows no unverified numbers).
     * Deterministic Output Check (Clinical terms blocked).
     * Persistent Human Route Button.
-  * Safety Metric Callout Box: **Phrase layer: 10/11 crisis items caught on our 25-item dev set (95% CI 62–98%); model layer and blind test next**.
+  * Safety Metric Callout Box: **On 64 sentences we never tuned on: 26/26 crisis sentences caught by the phrase list + AI model (95% CI 87–100%), 3/30 false alarms. The phrase list alone caught 6/26: the AI does the detecting on new wording. Blind test with native reviewers next.**
   * Privacy Guarantee: **No account, nothing stored on our server, identifiers removed and shown to the user before sending, private record off by default**.
 * **Speaker Script**:
-  > *"Safety in this space cannot be an afterthought. Before any text ever reaches drafting, our Guardian Layer screens for crisis indicators across Libyan dialect, Arabic, and Latin script, on the phone and again on the server. If crisis is detected, drafting stops and a static support card is presented. We could not verify a Libyan helpline in time, so the card shows no number rather than an unchecked one: it points to a trusted person and the nearest emergency department.  
+  > *"Safety in this space cannot be an afterthought. Before any text ever reaches drafting, our Guardian Layer screens for crisis indicators across Libyan dialect, Arabic, and Latin script, on the phone and again on the server. If crisis is detected, drafting stops and a static support card is presented. On 64 sentences we never tuned on, the combined check caught all 26 crisis sentences; the keyword list alone caught only 6. That is why the AI sits in the safety path, not just the writing. We could not verify a Libyan helpline in time, so the card shows no number rather than an unchecked one: it points to a trusted person and the nearest emergency department.  
   > Our output filter blocks clinical diagnoses and medication terms, and the 'talk to someone now' button works on every screen whatever the classifier says. On privacy: Jisr requires no accounts and our server keeps nothing. Names and numbers are removed on the phone, and the user sees exactly what will be sent before it leaves."*
 
 ---
