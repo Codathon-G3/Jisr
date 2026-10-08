@@ -4,7 +4,7 @@
 
 > **Submission Deadline**: Wednesday, October 7, 2026 at 11:50 PM  
 > **Presentation / Evaluation**: Thursday, October 8, 2026 after noon prayer (Online, ~5 min presentation + ~5 min Q&A)  
-> **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima
+> **Team**: Mohamed Abdel Wadod Thabet (Team Leader), Rayan Khalid Aljabo, Muetazballlah Qambar, Shaima Abdulsalam Aljelali
 
 ---
 
@@ -19,10 +19,10 @@ This folder contains the complete, battle-ready implementation roadmap for our p
 1. **Everyone reads [00_SHARED_SETUP.md](./00_SHARED_SETUP.md) together** (first 15–20 minutes).
    - This sets our tech stack, API contracts, repository layout, and mutual guarantees.
 2. **Every member takes their dedicated individual plan**:
-   - **Rayan (Person 1 — Mobile App & Interaction Engineer)**: [01_PERSON_1_FRONTEND.md](./01_PERSON_1_FRONTEND.md)
-   - **Muatz (Person 2 — AI Core & Backend Engineer)**: [02_PERSON_2_AI_BACKEND.md](./02_PERSON_2_AI_BACKEND.md)
-   - **Shima (Person 3 — Safety, Guardian & Evidence Engineer)**: [03_PERSON_3_SAFETY.md](./03_PERSON_3_SAFETY.md)
-   - **Mohamed Thabet (Team Leader, Person 4 — Trust Views, Arabic Quality & Presentation Lead)**: [04_PERSON_4_DOCS_ARABIC.md](./04_PERSON_4_DOCS_ARABIC.md)
+   - **Rayan Khalid Aljabo (Person 1 — Mobile App & Interaction Engineer)**: [01_PERSON_1_FRONTEND.md](./01_PERSON_1_FRONTEND.md)
+   - **Muetazballlah Qambar (Person 2 — AI Core & Backend Engineer)**: [02_PERSON_2_AI_BACKEND.md](./02_PERSON_2_AI_BACKEND.md)
+   - **Shaima Abdulsalam Aljelali (Person 3 — Safety, Guardian & Evidence Engineer)**: [03_PERSON_3_SAFETY.md](./03_PERSON_3_SAFETY.md)
+   - **Mohamed Abdel Wadod Thabet (Team Leader, Person 4 — Trust Views, Arabic Quality & Presentation Lead)**: [04_PERSON_4_DOCS_ARABIC.md](./04_PERSON_4_DOCS_ARABIC.md)
 3. **During integration checkpoints**, consult [05_INTEGRATION_AND_TESTING_PROTOCOL.md](./05_INTEGRATION_AND_TESTING_PROTOCOL.md).
 4. **Starter data files** are ready to import in the `starter_data/` folder so nobody has to write boilerplate JSON from scratch!
 

@@ -165,7 +165,7 @@ TEMPLATE = """<!doctype html>
   <dl>
     <dt>Project</dt><dd>An AI writing companion that helps a young person draft a first message to a real person</dd>
     <dt>Event</dt><dd>Ai4LY National Codathon 2026, Libya Artificial Intelligence Forum</dd>
-    <dt>Team</dt><dd>Mohamed Thabet (Team Leader), Rayan, Muatz, Shima</dd>
+    <dt>Team</dt><dd>Mohamed Abdel Wadod Thabet (Team Leader), Rayan Khalid Aljabo, Muetazballlah Qambar, Shaima Abdulsalam Aljelali</dd>
     <dt>Date</dt><dd>8 October 2026</dd>
   </dl>
   <p class="note">Generated from <code>REPORT.md</code> by <code>docs/scripts/build_overview_pdf.py</code>, so this document and the report say the same thing. Every figure in it comes from a command listed in Section 14 or in <code>safety/evidence.md</code>.</p>

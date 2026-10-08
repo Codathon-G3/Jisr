@@ -1,4 +1,4 @@
-# Person 2: Muatz — AI Core & Backend Engineer
+# Person 2: Muetazballlah Qambar — AI Core & Backend Engineer
 
 > **Read `00_SHARED_SETUP.md` first.** This document is your individual plan.
 

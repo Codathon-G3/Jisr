@@ -1,4 +1,4 @@
-# Person 3: Shima — Safety, Guardian & Evidence Engineer
+# Person 3: Shaima Abdulsalam Aljelali — Safety, Guardian & Evidence Engineer
 
 > **Read `00_SHARED_SETUP.md` first.** This document is your individual plan.
 

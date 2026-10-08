@@ -236,7 +236,7 @@ S1 Problem → S2 User → S3 Interaction (chips + text + recipient)
 
 ---
 
-### Person 1: Rayan — Frontend & Capture Engineer
+### Person 1: Rayan Khalid Aljabo — Frontend & Capture Engineer
 
 **Primary responsibility:**
 The entire user-facing interface, the capture layer (chips, text input, recipient selector), the writing trigger UI, the on-device record, and the sharing mechanism. Owns the visual/interaction shell that all other components plug into.
@@ -288,7 +288,7 @@ A user can open the web app on a phone, tap chips, type text, pick a recipient, 
 
 ---
 
-### Person 2: Muatz — AI Core & Backend Engineer (Drafting & Risk Check)
+### Person 2: Muetazballlah Qambar — AI Core & Backend Engineer (Drafting & Risk Check)
 
 **Primary responsibility:**
 The AI core: the drafting engine (LLM integration for 3-tone draft generation), the model-based risk classification, the identifier removal module, and the backend/API layer that Person 1's frontend calls.
@@ -340,7 +340,7 @@ The API accepts a session data payload, returns either a risk alert or 3 tone-ad
 
 ---
 
-### Person 3: Shima — Safety, Guardian & Evidence Engineer
+### Person 3: Shaima Abdulsalam Aljelali — Safety, Guardian & Evidence Engineer
 
 **Primary responsibility:**
 The Guardian Layer's deterministic components: the Arabic crisis phrase list, the output check (post-drafting filter), the support card content, the safety test set, and all measured safety evidence (recall/false-alarm rates). Also owns the forbidden-terms list and the plain template fallback.
@@ -391,7 +391,7 @@ The crisis phrase list, output check, support card, plain templates, and safety 
 
 ---
 
-### Person 4: Mohamed Thabet (Team Leader) — Trust Views, Arabic Quality, Documentation & Presentation Lead
+### Person 4: Mohamed Abdel Wadod Thabet (Team Leader) — Trust Views, Arabic Quality, Documentation & Presentation Lead
 
 **Primary responsibility:**
 The trust and control views (faithfulness view, baseline comparison), all Arabic language quality across the product, the technical report, the README, the pitch deck or demo video, and tool citations. The team's interface with the evaluators.
@@ -447,7 +447,7 @@ Trust view components render correctly. All Arabic text has been reviewed. READM
 
 ## 4. Task Lists (Summary per Person)
 
-### Person 1: Rayan — Frontend & Capture
+### Person 1: Rayan Khalid Aljabo — Frontend & Capture
 | # | Task | Priority | Est. Hours |
 |---|------|----------|------------|
 | 1.1 | Project scaffold + deployment config | Core | 0.5 |
@@ -465,7 +465,7 @@ Trust view components render correctly. All Arabic text has been reviewed. READM
 | 1.13 | Pattern trigger logic | Extension | 0.5 |
 | 1.14 | Mobile testing + polish | Core | 1.0 |
 
-### Person 2: Muatz — AI Core & Backend
+### Person 2: Muetazballlah Qambar — AI Core & Backend
 | # | Task | Priority | Est. Hours |
 |---|------|----------|------------|
 | 2.1 | Validate LLM service access from Libya | Core | 0.5 |
@@ -479,7 +479,7 @@ Trust view components render correctly. All Arabic text has been reviewed. READM
 | 2.9 | API statelessness verification | Core | 0.5 |
 | 2.10 | Load/latency testing | Core | 0.5 |
 
-### Person 3: Shima — Safety & Evidence
+### Person 3: Shaima Abdulsalam Aljelali — Safety & Evidence
 | # | Task | Priority | Est. Hours |
 |---|------|----------|------------|
 | 3.1 | Crisis phrase list (Arabic + dialect) | Core | 2.0 |
@@ -492,7 +492,7 @@ Trust view components render correctly. All Arabic text has been reviewed. READM
 | 3.8 | Stated-limits text | Core | 0.5 |
 | 3.9 | Forbidden-terms list | Core | 0.5 |
 
-### Person 4: Mohamed Thabet (Team Leader) — Trust, Arabic, Docs, Presentation
+### Person 4: Mohamed Abdel Wadod Thabet (Team Leader) — Trust, Arabic, Docs, Presentation
 | # | Task | Priority | Est. Hours |
 |---|------|----------|------------|
 | 4.1 | Arabic UI strings (all labels, prompts) | Core | 1.0 |
@@ -514,10 +514,10 @@ Trust view components render correctly. All Arabic text has been reviewed. READM
 
 | Person | Member | Core Deliverables | Extension Deliverables |
 |---|---|---|---|
-| **P1** | **Rayan** | Web/mobile app UI, all screens, navigation, sharing, API integration, human-route button | On-device record, pattern trigger |
-| **P2** | **Muatz** | `/api/check-risk`, `/api/generate-drafts`, identifier removal, LLM prompts, deployment | `/api/faithfulness` endpoint |
-| **P3** | **Shima** | Crisis phrase list, output check module, support card, plain templates, test set, safety evidence report | Extended test coverage |
-| **P4** | **Mohamed Thabet** (Lead) | Arabic strings, README, technical report, pitch deck, citations, AI disclosure | Faithfulness view, baseline comparison, outbound preview |
+| **P1** | **Rayan Khalid Aljabo** | Web/mobile app UI, all screens, navigation, sharing, API integration, human-route button | On-device record, pattern trigger |
+| **P2** | **Muetazballlah Qambar** | `/api/check-risk`, `/api/generate-drafts`, identifier removal, LLM prompts, deployment | `/api/faithfulness` endpoint |
+| **P3** | **Shaima Abdulsalam Aljelali** | Crisis phrase list, output check module, support card, plain templates, test set, safety evidence report | Extended test coverage |
+| **P4** | **Mohamed Abdel Wadod Thabet** (Lead) | Arabic strings, README, technical report, pitch deck, citations, AI disclosure | Faithfulness view, baseline comparison, outbound preview |
 
 ---
 
@@ -986,9 +986,9 @@ All requirements (R1–R24) and capabilities (C1–C14) from the document are co
 >
 > *If four people were given this project today, exactly what should each person build, what should they give to the others, what depends on what, and how do all four pieces become one working system?*
 >
-> - **Person 1 (Rayan)** builds the entire UI shell and capture layer. They give Person 2 (Muatz) the session data, and receive back drafts.
-> - **Person 2 (Muatz)** builds the AI backend (drafting + risk check). They give Person 1 (Rayan) an API, and receive the phrase list from Person 3 (Shima).
-> - **Person 3 (Shima)** builds all safety artifacts (phrase list, output check, support card, templates, test set, evidence). They give Person 1 (Rayan) the fallback content and Person 2 (Muatz) the safety data.
-> - **Person 4 (Mohamed Thabet, Team Leader)** reviews all Arabic, builds trust views, and writes all documentation. They give Person 1 (Rayan) the strings and components, and produce the deliverables the evaluators will read.
+> - **Person 1 (Rayan Khalid Aljabo)** builds the entire UI shell and capture layer. They give Person 2 (Muatz) the session data, and receive back drafts.
+> - **Person 2 (Muetazballlah Qambar)** builds the AI backend (drafting + risk check). They give Person 1 (Rayan) an API, and receive the phrase list from Person 3 (Shima).
+> - **Person 3 (Shaima Abdulsalam Aljelali)** builds all safety artifacts (phrase list, output check, support card, templates, test set, evidence). They give Person 1 (Rayan) the fallback content and Person 2 (Muatz) the safety data.
+> - **Person 4 (Mohamed Abdel Wadod Thabet, Team Leader)** reviews all Arabic, builds trust views, and writes all documentation. They give Person 1 (Rayan) the strings and components, and produce the deliverables the evaluators will read.
 >
 > The pieces become one system through the **API contract** (P1↔P2), the **safety data files** (P3→P2, P3→P1), and the **Arabic strings + trust components** (P4→P1). Integration happens at hour 8–10, with a full end-to-end test before the code freeze at hour 12.

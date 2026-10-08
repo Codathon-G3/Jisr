@@ -3,8 +3,8 @@
 > **Competition**: Libya Artificial Intelligence Forum 2026 (Ai4LY) — National Codathon  
 > **Project**: Jisr (جِسر) — AI-Assisted Writing Companion for Young People in Libya  
 > **Track**: AI for Mental Health & Youth Well-being  
-> **Team Leader**: Mohamed Thabet (`abdwadood2000@gmail.com`)  
-> **Team Members**: Rayan (Mobile & UX), Muatz (AI & Backend), Shima (Safety & Guardian)  
+> **Team Leader**: Mohamed Abdel Wadod Thabet (`abdwadood2000@gmail.com`)  
+> **Team Members**: Rayan Khalid Aljabo (Mobile & UX), Muetazballlah Qambar (AI & Backend), Shaima Abdulsalam Aljelali (Safety & Guardian)  
 > **Evaluation Date**: Thursday, October 8, 2026  
 
 ---

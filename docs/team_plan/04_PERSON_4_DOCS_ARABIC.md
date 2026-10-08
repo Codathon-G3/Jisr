@@ -1,4 +1,4 @@
-# Person 4: Mohamed Thabet (Team Leader) — Trust Views, Arabic Review, Documentation & Presentation
+# Person 4: Mohamed Abdel Wadod Thabet (Team Leader) — Trust Views, Arabic Review, Documentation & Presentation
 
 > **Read `00_SHARED_SETUP.md` first.** This document is your individual plan.
 
@@ -142,10 +142,10 @@ This is the detailed technical report. It draws heavily on the product definitio
 - [Reference CITATIONS.md]
 
 ## 10. Team
-- **Mohamed Thabet** (Team Leader / Person 4): Trust Views, Arabic Quality, Documentation & Presentation Lead
-- **Rayan** (Person 1): Mobile App & Interaction Engineer
-- **Muatz** (Person 2): AI Core & Backend Engineer
-- **Shima** (Person 3): Safety, Guardian & Evidence Engineer
+- **Mohamed Abdel Wadod Thabet** (Team Leader / Person 4): Trust Views, Arabic Quality, Documentation & Presentation Lead
+- **Rayan Khalid Aljabo** (Person 1): Mobile App & Interaction Engineer
+- **Muetazballlah Qambar** (Person 2): AI Core & Backend Engineer
+- **Shaima Abdulsalam Aljelali** (Person 3): Safety, Guardian & Evidence Engineer
 ```
 
 ---

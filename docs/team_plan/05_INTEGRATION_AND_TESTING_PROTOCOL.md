@@ -12,10 +12,10 @@ Do not attempt to connect everything at the last minute. Follow this staged inte
 sequenceDiagram
     autonumber
     actor User as User (Phone)
-    participant P1 as Rayan (Person 1 - Frontend UI)
-    participant P2 as Muatz (Person 2 - Backend API)
-    participant P3 as Shima (Person 3 - Safety & Fallbacks)
-    participant P4 as Mohamed Thabet (Person 4 - Trust & Lead)
+    participant P1 as Rayan Khalid Aljabo (Person 1 - Frontend UI)
+    participant P2 as Muetazballlah Qambar (Person 2 - Backend API)
+    participant P3 as Shaima Abdulsalam Aljelali (Person 3 - Safety & Fallbacks)
+    participant P4 as Mohamed Abdel Wadod Thabet (Person 4 - Trust & Lead)
 
     Note over P1,P4: Step 1: Pre-integration Assets Ingestion
     P4->>P1: Ingest ar.json (RTL strings & labels)

@@ -3,7 +3,7 @@
 > **Project:** Jisr ("Bridge Note"), an AI writing companion that helps a young person draft a first message to a real person
 > **Event:** Ai4LY National Codathon 2026, Libya Artificial Intelligence Forum
 > **Theme:** Using AI to help young people in Libya manage stress, reach reliable guidance, and find appropriate support early and safely
-> **Team:** Mohamed Thabet (Team Leader), Rayan, Muatz, Shima
+> **Team:** Mohamed Abdel Wadod Thabet (Team Leader), Rayan Khalid Aljabo, Muetazballlah Qambar, Shaima Abdulsalam Aljelali
 
 ---
 
@@ -153,9 +153,9 @@ The live service runs at `https://jisr-api.onrender.com` (interactive docs at `/
 
 ## 5. Components and Team Contributions
 
-### 5.1 Front end — Rayan (Person 1)
+### 5.1 Front end — Rayan Khalid Aljabo (Person 1)
 
-Rayan built the complete user journey in **Next.js and React**, designed for phones first, with full **Arabic right-to-left support** and the team's agreed Jisr colors and branding. The front end runs on its own using fallback data, and then connects to the live backend.
+Rayan Khalid Aljabo built the complete user journey in **Next.js and React**, designed for phones first, with full **Arabic right-to-left support** and the team's agreed Jisr colors and branding. The front end runs on its own using fallback data, and then connects to the live backend.
 
 | Area | What was built |
 |---|---|
@@ -174,9 +174,9 @@ Rayan built the complete user journey in **Next.js and React**, designed for pho
 
 **Integration plan:** after merging, the team re-tests the full flow, safety cases, real AI drafts, API-failure fallback, and mobile and RTL rendering.
 
-### 5.2 AI backend — Muatz (Person 2)
+### 5.2 AI backend — Muetazballlah Qambar (Person 2)
 
-Muatz designed the end-to-end request path and built the backend as a **FastAPI service that calls the Gemini model**, with the model key kept on the server and the user's text never stored between requests.
+Muetazballlah Qambar designed the end-to-end request path and built the backend as a **FastAPI service that calls the Gemini model**, with the model key kept on the server and the user's text never stored between requests.
 
 - **Identifier scrubbing before drafting.** Phone numbers, email addresses, @handles and names are replaced (family words are kept), and the removed items are returned for review.
 - **Two-stage risk check.** The phrase list runs first. The model then judges cases the list does not contain, including indirect wording. Either one can raise risk.
@@ -188,9 +188,9 @@ Muatz designed the end-to-end request path and built the backend as a **FastAPI 
 
 **End-to-end measurement.** The risk check was run on the development set (`dev-set.json`): **11 of 11 crisis examples were caught**, and 6 non-crisis examples were also flagged. Section 8 explains why that set is an upper bound and gives the held-out results.
 
-### 5.3 Safety layer — Shima (Person 3)
+### 5.3 Safety layer — Shaima Abdulsalam Aljelali (Person 3)
 
-Shima owns the Guardian Layer, the set of files and checks that decide when Jisr must stop drafting and what it must never say.
+Shaima Abdulsalam Aljelali owns the Guardian Layer, the set of files and checks that decide when Jisr must stop drafting and what it must never say.
 
 **Crisis phrase list (`crisis-phrases.json`).**
 - Grew from 23 to **60 phrases**.
@@ -228,9 +228,9 @@ Shima owns the Guardian Layer, the set of files and checks that decide when Jisr
 
 **Evaluation discipline.** Shima renamed `test-set.json` to `dev-set.json` once the phrase list had been improved using those exact sentences, because they could no longer fairly test it. A fresh set is required for headline numbers (Section 8).
 
-### 5.4 Trust, localization and documentation — Mohamed Thabet (Team Leader, Person 4)
+### 5.4 Trust, localization and documentation — Mohamed Abdel Wadod Thabet (Team Leader, Person 4)
 
-As Team Leader, Mohamed defined the shared contracts and conventions, and delivered the trust views, the Arabic content and the competition documentation.
+As Team Leader, Mohamed Abdel Wadod Thabet defined the shared contracts and conventions, and delivered the trust views, the Arabic content and the competition documentation.
 
 - **Three trust views** that make the AI's behavior inspectable by users and judges:
   - `BaselineComparison.tsx` lets the viewer switch between the AI-adapted draft and a static generic template, which shows what the AI adds.
@@ -434,10 +434,10 @@ All third-party models, services and libraries used in the prototype are open-so
 
 | Member | Role | Delivered |
 |---|---|---|
-| **Mohamed Thabet** | Team Leader, Person 4: trust views, Arabic localization and documentation | Shared contracts and conventions, `BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`, `ar.json`, client-side scrubbing, this report, README, pitch script, committee Q&A, `CITATIONS.md`, submission packaging |
-| **Rayan** | Person 1: front end | Mobile-first Next.js and React interface with Arabic RTL, intro, topic chips, optional text, recipient selection, same-session prompt, persistent human route, support card, three-tone drafts, copy and share, human handoff |
-| **Muatz** | Person 2: AI core and backend | FastAPI service, Gemini integration, identifier scrubbing, two-stage fail-safe risk check, post-generation output check, template fallback, faithfulness check, Render deployment |
-| **Shima** | Person 3: safety, Guardian and evidence | 60-phrase crisis list with idiom exemption, clinical blocklist, gender-neutral fallback templates, support card with verified-only contacts, shared normalizer, crisis and output checks, evaluation harness and self-test suite |
+| **Mohamed Abdel Wadod Thabet** | Team Leader, Person 4: trust views, Arabic localization and documentation | Shared contracts and conventions, `BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`, `ar.json`, client-side scrubbing, this report, README, pitch script, committee Q&A, `CITATIONS.md`, submission packaging |
+| **Rayan Khalid Aljabo** | Person 1: front end | Mobile-first Next.js and React interface with Arabic RTL, intro, topic chips, optional text, recipient selection, same-session prompt, persistent human route, support card, three-tone drafts, copy and share, human handoff |
+| **Muetazballlah Qambar** | Person 2: AI core and backend | FastAPI service, Gemini integration, identifier scrubbing, two-stage fail-safe risk check, post-generation output check, template fallback, faithfulness check, Render deployment |
+| **Shaima Abdulsalam Aljelali** | Person 3: safety, Guardian and evidence | 60-phrase crisis list with idiom exemption, clinical blocklist, gender-neutral fallback templates, support card with verified-only contacts, shared normalizer, crisis and output checks, evaluation harness and self-test suite |
 
 ---
 
@@ -445,7 +445,7 @@ All third-party models, services and libraries used in the prototype are open-so
 
 The team worked in parallel on four workstreams, with a fixed interface agreed up front and short stages that were each reviewed before the next began.
 
-| Stage | Backend (Muatz) | Safety (Shima) | Front end (Rayan) | Trust and docs (Mohamed) |
+| Stage | Backend (Muetazballlah Qambar) | Safety (Shaima Abdulsalam Aljelali) | Front end (Rayan Khalid Aljabo) | Trust and docs (Mohamed Abdel Wadod Thabet) |
 |---|---|---|---|---|
 | **1. Contracts** | Planned the request path and fixed the three-route contract | Agreed field names and the `[topic]` placeholder format | Agreed shared files as the single source of content | Set repository conventions and shared setup |
 | **2. Foundations** | FastAPI setup; identifier scrubbing; phrase-based risk check | First crisis, forbidden-term and template files | Mobile-first RTL shell and branding | Arabic localization dictionary |

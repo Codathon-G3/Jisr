@@ -2,7 +2,7 @@
 
 > **Audience**: Evaluation Committee — Ai4LY National Codathon 2026  
 > **Session Format**: ~5 minutes of questions directly following the 5-minute presentation  
-> **Prepared for**: Mohamed Thabet (Team Leader) and Team Presenters (Rayan, Muatz, Shima)
+> **Prepared for**: Mohamed Abdel Wadod Thabet (Team Leader) and Team Presenters (Rayan Khalid Aljabo, Muetazballlah Qambar, Shaima Abdulsalam Aljelali)
 
 The evaluation committee is composed of AI experts, medical/mental health lecturers, and industry judges. Below are the 5 core questions they are guaranteed to ask, along with our prepared, evidence-based responses.
 

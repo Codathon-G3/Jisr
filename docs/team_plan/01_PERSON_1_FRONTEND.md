@@ -1,4 +1,4 @@
-# Person 1: Rayan — Mobile App & Interaction Engineer
+# Person 1: Rayan Khalid Aljabo — Mobile App & Interaction Engineer
 
 > **Read `00_SHARED_SETUP.md` first.** This document is your individual plan.
 

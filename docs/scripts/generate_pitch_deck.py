@@ -16,7 +16,7 @@ Strictly adheres to Rayan's dark & amber brand palette:
 
 Presentation geometry: 16:9 Widescreen (13.333" x 7.5")
 Authentic OpenXML DrawingML RTL support (<a:pPr rtl="1">) on all Arabic text.
-Comprehensive dual-language speaker notes (Mohamed Thabet Arabic speech + English transcript).
+Comprehensive dual-language speaker notes (Mohamed Abdel Wadod Thabet Arabic speech + English transcript).
 """
 
 import os
@@ -778,10 +778,10 @@ def build_slide_5(prs, icon_path):
     # Left Card: Team Engineering Ownership
     card_l, tf_l = add_card(slide, Inches(0.6), Inches(2.05), Inches(5.9), Inches(4.8), title="فريق العمل وتوزيع المسؤوليات (Team Engineering Ownership)")
     team_members = [
-        ("محمد ثابت (Mohamed Thabet) — قائد الفريق (Team Leader):", "المعمارية، التوثيق الفني (REPORT.md)، عروض التحكيم، واجهات الثقة (BaselineComparison, FaithfulnessView, OutboundPreview)، والتدقيق اللغوي.", ACCENT_AMBER),
-        ("ريان (Rayan) — مهندس الواجهات وتطبيق المحمول (Mobile Lead):", "تطبيق React Native/Expo، الـ 7 رقائق، زر الطريق البشري («تكلم مع حد توا»)، وحزم الـ APK المستقل (builds/jisr-v1.0.0.apk).", TEXT_PRIMARY),
-        ("معتز (Muatz) — مهندس الذكاء الاصطناعي والخلفية (AI & Backend):", "خادم FastAPI المستقل، نموذج Google Gemini (gemini-flash-lite-latest)، وتطهير البيانات الحساسة PII.", TEXT_PRIMARY),
-        ("شيماء (Shima) — مهندسة الأمان وطبقة الحارس (Safety Engineer):", "معجم الأزمات الليبية (60 عبارة)، قائمة حظر المصطلحات (55 مصطلحاً)، واختبارات الأمان الـ 450 واختبارات Parity.", ACCENT_GREEN)
+        ("محمد عبد الودود ثابت (Mohamed Abdel Wadod Thabet) — قائد الفريق (Team Leader):", "المعمارية، التوثيق الفني (REPORT.md)، عروض التحكيم، واجهات الثقة (BaselineComparison, FaithfulnessView, OutboundPreview)، والتدقيق اللغوي.", ACCENT_AMBER),
+        ("ريان خالد الجابو (Rayan Khalid Aljabo) — مهندس الواجهات وتطبيق المحمول (Mobile Lead):", "تطبيق React Native/Expo، الـ 7 رقائق، زر الطريق البشري («تكلم مع حد توا»)، وحزم الـ APK المستقل (builds/jisr-v1.0.0.apk).", TEXT_PRIMARY),
+        ("معتز بالله قنبر (Muetazballlah Qambar) — مهندس الذكاء الاصطناعي والخلفية (AI & Backend):", "خادم FastAPI المستقل، نموذج Google Gemini (gemini-flash-lite-latest)، وتطهير البيانات الحساسة PII.", TEXT_PRIMARY),
+        ("شيماء عبد السلام الجلالي (Shaima Abdulsalam Aljelali) — مهندسة الأمان وطبقة الحارس (Safety Engineer):", "معجم الأزمات الليبية (60 عبارة)، قائمة حظر المصطلحات (55 مصطلحاً)، واختبارات الأمان الـ 450 واختبارات Parity.", ACCENT_GREEN)
     ]
     for member, desc, col in team_members:
         p_h = tf_l.add_paragraph()

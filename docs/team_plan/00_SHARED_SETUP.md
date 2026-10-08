@@ -21,10 +21,10 @@ Chips → (optional record) → trigger invitation → writing → risk check �
 
 | Person | Member | Role | Owns |
 |---|---|---|---|
-| **Person 1** | **Rayan** | Frontend & Capture | The entire mobile UI, chip capture, trigger logic, sharing, on-device record |
-| **Person 2** | **Muatz** | AI / Backend | LLM integration, drafting API, risk check API, identifier removal |
-| **Person 3** | **Shima** | Safety & Evidence | Crisis phrase list, output check, support card, plain templates, test set, safety figures |
-| **Person 4** | **Mohamed Thabet** (Lead) | Trust Views, Arabic, Docs & Presentation | Trust UI components, all Arabic text, README, technical report, pitch deck, citations |
+| **Person 1** | **Rayan Khalid Aljabo** | Frontend & Capture | The entire mobile UI, chip capture, trigger logic, sharing, on-device record |
+| **Person 2** | **Muetazballlah Qambar** | AI / Backend | LLM integration, drafting API, risk check API, identifier removal |
+| **Person 3** | **Shaima Abdulsalam Aljelali** | Safety & Evidence | Crisis phrase list, output check, support card, plain templates, test set, safety figures |
+| **Person 4** | **Mohamed Abdel Wadod Thabet** (Lead) | Trust Views, Arabic, Docs & Presentation | Trust UI components, all Arabic text, README, technical report, pitch deck, citations |
 
 **Rule**: Each person owns their area. Do NOT edit another person's files without coordinating.
 

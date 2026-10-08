@@ -203,7 +203,7 @@ After each fix: `node safety/selftest.mjs` passed (450/450) and the backend test
 
 ## 6. Remaining changes, most urgent first
 
-Owners: **P1** Rayan (frontend), **P2** Muatz (backend), **P3** Shima (safety), **P4** Mohamed Thabet (docs, lead).
+Owners: **P1** Rayan Khalid Aljabo (frontend), **P2** Muetazballlah Qambar (backend), **P3** Shaima Abdulsalam Aljelali (safety), **P4** Mohamed Abdel Wadod Thabet (docs, lead).
 
 ### Before the presentation today
 

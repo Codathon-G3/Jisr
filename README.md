@@ -4,7 +4,7 @@
 
 > **AI-Assisted Writing Companion for Young People in Libya**  
 > *Developed for the Ai4LY National Codathon 2026 (Libya Artificial Intelligence Forum)*  
-> **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima  
+> **Team**: Mohamed Abdel Wadod Thabet (Team Leader), Rayan Khalid Aljabo, Muetazballlah Qambar, Shaima Abdulsalam Aljelali  
 > **Submission Date**: October 7, 2026  
 > **Active Branch**: `main`
 
@@ -36,7 +36,7 @@ This repository serves as the official submission for the **Ai4LY National Codat
 | **Section 4: Tool Citations** | Explicit disclosure and academic attribution of all models, APIs, and libraries | • **Attribution Register**: [`CITATIONS.md`](CITATIONS.md) (Gemini, Expo, React Native, Next.js, FastAPI, Uvicorn, Pydantic) | **VERIFIED** |
 | **Official Audit Checklist** | Item-by-item verification against official Codathon requirements | • **Compliance Audit**: [`submission/SUBMISSION_CHECKLIST.md`](submission/SUBMISSION_CHECKLIST.md) (100% compliant across all scopes) | **VERIFIED** |
 | **Safety & Empirical Quality** | Measured recall benchmarks, unit tests & cross-engine parity | • **Master Test Command**: `npm test` (selftest 450 passed, 0 failed, plus 8 app/privacy/parity suites) and `npm run test:backend` (102 passed)<br>• **Crisis Recall, held-out set of 64 synthetic sentences (not used for tuning; written by the AI code reviewer, so not blind)**: phrase list + model **26/26** (95% CI 87–100%), 3/30 false alarms; the phrase list alone 6/26, so the model does most of the detection on new wording ([`safety/evidence.md`](safety/evidence.md)). Dev set (used for tuning): phrase layer 10/11.<br>• **Crisis Check Parity**: **756 checks passed** | **VERIFIED** |
-| **Administrative Attribution** | Designated Team Lead and contestant emails | • **Team Leader**: Mohamed Thabet (`abdwadood2000@gmail.com`)<br>• **Team Members**: Rayan (Mobile), Muatz (Backend), Shima (Safety) | **VERIFIED** |
+| **Administrative Attribution** | Designated Team Lead and contestant emails | • **Team Leader**: Mohamed Abdel Wadod Thabet (`abdwadood2000@gmail.com`)<br>• **Team Members**: Rayan Khalid Aljabo (Mobile), Muetazballlah Qambar (Backend), Shaima Abdulsalam Aljelali (Safety) | **VERIFIED** |
 
 ---
 
@@ -440,10 +440,10 @@ npm run test:all       # everything
 
 | Member | Workstream | Primary Deliverables |
 |---|---|---|
-| **Mohamed Thabet** (Team Leader, Person 4) | Trust Views, Arabic Quality, Documentation & Presentation Lead | Arabic linguistic review, technical report (`REPORT.md`), pitch deck ([`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx)), committee defense ([`submission/COMMITTEE_QA.md`](submission/COMMITTEE_QA.md)), trust views (`BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`), citations & benchmarks. |
-| **Rayan** (Person 1) | Mobile App & Interaction Engineer | React Native/Expo UI, 7 RTL stress chips, recipient selectors, persistent human route button, native share sheet, standalone Android APK packaging. |
-| **Muatz** (Person 2) | AI Core & Backend Engineer | FastAPI service (`uvicorn app.main:app`), LLM system prompts (Google Gemini), risk check API router, PII stripping. |
-| **Shima** (Person 3) | Safety, Guardian & Evidence Engineer | Crisis phrase list (60 phrases, 360+ Libyan dialect spellings), clinical blacklist (55 terms), output check, safety recall metrics (10/11 on the dev set). |
+| **Mohamed Abdel Wadod Thabet** (Team Leader, Person 4) | Trust Views, Arabic Quality, Documentation & Presentation Lead | Arabic linguistic review, technical report (`REPORT.md`), pitch deck ([`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx)), committee defense ([`submission/COMMITTEE_QA.md`](submission/COMMITTEE_QA.md)), trust views (`BaselineComparison.tsx`, `FaithfulnessView.tsx`, `OutboundPreview.tsx`), citations & benchmarks. |
+| **Rayan Khalid Aljabo** (Person 1) | Mobile App & Interaction Engineer | React Native/Expo UI, 7 RTL stress chips, recipient selectors, persistent human route button, native share sheet, standalone Android APK packaging. |
+| **Muetazballlah Qambar** (Person 2) | AI Core & Backend Engineer | FastAPI service (`uvicorn app.main:app`), LLM system prompts (Google Gemini), risk check API router, PII stripping. |
+| **Shaima Abdulsalam Aljelali** (Person 3) | Safety, Guardian & Evidence Engineer | Crisis phrase list (60 phrases, 360+ Libyan dialect spellings), clinical blacklist (55 terms), output check, safety recall metrics (10/11 on the dev set). |
 
 ---
 
