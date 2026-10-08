@@ -34,7 +34,7 @@ This document provides complete, transparent attribution for all third-party mod
   > Expo Team. (2024). *Expo: The React Native Framework*. https://expo.dev  
   > Meta Open Source. (2024). *React Native: Learn once, write anywhere*. https://reactnative.dev
 * **Key Modules**:
-  * `expo` (SDK 57; the committed APK was built earlier with SDK 51): Managed mobile runtime and native build tooling.
+  * `expo` (SDK 57): Managed mobile runtime and native build tooling.
   * `react-native-svg`, `expo-font`, `@expo-google-fonts/readex-pro`, `@expo-google-fonts/ibm-plex-sans-arabic`, `react-native-safe-area-context`: icons, the design-system fonts (Readex Pro and IBM Plex Sans Arabic, SIL Open Font License) and safe-area layout.
   * `react-native`: Core mobile UI primitives and RTL layout engine.
   * `@react-native-async-storage/async-storage`: Sandboxed, local on-device persistence for optional private chip history.

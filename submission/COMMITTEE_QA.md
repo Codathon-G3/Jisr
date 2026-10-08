@@ -107,7 +107,7 @@ The evaluation committee is composed of AI experts, medical/mental health lectur
 ### Q9: "Does the APK actually call the AI?"
 
 #### Prepared Answer:
-> *"The committed APK was built before our backend URL was published, so on a phone it runs the on-device crisis check, the support card and the plain templates, and it labels them as templates rather than AI. The AI path is live in the web version and in a development build pointed at the backend; a rebuild of the APK with the backend's https address gives the same on a phone."* (Demo from the web version or an emulator with the backend running.)
+> *"Yes. The APK in `builds/` calls our live API; names and numbers are removed on the phone before anything is sent. If there is no connection, or the server does not answer within a minute, it uses our plain templates and labels them as templates, not AI. The crisis phrase check and the support card run on the phone either way."* (Before demoing, open `https://jisr-api.onrender.com/health` so the free server is awake.)
 
 ---
 

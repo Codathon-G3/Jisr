@@ -28,7 +28,7 @@ This repository serves as the official submission for the **Ai4LY National Codat
 | Codathon Deliverable | Specification Scope | In-Repository Artifact / Location | Evaluation Status |
 |---|---|---|:---:|
 | **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.86 / Expo SDK 57)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Google Gemini `gemini-flash-lite-latest`)<br>• **Live Cloud Backend API**: [`https://jisr-api.onrender.com`](https://jisr-api.onrender.com) (Interactive docs: [/docs](https://jisr-api.onrender.com/docs)) | **VERIFIED** |
-| **Demo Artifact: Android APK** | Standalone installable mobile prototype ready for instant sideloading | • **Standalone APK**: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63.1 MB, SHA-256 verified)<br>• **Direct Raw Download**: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)<br>• **Verification & Install Guide**: [`builds/README.md`](builds/README.md) | **VERIFIED** |
+| **Demo Artifact: Android APK** | Standalone installable mobile prototype ready for instant sideloading | • **Standalone APK**: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (59.5 MB, SHA-256 verified)<br>• **Direct Raw Download**: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)<br>• **Verification & Install Guide**: [`builds/README.md`](builds/README.md) | **VERIFIED** |
 | **Scope B: Documentation** | Root architectural, operational, setup and usage guide | • **Master Guide**: [`README.md`](README.md) (This landing page)<br>• **Submission Hub**: [`submission/README.md`](submission/README.md)<br>• **Documentation Hub**: [`docs/README.md`](docs/README.md) | **VERIFIED** |
 | **Scope C: Technical Report** | In-depth Markdown report detailing problem alignment, architecture, citations & evaluation | • **Technical Report**: [`REPORT.md`](REPORT.md) (15 sections: problem alignment, architecture, team contributions, safety and privacy, evaluation with Wilson 95% CIs, development log) | **VERIFIED** |
 | **Scope D: Presentation & Deck** | 5-minute presentation file / pitch deck with problem, solution & impact | • **PowerPoint Deck**: [`submission/PITCH_DECK.pptx`](submission/PITCH_DECK.pptx) (16:9 widescreen, Arabic RTL)<br>• **Interactive HTML Deck**: [`submission/PITCH_DECK.html`](submission/PITCH_DECK.html)<br>• **Speaker Script**: [`submission/PITCH_DECK.md`](submission/PITCH_DECK.md)<br>• **Full Project Overview PDF**: [`submission/Jisr_Full_Project_Overview.pdf`](submission/Jisr_Full_Project_Overview.pdf)<br>• **Committee Defense Playbook**: [`submission/COMMITTEE_QA.md`](submission/COMMITTEE_QA.md) | **VERIFIED** |
@@ -51,8 +51,8 @@ Evaluators can choose their preferred evaluation method:
    Open [http://localhost:3000](http://localhost:3000) to interact with the full Arabic RTL interface, stress chips, Guardian crisis screening, the privacy preview and the 3 tone drafts (from the live API).
 
 2. **Pathway 2: Physical Android Device Sideload (Mobile Binary)**
-   * Transfer [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (or download [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)) to an Android phone (API 23+ / Android 6.0+).
-   * Install and launch `com.ai4ly.jisr` to experience native on-device share sheet export to WhatsApp / Messenger. This build predates the live API, so it drafts from the offline templates (see the APK note below).
+   * Transfer [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (or download [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)) to an Android phone (API 24+ / Android 7.0+).
+   * Install and launch `com.ai4ly.jisr` to experience native on-device share sheet export to WhatsApp / Messenger. It calls the live API (identifier-free text only) and drafts from templates when offline.
 
 3. **Pathway 3: Automated Verification Harness (Single Command)**
    ```bash
@@ -211,7 +211,7 @@ Jisr/
 │   │   ├── Jisr_Full_Project_Overview.pdf # Comprehensive formatted project overview dossier (319 KB)
 │   │   ├── PITCH_DECK.html & .md      # Interactive web deck & 5-minute timed speaker script
 │   │   └── COMMITTEE_QA.md            # 7 prepared technical defense responses for evaluation jury
-│   ├── builds/jisr-v1.0.0.apk         # Sideloadable standalone Android APK (63.1 MB, SHA-256 verified)
+│   ├── builds/jisr-v1.0.0.apk         # Sideloadable standalone Android APK (59.5 MB, SHA-256 verified)
 │   ├── builds/README.md               # APK package specs, architecture, signing & sideloading guide
 │   ├── REPORT.md                      # Technical report, 15 sections (Scope C)
 │   ├── CITATIONS.md                   # Complete third-party tools, models & frameworks citations (§4)
@@ -241,8 +241,8 @@ Jisr/
 | **Node.js Runtime** | Node.js (V8) | `>= 20.19.4` (required by React Native 0.86) | `v20.x` / `v24.x` |
 | **Package Manager** | npm | `>= 9.0.0` | `v10.8.x` |
 | **Web Framework** | Next.js | `^16.4.0` | `16.4.0` |
-| **Mobile Runtime** | React Native / Expo | Expo SDK 57 | React Native `0.86.3` (the committed APK was built earlier with SDK 51) |
-| **Target Mobile OS** | Android | API 23 (Android 6.0+) | API 34 (Android 14) |
+| **Mobile Runtime** | React Native / Expo | Expo SDK 57 | React Native `0.86.3` |
+| **Target Mobile OS** | Android | API 24 (Android 7.0+) | API 36 (Android 16) |
 | **Backend Runtime** | Python (CPython) | `>= 3.10` | `3.10.x` / `3.13.x` |
 | **ASGI Web Server** | Uvicorn / FastAPI | FastAPI `>= 0.115` | Uvicorn `0.32` |
 
@@ -333,8 +333,8 @@ Evaluators can install and run the standalone, pre-compiled Android binary witho
 1. **Locate APK**:
    * Release download: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/releases/download/v1.0.0/jisr-v1.0.0.apk)
    * Direct GitHub raw download: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)
-   * Local file path: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63,074,501 bytes / 63.1 MB)
-   * SHA-256 Checksum: `e2da042e2b8a85da55517fc1ea9552c879e3950b1df7bb152c3c66a0628dbe5b`
+   * Local file path: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (59,506,729 bytes / 59.5 MB)
+   * SHA-256 Checksum: `7872858a4bf3d0a73d40cb8589fbb122aad7f6bc5f255c5f27ef8931cdb0fe5f`
 2. **Verify Integrity**:
    ```powershell
    # Windows (PowerShell)
@@ -347,7 +347,7 @@ Evaluators can install and run the standalone, pre-compiled Android binary witho
 3. **Install on Physical Android Device**:
    * Transfer `jisr-v1.0.0.apk` to your Android device via USB, direct download, or cloud drive.
    * Open the file in **Downloads**, allow *"Install unknown apps"* if prompted, and tap **Install**.
-   * Package ID: `com.ai4ly.jisr` (targets Android API 23+ / Android 6.0+).
+   * Package ID: `com.ai4ly.jisr` (runs on Android 7.0+ / API 24+).
 4. **Install via Android Debug Bridge (ADB)**:
    ```bash
    adb install -r builds/jisr-v1.0.0.apk
@@ -355,7 +355,7 @@ Evaluators can install and run the standalone, pre-compiled Android binary witho
    ```
 *(Detailed APK specifications, signing information, and architecture notes are documented in [`builds/README.md`](builds/README.md).)*
 
-> **Note**: `builds/jisr-v1.0.0.apk` was built before the backend was deployed, so it has no backend address. It runs the on-device crisis check and the plain templates only. A rebuild from the current source calls the live API by default and gets AI drafts on a phone.
+> **Note**: `builds/jisr-v1.0.0.apk` was rebuilt on 8 October 2026 (Expo SDK 57) and calls the live API. The free API instance sleeps when idle, so open `https://jisr-api.onrender.com/health` about a minute before a demo. The GitHub release download above may still hold the earlier build, which has no backend address and uses templates only.
 
 #### Option B: Running Mobile App from Source
 ```bash
