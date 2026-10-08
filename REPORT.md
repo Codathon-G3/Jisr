@@ -48,7 +48,7 @@ Jisr is guided by six non-negotiable principles:
 Jisr is structured across four decoupled layers connecting a native mobile front end with a decoupled, stateless Python backend:
 
 ```text
-[Mobile Client (React Native 0.74 / Expo SDK 51 — com.ai4ly.jisr)]
+[Mobile Client (React Native 0.86 / Expo SDK 57 — com.ai4ly.jisr)]
    ├── Sideloadable Android APK: builds/jisr-v1.0.0.apk (EAS Build Profile)
    ├── Instant Evaluator Preview: Expo Go (QR Code) & Web (npx expo start --web)
    │
@@ -108,7 +108,7 @@ Jisr deploys state-of-the-art foundation models through rigorous zero-shot syste
 3. **Infrastructure & Device Realities in Libya**: Hosting or running local fine-tuned models on mobile edge hardware causes severe device thermal throttling, rapid battery depletion, and excessive download sizes (>3 GB). Our stateless foundation API approach sends only the identifier-free 1–3 lines plus chip and recipient codes, which keeps requests small on patchy Libyan mobile data.
 
 ### 3.2 Mobile Client Architecture & Standalone APK Packaging Pipeline
-The mobile client is engineered as a modern, cross-platform React Native (v0.74.5) application built on Expo SDK 51 with strict TypeScript typing:
+The mobile client is engineered as a modern, cross-platform React Native (v0.86.3) application built on Expo SDK 57 with strict TypeScript typing (the committed APK was built earlier with SDK 51):
 * **Package Identity & Native Configuration**: Identified as `com.ai4ly.jisr` in `app.json`, locked to portrait orientation, and fully branded with custom assets (`assets/icon.png`, `assets/adaptive-icon.png`, `assets/splash.png`).
 * **Standalone Android APK Distribution**: Configured via EAS Build (`eas.json`) with a `preview` profile targeting `buildType: "apk"`. A pre-packaged, ready-to-test production artifact is committed directly to `builds/jisr-v1.0.0.apk`, allowing judges and evaluators to sideload and test the application on physical Android devices without requiring Expo accounts or developer tools.
 * **Automated CI/CD Release Pipeline**: A dedicated GitHub Actions workflow (`.github/workflows/build-apk.yml`) automates build verification and APK asset packaging on release tags.

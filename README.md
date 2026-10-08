@@ -27,7 +27,7 @@ This repository serves as the official submission for the **Ai4LY National Codat
 
 | Codathon Deliverable | Specification Scope | In-Repository Artifact / Location | Evaluation Status |
 |---|---|---|:---:|
-| **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.74 / Expo SDK 51)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Google Gemini `gemini-flash-lite-latest`)<br>• **Live Cloud Backend API**: [`https://jisr-api.onrender.com`](https://jisr-api.onrender.com) (Interactive docs: [/docs](https://jisr-api.onrender.com/docs)) | **VERIFIED** |
+| **Scope A: Source Code & App** | Complete working application code across permitted modern frameworks and APIs | • **Web Showcase**: [`src/app/`](src/app/) (Next.js 16 interactive showcase)<br>• **Mobile Client**: [`App.tsx`](App.tsx) & [`src/`](src/) (React Native 0.86 / Expo SDK 57)<br>• **Stateless AI Backend**: [`backend/`](backend/) (FastAPI / Google Gemini `gemini-flash-lite-latest`)<br>• **Live Cloud Backend API**: [`https://jisr-api.onrender.com`](https://jisr-api.onrender.com) (Interactive docs: [/docs](https://jisr-api.onrender.com/docs)) | **VERIFIED** |
 | **Demo Artifact: Android APK** | Standalone installable mobile prototype ready for instant sideloading | • **Standalone APK**: [`builds/jisr-v1.0.0.apk`](builds/jisr-v1.0.0.apk) (63.1 MB, SHA-256 verified)<br>• **Direct Raw Download**: [jisr-v1.0.0.apk](https://github.com/Codathon-G3/Jisr/raw/main/builds/jisr-v1.0.0.apk)<br>• **Verification & Install Guide**: [`builds/README.md`](builds/README.md) | **VERIFIED** |
 | **Scope B: Documentation** | Root architectural, operational, setup and usage guide | • **Master Guide**: [`README.md`](README.md) (This landing page)<br>• **Submission Hub**: [`submission/README.md`](submission/README.md)<br>• **Documentation Hub**: [`docs/README.md`](docs/README.md) | **VERIFIED** |
 | **Scope C: Technical Report** | In-depth Markdown report detailing problem alignment, architecture, citations & evaluation | • **Technical Report**: [`REPORT.md`](REPORT.md) (35 KB comprehensive report with Wilson 95% CIs and 12-hour progress log) | **VERIFIED** |
@@ -160,7 +160,7 @@ The hardest step in reaching out during times of emotional distress is often wri
 ### Component Breakdown & Responsibilities
 1. **Frontend Showcases**:
    * **Web Showcase (`src/app/`)**: Built on Next.js 16 with customized RTL Arabic typography and instant browser accessibility.
-   * **Mobile Client (`App.tsx`, `src/`)**: Built on React Native 0.74 / Expo SDK 51, providing native mobile sharing (`Share.share()`), sandboxed on-device recurrence memory (`AsyncStorage`), and APK distribution.
+   * **Mobile Client (`App.tsx`, `src/`)**: Built on React Native 0.86 / Expo SDK 57, providing native mobile sharing (`Share.share()`), sandboxed on-device recurrence memory (`AsyncStorage`), and APK distribution.
 2. **AI Microservice (`backend/app/`)**:
    * Stateless FastAPI backend with asynchronous endpoints (`/api/check-risk`, `/api/generate-drafts`, `/api/faithfulness`).
    * Powered by Google Gemini (`gemini-flash-lite-latest`, set with `GEMINI_MODEL`). There is no second model provider: if Gemini is unreachable, the backend returns the plain templates instead of drafting unchecked text.
@@ -238,10 +238,10 @@ Jisr/
 
 | Component | Technology | Minimum Version | Tested Version |
 |---|---|---|---|
-| **Node.js Runtime** | Node.js (V8) | `>= 18.0.0` | `v20.x` / `v22.x` |
+| **Node.js Runtime** | Node.js (V8) | `>= 20.19.4` (required by React Native 0.86) | `v20.x` / `v24.x` |
 | **Package Manager** | npm | `>= 9.0.0` | `v10.8.x` |
 | **Web Framework** | Next.js | `^16.4.0` | `16.4.0` |
-| **Mobile Runtime** | React Native / Expo | Expo SDK 51 | React Native `0.74.5` |
+| **Mobile Runtime** | React Native / Expo | Expo SDK 57 | React Native `0.86.3` (the committed APK was built earlier with SDK 51) |
 | **Target Mobile OS** | Android | API 23 (Android 6.0+) | API 34 (Android 14) |
 | **Backend Runtime** | Python (CPython) | `>= 3.10` | `3.10.x` / `3.13.x` |
 | **ASGI Web Server** | Uvicorn / FastAPI | FastAPI `>= 0.115` | Uvicorn `0.32` |
