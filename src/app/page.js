@@ -346,8 +346,8 @@ export default function Home() {
           {screen === "form" && (
             <div className="screenPanel">
               <div className="brand">
-                <div className="miniBridgeMark" style={{ width: "auto", height: "auto" }}>
-                  <img src="/brand/jisr-logo.png" alt="جسر" style={{ maxWidth: "160px", height: "auto", display: "block", margin: "0 auto 8px" }} />
+                <div className="miniBridgeMark">
+                  <img src="/brand/jisr-logo.png" alt="جسر" />
                 </div>
 
                 <h1>{ar.app_name}</h1>
@@ -556,13 +556,13 @@ export default function Home() {
 
           {screen === "ready" && (
             <div className="screenPanel readyScreen">
-              <div className="readyIcon">
-                
+              <div className="miniBridgeMark" style={{ marginBottom: "16px" }}>
+                <img src="/brand/jisr-logo.png" alt="جسر" style={{ maxWidth: "140px" }} />
               </div>
 
-              <span className="readyBrand">
-                جسر
-              </span>
+              <div className="readyIcon">
+                ✓
+              </div>
 
               <h2>
                 {ar.handoff?.ready_message}

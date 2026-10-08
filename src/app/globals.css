@@ -266,31 +266,17 @@ button {
 }
 
 .miniBridgeMark {
-  width: 86px;
-  height: 50px;
-
-  margin: 0 auto;
+  margin: 0 auto 12px;
 
   display: flex;
   align-items: center;
   justify-content: center;
+}
 
-  border-radius: 18px;
-
-  background:
-    linear-gradient(
-      135deg,
-      var(--green),
-      var(--green-dark)
-    );
-
-  color: white;
-
-  font-weight: 800;
-
-  box-shadow:
-    0 10px 25px
-    rgba(47, 107, 79, 0.18);
+.miniBridgeMark img {
+  max-width: 170px;
+  height: auto;
+  display: block;
 }
 
 /* =========================================
