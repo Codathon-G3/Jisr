@@ -588,6 +588,11 @@ export default function Home() {
               <p className="limits">
                 {statedLimits.ar}
               </p>
+
+              {/* Minors and consent (product definition Q5) */}
+              <p className="limits">
+                {statedLimits.minors_ar}
+              </p>
             </div>
           )}
 

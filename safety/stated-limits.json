@@ -1,7 +1,9 @@
 {
   "version": "0.2",
-  "notes": "Stated limits text (Person 3 deliverable, requirement R23). Shown on the capture screen and the drafting screen of the mobile app and the web page. Static, never generated. Names everything the product is not: doctor, therapist, diagnosis tool, replacement for specialists, crisis/emergency service. Person 4: please review the wording.",
+  "notes": "Stated limits text (Person 3 deliverable, requirement R23) and the minors position (product definition Q5). Shown on the capture screen and the drafting screen of the mobile app and the web page. Static, never generated. Names everything the product is not: doctor, therapist, diagnosis tool, replacement for specialists, crisis/emergency service. Person 4: please review the wording.",
   "ar": "جِسر مش دكتور، ومش معالج نفسي، ومش أداة تشخيص، ومش بديل عن المختصين، ومش خدمة طوارئ. جِسر يساعدك تكتب أول رسالة لشخص تثق فيه، والقرار ديما بيدك.",
   "ar_short": "جِسر مش دكتور ولا معالج ولا خدمة طوارئ. هو طريقك باش توصل لحد تثق فيه.",
-  "en": "Jisr is not a doctor, not a therapist, not a diagnosis tool, not a replacement for specialists, and not an emergency service. Jisr helps you write the first message to someone you trust, and the decision is always yours."
+  "en": "Jisr is not a doctor, not a therapist, not a diagnosis tool, not a replacement for specialists, and not an emergency service. Jisr helps you write the first message to someone you trust, and the decision is always yours.",
+  "minors_ar": "لو عمرك أقل من 18 سنة، الأفضل تستعمل جِسر بعلم شخص كبير تثق فيه. جِسر ما يطلبش حساب، وما يبعث شي لحد غير اللي تختاره أنت.",
+  "minors_en": "If you are under 18, we recommend using Jisr with a trusted adult's knowledge. Jisr needs no account and sends nothing to anyone except the person you choose."
 }

@@ -19,6 +19,13 @@ for (const file of ['App.tsx', 'src/screens/CaptureScreen.tsx', 'src/app/page.js
 }
 console.log('[PASS] Stated limits name all five limits and are shown on the app and the web page');
 
+// Q5: the minors position is stated in the interface.
+assert.ok(limits.minors_ar && limits.minors_ar.includes('18'), 'stated-limits.json needs minors_ar');
+for (const file of ['src/screens/CaptureScreen.tsx', 'src/app/page.js']) {
+  assert.ok(read(file).includes('minors_ar'), `${file} must show the minors notice`);
+}
+console.log('[PASS] Minors notice is shown on the app and the web page');
+
 // R10: after the support card the user can continue to the note.
 assert.ok(read('src/components/SupportCardModal.tsx').includes('onContinue'), 'SupportCardModal must offer onContinue');
 assert.ok(read('App.tsx').includes('onContinue='), 'App.tsx must pass onContinue to the support card');
@@ -49,6 +56,12 @@ console.log('[PASS] Trust views use neutral, accurate wording');
 // R5: the record is excluded from Android cloud backup.
 const appJson = JSON.parse(read('app.json'));
 assert.strictEqual(appJson.expo.android.allowBackup, false, 'app.json must set android.allowBackup to false');
+for (const permission of ['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE', 'SYSTEM_ALERT_WINDOW']) {
+  assert.ok(
+    (appJson.expo.android.blockedPermissions || []).includes(`android.permission.${permission}`),
+    `app.json must block the unused ${permission} permission`
+  );
+}
 console.log('[PASS] Android backup is off for on-device data');
 
 // C1: the web page runs the Guardian check and drafts through the backend.
