@@ -4,8 +4,11 @@ import {
   Text,
   StyleSheet,
   ViewStyle,
-  I18nManager,
 } from 'react-native';
+import ar from '../i18n/ar.json';
+import { fonts, radius, shadow, space, type } from '../theme/tokens';
+import { c, rowRtl } from '../theme/ui';
+import { JisrIcon } from './JisrIcon';
 
 export interface Alignment {
   /** The phrase inside the generated draft */
@@ -28,9 +31,10 @@ export interface FaithfulnessViewProps {
 /**
  * FaithfulnessView Component (Layer 4: Trust & Verification)
  *
- * Visually proves that the AI drafting engine stayed 100% faithful to the user's
- * source words without inventing backstory, exaggerating feelings, or hallucinating.
- * Matches the /api/faithfulness contract from the backend.
+ * Highlights the draft phrases that trace back to the user's own words (pairs the
+ * backend has checked really occur in both texts, via /api/faithfulness). Anything
+ * not highlighted was written by the AI, and the view says so, so the user knows
+ * what to check before sending.
  */
 export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
   draftText,
@@ -67,16 +71,16 @@ export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
     <View style={[styles.container, style]}>
       {/* Title & Integrity Badge */}
       <View style={styles.headerRow}>
-        <Text style={styles.title}>مطابقة المصدر (الأمانة اللغوية)</Text>
+        <View style={styles.titleRow}>
+          <JisrIcon name="check" size={20} color={c.green} />
+          <Text style={styles.title}>{ar.trust.faithfulness_title}</Text>
+        </View>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>بدون تأليف أو هلوسة</Text>
+          <Text style={styles.badgeText}>مربوط بكلامك</Text>
         </View>
       </View>
 
-      <Text style={styles.description}>
-        الكلمات الملونة بالأخضر مأخوذة مباشرة من تعبيرك الخاص، مما يثبت أن الذكاء
-        الاصطناعي لم يخترع أي تفاصيل لم تذكرها:
-      </Text>
+      <Text style={styles.description}>{ar.trust.faithfulness_desc}</Text>
 
       {/* Draft Display with Highlighting */}
       <View style={styles.draftBox}>
@@ -110,7 +114,7 @@ export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
       {alignments.length > 0 && (
         <View style={styles.counterRow}>
           <Text style={styles.counterText}>
-            تم التحقق من مطابقة {alignments.length} عبارة رئيسية بنجاح
+            {alignments.length} عبارة مربوطة بكلامك. الباقي من صياغة الذكاء الاصطناعي.
           </Text>
         </View>
       )}
@@ -120,108 +124,98 @@ export const FaithfulnessView: React.FC<FaithfulnessViewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 18,
-    marginVertical: 10,
+    backgroundColor: c.surfaceRaised,
+    borderRadius: radius.lg,
+    padding: space[4],
+    marginVertical: space[3],
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 5,
-    elevation: 2,
+    borderColor: c.line,
     writingDirection: 'rtl',
+    ...shadow.sm,
   },
   headerRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: space[2],
+    gap: space[2],
+  },
+  titleRow: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[2],
   },
   title: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0F172A',
+    ...type.heading,
+    color: c.ink,
     textAlign: 'right',
   },
   badge: {
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
+    backgroundColor: c.greenSoft,
+    paddingHorizontal: space[3],
+    paddingVertical: space[1],
+    borderRadius: radius.full,
   },
   badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#065F46',
+    ...type.caption,
+    color: c.green,
   },
   description: {
-    fontSize: 13,
-    color: '#64748B',
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'right',
-    lineHeight: 19,
-    marginBottom: 14,
+    marginBottom: space[3],
   },
   draftBox: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: c.surface,
+    borderRadius: radius.md,
+    padding: space[4],
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 12,
+    borderColor: c.line,
+    marginBottom: space[3],
   },
   boxLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
+    ...type.caption,
+    color: c.inkMuted,
     textAlign: 'right',
-    marginBottom: 6,
+    marginBottom: space[1],
   },
   draftContent: {
-    fontSize: 15,
-    lineHeight: 25,
-    color: '#1E293B',
+    ...type.body,
+    color: c.ink,
     textAlign: 'right',
   },
   normalText: {
-    color: '#334155',
+    color: c.ink,
   },
   highlightedText: {
-    backgroundColor: '#BBF7D0',
-    color: '#065F46',
-    fontWeight: '700',
-    paddingHorizontal: 2,
-    borderRadius: 4,
+    backgroundColor: c.greenSoft,
+    color: c.green,
+    fontFamily: fonts.bodyMedium,
   },
   sourceBox: {
-    backgroundColor: '#F1F5F9',
-    borderRadius: 10,
-    padding: 12,
+    backgroundColor: c.surfaceSunken,
+    borderRadius: radius.md,
+    padding: space[3],
   },
   sourceLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
+    ...type.caption,
+    color: c.inkMuted,
     textAlign: 'right',
-    marginBottom: 4,
+    marginBottom: space[1],
   },
   sourceText: {
-    fontSize: 13,
-    fontStyle: 'italic',
-    color: '#334155',
+    ...type.bodySm,
+    color: c.ink,
     textAlign: 'right',
   },
   counterRow: {
-    marginTop: 10,
+    marginTop: space[3],
     alignItems: 'center',
   },
   counterText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#059669',
+    ...type.caption,
+    color: c.green,
     textAlign: 'center',
   },
 });

@@ -1,0 +1,103 @@
+{
+  "notes": "Shared identifier-removal cases. tests/test-pii-sanitizer.mjs runs them against src/services/piiSanitizer.ts and backend/tests/test_identifier_removal.py runs them against the Python service, so phone and server stay identical.",
+  "cases": [
+    {
+      "text": "بابا ديما يضغط عليا في قرايتي ورقمي 0912345678",
+      "sanitised": "بابا ديما يضغط عليا في قرايتي ورقمي [phone]",
+      "removed": [{ "original": "0912345678", "placeholder": "[phone]" }]
+    },
+    {
+      "text": "اسمي أحمد وخوي يضغط عليا",
+      "sanitised": "اسمي [name] وخوي يضغط عليا",
+      "removed": [{ "original": "أحمد", "placeholder": "[name]" }]
+    },
+    {
+      "text": "اسمي هو جُمانة ومحتاجة مساعدة",
+      "sanitised": "اسمي هو [name] ومحتاجة مساعدة",
+      "removed": [{ "original": "جُمانة", "placeholder": "[name]" }]
+    },
+    {
+      "text": "اسمي جُمانة وعندي امتحان",
+      "sanitised": "اسمي [name] وعندي امتحان",
+      "removed": [{ "original": "جُمانة", "placeholder": "[name]" }]
+    },
+    {
+      "text": "حكيت مع محمد ومريم على الامتحان",
+      "sanitised": "حكيت مع [name] و[name] على الامتحان",
+      "removed": [
+        { "original": "محمد", "placeholder": "[name]" },
+        { "original": "مريم", "placeholder": "[name]" }
+      ]
+    },
+    {
+      "text": "وليد صاحبي ما فهمنيش",
+      "sanitised": "[name] صاحبي ما فهمنيش",
+      "removed": [{ "original": "وليد", "placeholder": "[name]" }]
+    },
+    {
+      "text": "كلمني على ٠٩١٢٣٤٥٦٧٨ توا",
+      "sanitised": "كلمني على [phone] توا",
+      "removed": [{ "original": "٠٩١٢٣٤٥٦٧٨", "placeholder": "[phone]" }]
+    },
+    {
+      "text": "رقمي +218 91 1234567",
+      "sanitised": "رقمي [phone]",
+      "removed": [{ "original": "+218 91 1234567", "placeholder": "[phone]" }]
+    },
+    {
+      "text": "رقمي 091-234-5678",
+      "sanitised": "رقمي [phone]",
+      "removed": [{ "original": "091-234-5678", "placeholder": "[phone]" }]
+    },
+    {
+      "text": "راسلني person@example.com بكرة",
+      "sanitised": "راسلني [email] بكرة",
+      "removed": [{ "original": "person@example.com", "placeholder": "[email]" }]
+    },
+    {
+      "text": "تابعني على @jisr_user",
+      "sanitised": "تابعني على [name]",
+      "removed": [{ "original": "@jisr_user", "placeholder": "[name]" }]
+    },
+    {
+      "text": "my name is Ahmed and exams are killing me",
+      "sanitised": "my name is [name] and exams are killing me",
+      "removed": [{ "original": "Ahmed", "placeholder": "[name]" }]
+    },
+    {
+      "text": "ismi sara w 3andi ikhtibar",
+      "sanitised": "ismi [name] w 3andi ikhtibar",
+      "removed": [{ "original": "sara", "placeholder": "[name]" }]
+    },
+    {
+      "text": "Mohamed keeps asking about my grades",
+      "sanitised": "[name] keeps asking about my grades",
+      "removed": [{ "original": "Mohamed", "placeholder": "[name]" }]
+    },
+    {
+      "text": "عندي امتحان بكرة وأمي قلقانة",
+      "sanitised": "عندي امتحان بكرة وأمي قلقانة",
+      "removed": []
+    },
+    {
+      "text": "الأستاذ ضاغط علي في المادة",
+      "sanitised": "الأستاذ ضاغط علي في المادة",
+      "removed": []
+    },
+    {
+      "text": "عندي 3 امتحانات في 2 أيام ودرجتي 85",
+      "sanitised": "عندي 3 امتحانات في 2 أيام ودرجتي 85",
+      "removed": []
+    },
+    {
+      "text": "باباي جاب الخبر",
+      "sanitised": "باباي جاب الخبر",
+      "removed": []
+    },
+    {
+      "text": "",
+      "sanitised": "",
+      "removed": []
+    }
+  ]
+}

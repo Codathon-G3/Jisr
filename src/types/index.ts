@@ -64,12 +64,15 @@ export interface SupportCardData {
   }>;
 }
 
+/** One remembered chip selection. Chips only: no text, recipient or sharing data. */
 export interface HistoryItem {
   id: string;
   chip: Chip;
-  recipient?: Recipient;
   timestamp: number;
 }
+
+/** Where the drafts on screen came from, so the UI never calls a template "AI". */
+export type DraftSource = 'ai' | 'template';
 
 export interface IdentifierRemoved {
   original: string;
@@ -105,6 +108,9 @@ export interface GenerateDraftsResponse {
   drafts: Draft[];
   outputCheckPassed: boolean;
   usedFallbackTemplate: boolean;
+  /** The server's Guardian gate flagged the text; drafts is empty. */
+  riskDetected?: boolean;
+  riskMethod?: RiskMethod;
 }
 
 export interface FaithfulnessRequest {

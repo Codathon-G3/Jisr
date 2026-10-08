@@ -30,8 +30,8 @@ This directory contains the consolidated presentation, demonstration, and evalua
   * Formatted complete project dossier including problem statement, architecture, ethical guardrails, and technical evaluation.
 
 ### 4. Technical Defense & Evaluation Q&A (Scope D)
-* **Committee Defense Playbook**: [`COMMITTEE_QA.md`](COMMITTEE_QA.md) (7.8 KB)
-  * 7 prepared, evidence-based answers to key jury questions covering chatbot differentiation, data privacy, and clinical boundary protection.
+* **Committee Defense Playbook**: [`COMMITTEE_QA.md`](COMMITTEE_QA.md) (10.7 KB)
+  * 11 prepared answers to key jury questions covering chatbot differentiation, data privacy, clinical boundary protection, how recall was measured, the APK, AI vs template, and minors.
 
 ### 5. Requirements Compliance Checklist
 * **Official Compliance Audit**: [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md)
@@ -46,7 +46,7 @@ This directory contains the consolidated presentation, demonstration, and evalua
 | **Evaluate in Web Browser** | Instant Next.js 16 Web Showcase | `npm run dev` -> Open [http://localhost:3000](http://localhost:3000) |
 | **Evaluate on Physical Android** | Install Standalone Pre-compiled APK | Sideload [`builds/jisr-v1.0.0.apk`](../builds/jisr-v1.0.0.apk) |
 | **Verify All Safety & Unit Tests** | Master Test Harness | `npm test` (**450 passed, 0 failed**) |
-| **Inspect Technical Report** | Comprehensive Markdown Report | Read [`REPORT.md`](../REPORT.md) (35 KB) |
+| **Inspect Technical Report** | Comprehensive Markdown Report | Read [`REPORT.md`](../REPORT.md) (15 sections) |
 | **Inspect Third-Party Citations** | Academic & Library Attributions | Read [`CITATIONS.md`](../CITATIONS.md) |
 | **Inspect Live Cloud API** | Interactive Swagger / OpenAPI Docs | Visit [https://jisr-api.onrender.com/docs](https://jisr-api.onrender.com/docs) |
 

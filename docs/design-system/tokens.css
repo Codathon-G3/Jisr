@@ -1,0 +1,119 @@
+/* Jisr — generated from tokens.json */
+:root, [data-theme="light"] {
+  --surface: #faf6ef; /* Page background — warm linen by day, deep navy at night. */
+  --surface-raised: #fffdf9; /* Cards, sheets, the message composer. */
+  --surface-sunken: #f1eadf; /* Wells and quiet sections: past notes, settings groups. */
+  --line: #e2d8c8; /* Hairline dividers and card edges (decorative, not a control boundary). */
+  --line-strong: #8f7e66; /* Input and control borders — at least 3:1 on every surface in both themes. */
+  --ink: #1d2a44; /* Primary text, on surface, surface-raised, surface-sunken and every -soft tint (11:1 or more). */
+  --ink-muted: #5a6377; /* Secondary text, hints, timestamps; on all surfaces and -soft tints (4.9:1 or more). */
+  --green: #2f6b4f; /* Olive green: the primary action, selected states, progress. As text on any surface or green-soft (5.2:1 or more). */
+  --green-soft: #e2eee5; /* Calm tinted backgrounds: a sent-note confirmation, a gentle tip. Text on it is ink or green. */
+  --on-green: #ffffff; /* Text and icons on a green fill (the primary button label). */
+  --wood: #8a5a36; /* Walnut brown — the bridge itself: secondary emphasis, the recipient's name, illustration. As text on any surface or wood-soft (4.8:1 or more). */
+  --wood-soft: #f3e7d7; /* Warm tinted backgrounds: the 'To' strip on a note, onboarding panels. */
+  --navy: #24365c; /* Deep navy fill: the night band, headers, hero panels. A fill, not a text colour; text on it is on-navy. */
+  --on-navy: #f6f1e8; /* Text and icons on a navy fill (10:1 light, 9:1 dark). */
+  --lavender: #6a58a6; /* Reserved for Jisr's own voice: AI suggestions, rewrite hints. As text on any surface or lavender-soft (4.9:1 or more). */
+  --lavender-soft: #ece8f6; /* Background of an AI suggestion chip or panel. Text on it is ink or lavender. */
+  --urgent: #b0432a; /* Clay red, safety only: 'reach out now' banners and the crisis button. Always paired with words and an icon, never colour alone. As text on any surface or urgent-soft (4.6:1 or more). */
+  --urgent-soft: #f9e4dc; /* Background of the safety banner. */
+  --on-urgent: #ffffff; /* Text and icons on an urgent fill. */
+  --shadow-sm: 0 1px 2px #1d2a440d, 0 2px 6px #1d2a4412; /* Cards at rest. */
+  --shadow-lg: 0 8px 24px -6px #1d2a4426; /* Bottom sheets and dialogs. */
+  --focus-ring: 0 0 0 2px #faf6ef, 0 0 0 4px #2f6b4f; /* Keyboard focus: a 2px gap in the page colour, then 2px of solid green (5.2:1 or more on every surface). */
+}
+[data-theme="dark"] {
+  --surface: #131b2b;
+  --surface-raised: #1b2538;
+  --surface-sunken: #0e1522;
+  --line: #2c3850;
+  --line-strong: #6f7d99;
+  --ink: #f2eee6;
+  --ink-muted: #a9b1c2;
+  --green: #8cc3a4;
+  --green-soft: #1c3328;
+  --on-green: #0f2419;
+  --wood: #d4a77e;
+  --wood-soft: #33271b;
+  --navy: #2b3f68;
+  --on-navy: #f6f1e8;
+  --lavender: #b9abe8;
+  --lavender-soft: #2a2442;
+  --urgent: #f2917a;
+  --urgent-soft: #3b1f19;
+  --on-urgent: #2a120b;
+  --shadow-sm: 0 1px 3px #00000066;
+  --shadow-lg: 0 12px 28px -4px #000000a6;
+  --focus-ring: 0 0 0 2px #131b2b, 0 0 0 4px #8cc3a4;
+}
+:root {
+  --space-1: 4px; /* Icon-to-label gap. */
+  --space-2: 8px; /* Inside chips; between stacked labels. */
+  --space-3: 12px; /* Between related rows. */
+  --space-4: 16px; /* Screen side margin on mobile; button padding. */
+  --space-6: 24px; /* Card padding; between cards. */
+  --space-8: 32px; /* Between sections. */
+  --radius-sm: 8px; /* Inputs, small chips' inner elements. */
+  --radius-md: 14px; /* Buttons, banners. */
+  --radius-lg: 24px; /* Cards, sheets, the composer. */
+  --radius-full: 9999px; /* Pills, avatars, the AI suggestion chip. */
+  --font-display: "Readex Pro", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans Arabic", "Readex Pro", system-ui, sans-serif;
+  --text-display: 600 34px/48px var(--font-display); /* One per screen: onboarding and empty states. */
+  --text-title: 500 24px/36px var(--font-display); /* Screen titles. */
+  --text-heading: 500 19px/30px var(--font-display); /* Section and card headings. */
+  --text-body: 400 17px/28px var(--font-sans); /* Message drafts and all reading text. */
+  --text-body-sm: 400 15px/24px var(--font-sans); /* Helper text, card metadata. */
+  --text-label: 500 15px/20px var(--font-sans); /* Buttons, chips, tabs. */
+  --text-caption: 500 13px/20px var(--font-sans); /* Timestamps and privacy notes. Never for anything the person must read to stay safe. */
+}
+.display {
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 48px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 36px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.heading {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 30px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.body {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 28px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.body-sm {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.label {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.caption {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
+}

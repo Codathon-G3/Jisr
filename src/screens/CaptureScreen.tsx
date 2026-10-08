@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,15 +6,20 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  I18nManager,
+  Switch,
   Image,
 } from 'react-native';
 import { Chip, Recipient } from '../types';
-import { colors } from '../theme';
+import { fonts, radius, space, type } from '../theme/tokens';
+import { button, c, rowRtl } from '../theme/ui';
+import { JisrIcon, JisrIconName } from '../components/JisrIcon';
 import ar from '../i18n/ar.json';
 import supportCardData from '../../safety/support-card.json';
-
-const LOGO_IMAGE = require('../../public/brand/jisr-logo.png');
+import statedLimits from '../../safety/stated-limits.json';
+import { OutboundPreview } from '../components/OutboundPreview';
+import { sanitizePii } from '../services/piiSanitizer';
+import { MAX_NOTE_CHARS } from '../services/api';
+import { RETENTION_OPTIONS, RetentionDays } from '../services/historyLogic';
 
 export interface CaptureScreenProps {
   selectedChips: Chip[];
@@ -28,12 +33,31 @@ export interface CaptureScreenProps {
   /** True while the free text matches a crisis phrase; drafting is blocked. */
   crisisDetected?: boolean;
   onOpenSupport: () => void;
-  historyCount: number;
+  /** Private on-device record (R5): off by default */
+  historyEnabled: boolean;
+  onToggleHistory: (enabled: boolean) => void;
+  retentionDays: RetentionDays;
+  onSelectRetention: (days: RetentionDays) => void;
+  /** What is remembered: count per chip inside the retention window */
+  historySummary: Partial<Record<Chip, number>>;
   onClearHistory: () => void;
 }
 
 const CHIP_IDS = Object.keys(ar.chips) as Chip[];
 const RECIPIENT_IDS = Object.keys(ar.recipients) as Recipient[];
+
+// Logo for light backgrounds (jisr-brand/web/wordmark.png, 1583 x 388).
+const WORDMARK = require('../../public/brand/wordmark.png');
+const WORDMARK_ASPECT = 1583 / 388;
+
+// Icon per recipient, from the mapping table in jisr-brand/BRAND.md.
+const RECIPIENT_ICONS: Record<Recipient, JisrIconName> = {
+  friend: 'person',
+  sibling: 'relationships',
+  parent: 'family',
+  trusted_adult: 'person',
+  counsellor: 'exams',
+};
 
 /**
  * CaptureScreen (Screen 1: Stress & Context Capture)
@@ -41,10 +65,12 @@ const RECIPIENT_IDS = Object.keys(ar.recipients) as Recipient[];
  * RTL native port of the web showcase's home form (src/app/page.js on main):
  * 1. Brand block with the Jisr mark, name and tagline.
  * 2. 7 everyday stress chips with multi-select support.
- * 3. Optional free text, screened live by the Guardian crisis check.
+ * 3. Optional free text, screened live by the Guardian crisis check, with a live
+ *    preview of exactly what would leave the device (R16) before anything is sent.
  * 4. 5 recipient selectors tailored to Libyan youth social dynamics.
- * 5. Sandboxed on-device history indicator with one-tap erase.
- * 6. Stated limits notice explaining Jisr is a writing companion, not a doctor.
+ * 5. Private on-device record: off by default, retention window, what is
+ *    remembered, one-tap erase (R5).
+ * 6. Stated limits from safety/stated-limits.json (R23).
  */
 export const CaptureScreen: React.FC<CaptureScreenProps> = ({
   selectedChips,
@@ -57,23 +83,29 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
   isLoading = false,
   crisisDetected = false,
   onOpenSupport,
-  historyCount,
+  historyEnabled,
+  onToggleHistory,
+  retentionDays,
+  onSelectRetention,
+  historySummary,
   onClearHistory,
 }) => {
-  const isSubmitDisabled = selectedChips.length === 0 || isLoading || crisisDetected;
+  const isSubmitDisabled = selectedChips.length === 0 || isLoading;
+  const outbound = useMemo(() => sanitizePii(inputText), [inputText]);
+  const rememberedChips = (Object.keys(historySummary) as Chip[]).filter(
+    (chip) => (historySummary[chip] ?? 0) > 0
+  );
 
   return (
     <View style={styles.container}>
       {/* Brand */}
       <View style={styles.brand}>
-        <View style={styles.miniBridgeMark}>
-          <Image
-            source={LOGO_IMAGE}
-            style={styles.logoImage}
-            resizeMode="contain"
-            accessibilityLabel={ar.app_name}
-          />
-        </View>
+        <Image
+          source={WORDMARK}
+          style={styles.wordmark}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
         <Text style={styles.brandTitle}>{ar.app_name}</Text>
         <Text style={styles.brandTagline}>{ar.tagline}</Text>
       </View>
@@ -96,6 +128,7 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
                 accessibilityState={{ checked: isSelected }}
                 accessibilityLabel={ar.chips[id]}
               >
+                <JisrIcon name={id} size={20} color={isSelected ? c.green : c.inkMuted} />
                 <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
                   {ar.chips[id]}
                 </Text>
@@ -113,6 +146,7 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
           style={[styles.textInput, crisisDetected && styles.textInputAlert]}
           multiline
           numberOfLines={4}
+          maxLength={MAX_NOTE_CHARS}
           value={inputText}
           onChangeText={onChangeInputText}
           textAlign="right"
@@ -123,19 +157,32 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
         {/* Guardian: drafting is blocked while a crisis phrase is present */}
         {crisisDetected && (
           <View style={styles.crisisBanner} accessibilityRole="alert">
-            <Text style={styles.crisisBannerText}>{supportCardData.title_ar}</Text>
+            <View style={styles.crisisBannerHeader}>
+              <JisrIcon name="alert" size={28} color={c.urgent} />
+              <Text style={styles.crisisBannerText}>{supportCardData.title_ar}</Text>
+            </View>
             <TouchableOpacity
-              style={styles.crisisBannerButton}
+              style={[button.base, button.urgent]}
               onPress={onOpenSupport}
               activeOpacity={0.85}
               accessibilityRole="button"
               accessibilityLabel={ar.triggers.persistent_human_route}
             >
-              <Text style={styles.crisisBannerButtonText}>
+              <JisrIcon name="talk" size={20} color={c.onUrgent} />
+              <Text style={[button.label, button.labelUrgent]}>
                 {ar.triggers.persistent_human_route}
               </Text>
             </TouchableOpacity>
           </View>
+        )}
+
+        {/* What would leave the device, shown before anything is sent (R16) */}
+        {!crisisDetected && inputText.trim().length > 0 && (
+          <OutboundPreview
+            sanitisedText={outbound.sanitisedText}
+            identifiersRemoved={outbound.identifiersRemoved}
+            style={styles.outboundPreview}
+          />
         )}
       </View>
 
@@ -156,6 +203,11 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
                 accessibilityState={{ selected: isSelected }}
                 accessibilityLabel={ar.recipients[id]}
               >
+                <JisrIcon
+                  name={RECIPIENT_ICONS[id]}
+                  size={20}
+                  color={isSelected ? c.green : c.inkMuted}
+                />
                 <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
                   {ar.recipients[id]}
                 </Text>
@@ -167,7 +219,12 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
 
       {/* Primary Action Button */}
       <TouchableOpacity
-        style={[styles.continueButton, isSubmitDisabled && styles.continueButtonDisabled]}
+        style={[
+          button.base,
+          button.primary,
+          styles.continueButton,
+          isSubmitDisabled && button.disabled,
+        ]}
         onPress={onSubmit}
         disabled={isSubmitDisabled}
         activeOpacity={0.85}
@@ -175,32 +232,83 @@ export const CaptureScreen: React.FC<CaptureScreenProps> = ({
         accessibilityLabel={ar.buttons.start_drafting}
       >
         {isLoading ? (
-          <ActivityIndicator color={colors.white} size="small" />
+          <ActivityIndicator color={c.onGreen} size="small" />
         ) : (
-          <Text style={styles.continueButtonText}>{ar.buttons.start_drafting}</Text>
+          <>
+            <JisrIcon name="edit" size={20} color={c.onGreen} />
+            <Text style={[button.label, button.labelPrimary]}>{ar.buttons.start_drafting}</Text>
+          </>
         )}
       </TouchableOpacity>
 
-      {/* SECTION 4: Sandboxed History & Privacy */}
+      {/* SECTION 4: Private on-device record (R5) */}
       <View style={styles.privacyCard}>
-        <Text style={styles.privacyTitle}>الحفظ المحلي على جهازك</Text>
+        <View style={styles.privacyToggleRow}>
+          <JisrIcon name="on-device" size={20} color={c.ink} />
+          <Text style={[styles.privacyTitle, styles.privacyToggleLabel]}>
+            {ar.history.toggle_label}
+          </Text>
+          <Switch
+            value={historyEnabled}
+            onValueChange={onToggleHistory}
+            trackColor={{ false: c.lineStrong, true: c.green }}
+            accessibilityLabel={ar.history.toggle_label}
+          />
+        </View>
         <Text style={styles.privacyDescription}>
-          بياناتك محفوظة على جهازك فقط ({historyCount} موضوع مسجل). لا نملك خوادم تخزن أسرارك أو تتتبعك.
+          {historyEnabled ? ar.history.on_description : ar.history.off_description}
         </Text>
 
-        {historyCount > 0 && (
-          <TouchableOpacity
-            style={styles.clearHistoryButton}
-            onPress={onClearHistory}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.clearHistoryText}>{ar.buttons.clear_history}</Text>
-          </TouchableOpacity>
+        {historyEnabled && (
+          <>
+            <Text style={styles.privacyDescription}>{ar.history.retention_label}</Text>
+            <View style={styles.retentionRow}>
+              {RETENTION_OPTIONS.map((days) => {
+                const isSelected = retentionDays === days;
+                return (
+                  <TouchableOpacity
+                    key={days}
+                    style={[styles.pill, isSelected && styles.pillSelected]}
+                    onPress={() => onSelectRetention(days)}
+                    activeOpacity={0.8}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isSelected }}
+                  >
+                    <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
+                      {ar.history.retention_options[String(days) as '1' | '7' | '30']}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <Text style={styles.privacyDescription}>
+              {ar.history.remembered}{' '}
+              {rememberedChips.length > 0
+                ? rememberedChips
+                    .map((chip) => `${ar.chips[chip]} (${historySummary[chip]})`)
+                    .join('، ')
+                : ar.history.empty}
+            </Text>
+
+            {rememberedChips.length > 0 && (
+              <TouchableOpacity
+                style={[button.base, button.quiet, styles.clearHistoryButton]}
+                onPress={onClearHistory}
+                activeOpacity={0.7}
+              >
+                <JisrIcon name="delete" size={18} color={c.ink} />
+                <Text style={[button.label, button.labelPlain]}>{ar.buttons.clear_history}</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
 
-      {/* Stated Limits Notice */}
-      <Text style={styles.limits}>{ar.limits.notice}</Text>
+      {/* Stated Limits Notice (R23) */}
+      <Text style={styles.limits}>{statedLimits.ar}</Text>
+      {/* Minors and consent (product definition Q5) */}
+      <Text style={styles.limits}>{statedLimits.minors_ar}</Text>
     </View>
   );
 };
@@ -211,182 +319,147 @@ const styles = StyleSheet.create({
   },
   brand: {
     alignItems: 'center',
-    marginBottom: 31,
+    marginBottom: space[8],
   },
-  miniBridgeMark: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  logoImage: {
-    width: 170,
-    height: 52,
+  wordmark: {
+    width: 132,
+    height: 132 / WORDMARK_ASPECT,
+    marginBottom: space[3],
   },
   brandTitle: {
-    marginTop: 12,
-    marginBottom: 7,
-    color: colors.navy,
-    fontSize: 39,
-    fontWeight: '800',
+    ...type.display,
+    color: c.ink,
+    marginBottom: space[1],
   },
   brandTagline: {
-    color: colors.green,
-    fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 27,
+    ...type.bodySm,
+    color: c.wood,
     textAlign: 'center',
   },
   section: {
-    marginBottom: 27,
+    marginBottom: space[6],
   },
   sectionTitle: {
-    marginBottom: 10,
-    color: colors.navy,
-    fontSize: 17,
-    fontWeight: '800',
-    lineHeight: 29,
+    ...type.heading,
+    color: c.ink,
     textAlign: 'right',
+    marginBottom: space[3],
   },
   hint: {
-    marginTop: -4,
-    marginBottom: 15,
-    color: colors.muted,
-    fontSize: 14,
-    lineHeight: 24,
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'right',
+    marginTop: -space[2],
+    marginBottom: space[3],
   },
   pillRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     flexWrap: 'wrap',
-    gap: 10,
+    gap: space[2],
   },
   pill: {
-    paddingHorizontal: 17,
-    paddingVertical: 11,
-    borderRadius: 999,
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[2],
+    minHeight: 44,
+    paddingHorizontal: space[4],
+    paddingVertical: space[2],
+    borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
+    borderColor: c.line,
+    backgroundColor: c.surfaceRaised,
   },
   pillSelected: {
-    backgroundColor: colors.green,
-    borderColor: colors.green,
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 9 },
-    shadowOpacity: 0.18,
-    shadowRadius: 11,
-    elevation: 3,
+    backgroundColor: c.greenSoft,
+    borderColor: c.green,
   },
   pillLabel: {
-    color: colors.navy,
-    fontSize: 14,
+    ...type.label,
+    color: c.ink,
   },
   pillLabelSelected: {
-    color: colors.white,
-    fontWeight: '700',
+    color: c.green,
   },
   textInput: {
-    minHeight: 110,
-    padding: 16,
-    borderRadius: 21,
+    ...type.body,
+    minHeight: 120,
+    padding: space[4],
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
-    color: colors.navy,
-    fontSize: 15,
-    lineHeight: 28,
+    borderColor: c.line,
+    backgroundColor: c.surfaceRaised,
+    color: c.ink,
   },
   textInputAlert: {
-    borderColor: colors.safety,
+    borderColor: c.urgent,
   },
+  // SafetyBanner (docs/design-system/components/SafetyBanner.md)
   crisisBanner: {
-    marginTop: 12,
-    padding: 16,
-    gap: 12,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(176, 67, 42, 0.18)',
-    backgroundColor: colors.safetySoft,
+    marginTop: space[3],
+    paddingVertical: space[4],
+    paddingHorizontal: space[6],
+    gap: space[3],
+    borderRadius: radius.md,
+    backgroundColor: c.urgentSoft,
+  },
+  crisisBannerHeader: {
+    flexDirection: rowRtl,
+    alignItems: 'flex-start',
+    gap: space[3],
   },
   crisisBannerText: {
-    color: '#783323',
-    fontSize: 15,
-    fontWeight: '800',
-    lineHeight: 26,
+    ...type.heading,
+    fontFamily: fonts.display,
+    color: c.urgent,
     textAlign: 'right',
+    flex: 1,
   },
-  crisisBannerButton: {
-    alignSelf: 'stretch',
-    paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: colors.safety,
-    alignItems: 'center',
-  },
-  crisisBannerButtonText: {
-    color: colors.white,
-    fontSize: 15,
-    fontWeight: '800',
+  outboundPreview: {
+    marginTop: space[3],
   },
   continueButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: colors.green,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  continueButtonDisabled: {
-    opacity: 0.36,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  continueButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '800',
+    alignSelf: 'stretch',
   },
   privacyCard: {
-    marginTop: 21,
-    padding: 14,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(47, 107, 79, 0.18)',
-    backgroundColor: colors.greenSoft,
+    marginTop: space[6],
+    padding: space[4],
+    borderRadius: radius.md,
+    backgroundColor: c.surfaceSunken,
+    gap: space[2],
+  },
+  privacyToggleRow: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: space[3],
+  },
+  privacyToggleLabel: {
+    flex: 1,
+  },
+  retentionRow: {
+    flexDirection: rowRtl,
+    flexWrap: 'wrap',
+    gap: space[2],
+    marginVertical: space[1],
   },
   privacyTitle: {
-    marginBottom: 6,
-    color: colors.green,
-    fontSize: 13,
-    fontWeight: '800',
+    ...type.label,
+    color: c.ink,
     textAlign: 'right',
   },
   privacyDescription: {
-    color: colors.green,
-    fontSize: 12,
-    lineHeight: 20,
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'right',
   },
   clearHistoryButton: {
-    alignSelf: 'flex-start',
-    marginTop: 8,
-    paddingVertical: 4,
-  },
-  clearHistoryText: {
-    color: colors.safety,
-    fontSize: 12,
-    fontWeight: '700',
-    textDecorationLine: 'underline',
+    alignSelf: 'flex-end',
+    paddingHorizontal: space[2],
   },
   limits: {
-    marginTop: 21,
-    color: colors.muted,
-    fontSize: 12,
-    lineHeight: 23,
+    ...type.bodySm,
+    marginTop: space[6],
+    color: c.inkMuted,
     textAlign: 'center',
   },
 });

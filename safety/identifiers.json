@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "notes": "Identifier removal lists shared by src/services/piiSanitizer.ts (phone) and backend/app/services/identifier_removal.py (server). Both apply the same rules in the same order: email, phone (7+ digits, Latin or Arabic-Indic), @handle, the word after a name marker (اسمي X / my name is X), then the names below. Family words (بابا, أمي, خوي...) are NOT identifiers and are kept, because the drafts need them. Names that are also everyday words are left out on purpose (علي = 'on me', نور, أمل, حسن, سعيد, منى, إيمان, هبة, ملك...). The outbound preview lets the user catch anything this list misses.",
+  "name_markers_ar": ["اسمي هو", "إسمي هو", "اسمي", "إسمي"],
+  "name_markers_latin": ["my name is", "ismi", "esmi", "ismy", "esmy"],
+  "names_ar": [
+    "محمد", "أحمد", "احمد", "محمود", "مصطفى", "عمر", "عمرو", "عثمان", "خالد", "يوسف",
+    "إبراهيم", "ابراهيم", "إسماعيل", "اسماعيل", "عبدالله", "عبد الله", "عبدالرحمن", "عبد الرحمن",
+    "عبدالسلام", "عبد السلام", "عبدالرحيم", "عبدالحكيم", "عبدالباسط", "حسين", "طارق", "أيمن", "ايمن",
+    "معاذ", "معتز", "مهند", "أنس", "انس", "بلال", "حمزة", "حمزه", "زكريا", "موسى", "هشام", "وليد",
+    "رامي", "سامي", "عماد", "إياد", "اياد", "زياد", "حمدي", "مجدي", "فتحي", "أسامة", "اسامة", "حسام",
+    "عصام", "مروان", "سليمان", "ريان", "رايان", "نزار", "فراس", "وائل", "شادي", "غسان", "لؤي", "قصي", "تامر",
+    "فاطمة", "فاطمه", "مريم", "عائشة", "عايشة", "خديجة", "سارة", "ساره", "زينب", "آمنة", "امنة",
+    "أسماء", "اسماء", "هند", "ليلى", "سلمى", "ريم", "رنا", "رانيا", "شيماء", "شيما", "مروة", "مروه",
+    "نسرين", "سعاد", "نادية", "ناديه", "نجلاء", "لينا", "دينا", "رشا", "سمية", "غادة", "ريهام", "هالة",
+    "منال", "خلود", "إسراء", "اسراء", "تسنيم", "رزان", "لمى"
+  ],
+  "names_latin": [
+    "mohamed", "mohammed", "muhammad", "mohammad", "ahmed", "ahmad", "mahmoud", "mustafa", "omar", "othman",
+    "khaled", "khalid", "youssef", "yousef", "yusuf", "ibrahim", "ismail", "abdullah", "abdallah", "hussein",
+    "tarek", "tariq", "ayman", "moaz", "muadh", "muatz", "moataz", "mohannad", "anas", "bilal", "hamza",
+    "zakaria", "musa", "hisham", "walid", "waleed", "rami", "sami", "imad", "iyad", "ziad", "osama", "usama",
+    "hossam", "marwan", "suleiman", "rayan", "fatima", "fatma", "maryam", "mariam", "aisha", "khadija",
+    "sara", "sarah", "zainab", "zeinab", "amina", "asma", "hind", "layla", "laila", "salma", "reem", "rana",
+    "rania", "shaimaa", "shaima", "shima", "marwa", "nisreen", "souad", "nadia", "najla", "lina", "dina",
+    "rasha", "sumaya", "ghada", "reham", "manal", "israa", "tasneem", "razan"
+  ]
+}

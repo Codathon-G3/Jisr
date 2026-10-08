@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -9,15 +8,23 @@ import {
   StyleSheet,
   Share,
   Alert,
-  I18nManager,
   Image,
   Animated,
   LayoutChangeEvent,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+// Per-weight imports, so only the four weights in use are bundled into the app.
+import { ReadexPro_500Medium } from '@expo-google-fonts/readex-pro/500Medium';
+import { ReadexPro_600SemiBold } from '@expo-google-fonts/readex-pro/600SemiBold';
+import { IBMPlexSansArabic_400Regular } from '@expo-google-fonts/ibm-plex-sans-arabic/400Regular';
+import { IBMPlexSansArabic_500Medium } from '@expo-google-fonts/ibm-plex-sans-arabic/500Medium';
 
 import {
   Chip,
+  Draft,
+  DraftSource,
   Recipient,
   Tone,
   IdentifierRemoved,
@@ -30,13 +37,17 @@ import {
   getOfflineDrafts,
 } from './src/services/api';
 import { checkLocalCrisis } from './src/services/crisisCheck';
-import { sanitizePii } from './src/services/piiSanitizer';
 import {
-  recordChipSelection,
-  getHistory,
+  recordChipSelections,
+  getHistorySummary,
   clearHistory,
   checkChipRecurrence,
+  isHistoryEnabled,
+  setHistoryEnabled,
+  getRetentionDays,
+  setRetentionDays,
 } from './src/services/storage';
+import { DEFAULT_RETENTION_DAYS, RetentionDays } from './src/services/historyLogic';
 
 import {
   BaselineComparison,
@@ -46,16 +57,44 @@ import {
   TriggerModal,
 } from './src/components';
 import { CaptureScreen } from './src/screens/CaptureScreen';
-import { colors } from './src/theme';
+import { JisrIcon, JisrIconName } from './src/components/JisrIcon';
+import { radius, shadow, space, type } from './src/theme/tokens';
+import { button, c, rowRtl } from './src/theme/ui';
 
 import ar from './src/i18n/ar.json';
 import plainTemplatesData from './safety/plain-templates.json';
+import statedLimits from './safety/stated-limits.json';
 
 const TONE_KEYS: Tone[] = ['gentle', 'direct', 'formal'];
 
+// Icon per recipient, from the mapping table in jisr-brand/BRAND.md.
+const RECIPIENT_ICONS: Record<Recipient, JisrIconName> = {
+  friend: 'person',
+  sibling: 'relationships',
+  parent: 'family',
+  trusted_adult: 'person',
+  counsellor: 'exams',
+};
+
+// The on-device crisis check waits for a short pause in typing, so the support
+// card does not open in the middle of a phrase such as "نبي نموت من الضحك".
+const CRISIS_DEBOUNCE_MS = 700;
+const FAITHFULNESS_DEBOUNCE_MS = 800;
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
+}
+
 // Rayan's intro artwork (shared with the Next.js web showcase)
 const INTRO_IMAGE = require('./public/brand/jisr-intro-mobile.png');
-const LOGO_IMAGE = require('./public/brand/jisr-logo.png');
+// Logo for light backgrounds (jisr-brand/web/wordmark.png, 1583 x 388)
+const LOGO_IMAGE = require('./public/brand/wordmark.png');
+const LOGO_ASPECT = 1583 / 388;
 const INTRO_IMAGE_SIZE = { width: 941, height: 1672, cornerRadius: 20 };
 const INTRO_AUTO_ENTER_MS = 4200;
 const INTRO_FADE_MS = 650;
@@ -63,6 +102,14 @@ const INTRO_FADE_MS = 650;
 type Screen = 'intro' | 'capture' | 'drafting' | 'encouraged_out';
 
 export default function App() {
+  // Design-system fonts (names match fonts in src/theme/tokens.ts)
+  const [fontsLoaded, fontError] = useFonts({
+    ReadexPro_500Medium,
+    ReadexPro_600SemiBold,
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_500Medium,
+  });
+
   // Capture inputs
   const [selectedChips, setSelectedChips] = useState<Chip[]>([]);
   const [selectedRecipient, setSelectedRecipient] = useState<Recipient>('friend');
@@ -95,6 +142,11 @@ export default function App() {
   });
   const [currentTone, setCurrentTone] = useState<Tone>('gentle');
   const [editedDraft, setEditedDraft] = useState('');
+  // Whether the drafts came from the AI or from the plain templates (R18)
+  const [draftSource, setDraftSource] = useState<DraftSource>('ai');
+  const [continuedAfterSupport, setContinuedAfterSupport] = useState(false);
+  // The text the user chose to continue with after the support card (R10)
+  const [acknowledgedText, setAcknowledgedText] = useState<string | null>(null);
 
   // Trust & Control Views
   const [showBaseline, setShowBaseline] = useState(false);
@@ -109,13 +161,20 @@ export default function App() {
   });
   const [alignments, setAlignments] = useState<Alignment[]>([]);
 
-  // Sandboxed On-Device History
-  const [historyCount, setHistoryCount] = useState(0);
+  // Private on-device record (R5): off until the user turns it on
+  const [historyOn, setHistoryOn] = useState(false);
+  const [retentionDays, setRetention] = useState<RetentionDays>(DEFAULT_RETENTION_DAYS);
+  const [historySummary, setHistorySummary] = useState<Partial<Record<Chip, number>>>({});
 
-  // Load history count on mount
-  useEffect(() => {
-    getHistory().then((items) => setHistoryCount(items.length));
+  const refreshHistory = useCallback(async () => {
+    setHistorySummary(await getHistorySummary());
   }, []);
+
+  useEffect(() => {
+    isHistoryEnabled().then(setHistoryOn);
+    getRetentionDays().then(setRetention);
+    refreshHistory();
+  }, [refreshHistory]);
 
   // Update live draft editor when switching tones or when drafts load
   useEffect(() => {
@@ -124,15 +183,22 @@ export default function App() {
     }
   }, [currentTone, drafts]);
 
-  // Update faithfulness alignments when edited draft changes
+  // Faithfulness alignments: only while the view is open, only for AI drafts, and
+  // only after a pause in editing, so typing does not fire one model call per key.
+  const debouncedDraft = useDebouncedValue(editedDraft, FAITHFULNESS_DEBOUNCE_MS);
   useEffect(() => {
-    if (activeScreen === 'drafting' && editedDraft) {
-      const source = inputText || (selectedChips[0] ? ar.chips[selectedChips[0]] : '');
-      checkFaithfulness(source, editedDraft).then((res) => {
-        setAlignments(res.alignments || []);
-      });
+    if (activeScreen !== 'drafting' || !showFaithfulness || draftSource !== 'ai' || !debouncedDraft) {
+      return;
     }
-  }, [activeScreen, editedDraft, inputText, selectedChips]);
+    let cancelled = false;
+    const source = inputText || (selectedChips[0] ? ar.chips[selectedChips[0]] : '');
+    checkFaithfulness(source, debouncedDraft).then((res) => {
+      if (!cancelled) setAlignments(res.alignments || []);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeScreen, showFaithfulness, draftSource, debouncedDraft, inputText, selectedChips]);
 
   // ---------------- Intro ----------------
 
@@ -181,45 +247,36 @@ export default function App() {
 
   // ---------------- Guardian: live crisis interception ----------------
 
-  const [debouncedInputText, setDebouncedInputText] = useState(inputText);
-  const [debouncedEditedDraft, setDebouncedEditedDraft] = useState(editedDraft);
-  const [dismissedCrisisText, setDismissedCrisisText] = useState('');
-
-  // 700ms debounce prevents mid-phrase false alarms while typing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedInputText(inputText);
-    }, 700);
-    return () => clearTimeout(timer);
-  }, [inputText]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedEditedDraft(editedDraft);
-    }, 700);
-    return () => clearTimeout(timer);
-  }, [editedDraft]);
-
-  const inputRisk = useMemo(() => checkLocalCrisis(debouncedInputText), [debouncedInputText]);
+  // The capture box and the editable draft are screened on-device against
+  // safety/crisis-phrases.json after a short pause in typing. Drafting itself is
+  // also gated on the server (/api/generate-drafts) with the model layer.
+  const debouncedInput = useDebouncedValue(inputText, CRISIS_DEBOUNCE_MS);
+  const debouncedDraftForRisk = useDebouncedValue(editedDraft, CRISIS_DEBOUNCE_MS);
+  const inputRisk = useMemo(() => checkLocalCrisis(debouncedInput), [debouncedInput]);
   const draftRisk = useMemo(
-    () => (activeScreen === 'drafting' ? checkLocalCrisis(debouncedEditedDraft) : null),
-    [activeScreen, debouncedEditedDraft]
+    () => (activeScreen === 'drafting' ? checkLocalCrisis(debouncedDraftForRisk) : null),
+    [activeScreen, debouncedDraftForRisk]
   );
   const crisisDetected = inputRisk.riskDetected || Boolean(draftRisk?.riskDetected);
+  // The user already saw the card for this exact text and chose to continue (R10).
+  const crisisAcknowledged = acknowledgedText !== null && acknowledgedText === inputText;
 
-  // A new match opens the support card, unless already dismissed for this exact text
+  // A new match opens the support card, unless the user already chose to continue.
   useEffect(() => {
-    if (!crisisDetected) return;
-    const currentRiskText = inputRisk.riskDetected ? debouncedInputText : debouncedEditedDraft;
-    if (currentRiskText && currentRiskText === dismissedCrisisText) return;
-
+    if (!crisisDetected || crisisAcknowledged) return;
     setShowTriggerModal(false);
     setIsCrisisModal(true);
     setShowSupportModal(true);
-  }, [crisisDetected, debouncedInputText, debouncedEditedDraft, dismissedCrisisText, inputRisk.riskDetected]);
+  }, [crisisDetected, crisisAcknowledged]);
 
   const openSupport = () => {
-    setIsCrisisModal(crisisDetected);
+    setIsCrisisModal(crisisDetected && !crisisAcknowledged);
+    setShowSupportModal(true);
+  };
+
+  const showCrisisCard = () => {
+    setShowTriggerModal(false);
+    setIsCrisisModal(true);
     setShowSupportModal(true);
   };
 
@@ -248,9 +305,20 @@ export default function App() {
   };
 
   // "Continue" opens the writing invitation, as on the web showcase. A chip
-  // picked 3+ times before gets the pattern prompt instead.
+  // picked 3+ times inside the retention window gets the pattern prompt instead.
   const handleContinue = async () => {
-    if (selectedChips.length === 0 || crisisDetected) return;
+    if (selectedChips.length === 0) return;
+
+    // Guardian: a crisis phrase shows the support card instead of drafting. If the
+    // user already chose to continue, they get plain templates (R10).
+    if (checkLocalCrisis(inputText).riskDetected || crisisAcknowledged) {
+      if (crisisAcknowledged) {
+        continueWithTemplates();
+      } else {
+        showCrisisCard();
+      }
+      return;
+    }
 
     if (selectionKey === dismissedSelectionKey) {
       handleStartDrafting();
@@ -275,38 +343,63 @@ export default function App() {
     setShowTriggerModal(false);
   };
 
-  // Main submission handler: triggers Guardian risk screening and drafting engine
+  const showDrafts = (draftList: Draft[], source: DraftSource) => {
+    const pick = (tone: Tone) => draftList.find((d) => d.tone === tone)?.text || '';
+    const next: Record<Tone, string> = {
+      gentle: pick('gentle'),
+      direct: pick('direct'),
+      formal: pick('formal'),
+    };
+    setDrafts(next);
+    setDraftSource(source);
+    setAlignments([]);
+    setCurrentTone('gentle');
+    setEditedDraft(next.gentle);
+    setActiveScreen('drafting');
+  };
+
+  // After the support card, the user may still write to a trusted person (R10).
+  // Plain templates only: the flagged text is never sent to the drafting model.
+  const continueWithTemplates = () => {
+    const chips: Chip[] = selectedChips.length > 0 ? selectedChips : ['other'];
+    const fallback = getOfflineDrafts(chips, selectedRecipient);
+    setSanitizedData({ sanitisedText: '', identifiersRemoved: [] });
+    setContinuedAfterSupport(true);
+    showDrafts(fallback.drafts, 'template');
+  };
+
+  // Main submission handler. /api/generate-drafts runs the Guardian risk check
+  // (phrase list + model) on the server before any drafting.
   const handleStartDrafting = async () => {
     if (selectedChips.length === 0) {
       Alert.alert('تنبيه', 'يرجى اختيار موضوع واحد على الأقل للمتابعة.');
       return;
     }
+    if (checkLocalCrisis(inputText).riskDetected && !crisisAcknowledged) {
+      showCrisisCard();
+      return;
+    }
 
     setShowTriggerModal(false);
     setIsLoading(true);
+    setContinuedAfterSupport(false);
 
     try {
-      // 1. GUARDIAN LAYER PRE-DRAFTING CHECK (Zero-latency regex + backend /api/check-risk)
-      const riskCheckResult = await checkRisk(inputText, selectedChips);
+      // Private on-device record: chips only, and only if the user turned it on
+      await recordChipSelections(selectedChips);
+      refreshHistory();
 
-      if (riskCheckResult.riskDetected) {
-        // Crisis detected: HALT drafting immediately and present unalterable SupportCardModal
-        setIsLoading(false);
-        setIsCrisisModal(true);
-        setShowSupportModal(true);
-        return;
+      // Guardian, model layer: risk check before any drafting (identifier-free text).
+      // /api/generate-drafts checks again on the server.
+      if (inputText.trim()) {
+        const risk = await checkRisk(inputText, selectedChips);
+        if (risk.riskDetected) {
+          showCrisisCard();
+          return;
+        }
       }
 
-      // 2. PRIVACY & PII SANITIZATION
-      const pii = sanitizePii(inputText);
-      setSanitizedData(pii);
-
-      // 3. SANDBOXED ON-DEVICE HISTORY RECORDING
-      await recordChipSelection(selectedChips[0], selectedRecipient);
-      const updatedHistory = await getHistory();
-      setHistoryCount(updatedHistory.length);
-
-      // 4. 3-TONE DRAFTING ENGINE (FastAPI with deterministic safety/plain-templates.json fallback)
+      // Identifiers are removed inside generateDrafts before anything is sent
       const response = await generateDrafts({
         text: inputText,
         chips: selectedChips,
@@ -314,34 +407,33 @@ export default function App() {
         language: 'ar',
       });
 
-      const gentle = response.drafts.find((d) => d.tone === 'gentle')?.text || '';
-      const direct = response.drafts.find((d) => d.tone === 'direct')?.text || '';
-      const formal = response.drafts.find((d) => d.tone === 'formal')?.text || '';
+      if (response.riskDetected) {
+        showCrisisCard();
+        return;
+      }
 
-      setDrafts({ gentle, direct, formal });
-      setCurrentTone('gentle');
-      setEditedDraft(gentle);
-      setActiveScreen('drafting');
+      setSanitizedData({
+        sanitisedText: response.sanitisedText,
+        identifiersRemoved: response.identifiersRemoved,
+      });
+      showDrafts(response.drafts, response.usedFallbackTemplate ? 'template' : 'ai');
     } catch (error) {
       console.warn('Drafting error, falling back to offline templates:', error);
       const fallback = getOfflineDrafts(selectedChips, selectedRecipient, inputText);
-      const fallbackDrafts: Record<Tone, string> = {
-        gentle: fallback.drafts.find((d) => d.tone === 'gentle')?.text || '',
-        direct: fallback.drafts.find((d) => d.tone === 'direct')?.text || '',
-        formal: fallback.drafts.find((d) => d.tone === 'formal')?.text || '',
-      };
-      setDrafts(fallbackDrafts);
-      setCurrentTone('gentle');
-      setEditedDraft(fallbackDrafts.gentle);
-      setActiveScreen('drafting');
+      setSanitizedData({
+        sanitisedText: fallback.sanitisedText,
+        identifiersRemoved: fallback.identifiersRemoved,
+      });
+      showDrafts(fallback.drafts, 'template');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Share via OS native share sheet (WhatsApp, Messenger, SMS handoff) with 0 telemetry
+  // Share via OS native share sheet (WhatsApp, Messenger, SMS handoff) with 0 telemetry.
+  // Never blocked by the crisis check: sending a message to a person is the human route.
   const handleShare = async () => {
-    if (!editedDraft || crisisDetected) return;
+    if (!editedDraft) return;
 
     try {
       const result = await Share.share({
@@ -358,10 +450,22 @@ export default function App() {
     }
   };
 
-  // Clear local sandboxed history
+  // Private on-device record controls (R5)
+  const handleToggleHistory = async (enabled: boolean) => {
+    await setHistoryEnabled(enabled); // turning it off also erases it
+    setHistoryOn(enabled);
+    refreshHistory();
+  };
+
+  const handleSelectRetention = async (days: RetentionDays) => {
+    await setRetentionDays(days);
+    setRetention(days);
+    refreshHistory();
+  };
+
   const handleClearHistory = async () => {
     await clearHistory();
-    setHistoryCount(0);
+    refreshHistory();
     Alert.alert('تم المسح', 'تم مسح السجل المحلي لجهازك بالكامل بنجاح.');
   };
 
@@ -373,31 +477,52 @@ export default function App() {
     setCurrentTone('gentle');
     setEditedDraft('');
     setDismissedSelectionKey('');
+    setAcknowledgedText(null);
+    setContinuedAfterSupport(false);
     setShowBaseline(false);
     setShowFaithfulness(false);
     setShowOutbound(false);
     setActiveScreen('capture');
   };
 
+  const closeSupport = () => {
+    setShowSupportModal(false);
+    setIsCrisisModal(false);
+  };
+
+  // R10: after the card the user may still write their note to someone they trust.
+  const handleContinueAfterSupport = () => {
+    setAcknowledgedText(inputText);
+    closeSupport();
+    // On the drafting screen keep the user's own edits; otherwise start from templates.
+    if (activeScreen !== 'drafting') {
+      continueWithTemplates();
+    }
+  };
+
   const supportModal = (
     <SupportCardModal
       visible={showSupportModal}
       isCrisis={isCrisisModal}
-      onClose={() => {
-        setShowSupportModal(false);
-        setIsCrisisModal(false);
-        const currentRiskText = inputRisk.riskDetected ? debouncedInputText : debouncedEditedDraft;
-        setDismissedCrisisText(currentRiskText);
-      }}
+      onClose={closeSupport}
+      onContinue={isCrisisModal ? handleContinueAfterSupport : undefined}
     />
   );
+
+  // The bundled fonts load in a moment; render once they are ready (or failed).
+  if (!fontsLoaded && !fontError) {
+    return <View style={styles.introRoot} />;
+  }
 
   // ================= INTRO / SPLASH =================
   if (activeScreen === 'intro') {
     return (
-      <View style={styles.introRoot} onLayout={handleIntroLayout}>
-        <StatusBar style="dark" translucent={false} backgroundColor={colors.introFrame} />
+      <SafeAreaProvider>
+      <SafeAreaView style={styles.introRoot}>
+        <StatusBar style="dark" />
 
+        {/* Measured inside the safe area; the artwork is sized to fit it */}
+        <View style={styles.introFill} onLayout={handleIntroLayout}>
         <Animated.View style={[styles.introContent, { opacity: introOpacity }]}>
           {introArea.width > 0 && (
             <Image
@@ -412,41 +537,45 @@ export default function App() {
           <View style={styles.introActions}>
             {/* PERSISTENT HUMAN ROUTE (also reachable from the intro) */}
             <TouchableOpacity
-              style={[styles.humanRouteButton, styles.introHumanRoute]}
+              style={[button.base, styles.humanRouteButton]}
               onPress={openSupport}
               activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel={ar.triggers.persistent_human_route}
             >
-              <Text style={styles.humanRouteText}>
+              <JisrIcon name="talk" size={20} color={c.urgent} />
+              <Text style={[button.label, styles.humanRouteText]}>
                 {ar.triggers.persistent_human_route}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.introStartButton}
+              style={[button.base, button.primary, styles.introStartButton]}
               onPress={enterApp}
               activeOpacity={0.85}
               accessibilityRole="button"
               accessibilityLabel="ابدأ"
             >
-              <Text style={styles.introStartText}>ابدأ</Text>
+              <Text style={[button.label, button.labelPrimary]}>ابدأ</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
+        </View>
 
         {supportModal}
-      </View>
+      </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 
   return (
+    <SafeAreaProvider>
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" translucent={false} backgroundColor={colors.cream} />
+      <StatusBar style="dark" />
 
       {/* ================= PERSISTENT HUMAN ROUTE ("تكلم مع حد توا") ================= */}
       <View style={styles.topBar}>
-        {activeScreen !== 'intro' && activeScreen !== 'capture' ? (
+        {activeScreen !== 'capture' ? (
           <Image
             source={LOGO_IMAGE}
             style={styles.topBarLogo}
@@ -456,13 +585,14 @@ export default function App() {
         ) : null}
         <View style={styles.topBarSpacer} />
         <TouchableOpacity
-          style={styles.humanRouteButton}
+          style={[button.base, styles.humanRouteButton]}
           onPress={openSupport}
           activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel={ar.triggers.persistent_human_route}
         >
-          <Text style={styles.humanRouteText}>
+          <JisrIcon name="talk" size={20} color={c.urgent} />
+          <Text style={[button.label, styles.humanRouteText]}>
             {ar.triggers.persistent_human_route}
           </Text>
         </TouchableOpacity>
@@ -488,7 +618,11 @@ export default function App() {
                 isLoading={isLoading}
                 crisisDetected={inputRisk.riskDetected}
                 onOpenSupport={openSupport}
-                historyCount={historyCount}
+                historyEnabled={historyOn}
+                onToggleHistory={handleToggleHistory}
+                retentionDays={retentionDays}
+                onSelectRetention={handleSelectRetention}
+                historySummary={historySummary}
                 onClearHistory={handleClearHistory}
               />
             )}
@@ -498,19 +632,16 @@ export default function App() {
               <View>
                 <View style={styles.draftHeader}>
                   <View style={styles.draftHeaderText}>
-                    <View style={styles.aiBadge}>
-                      <Text style={styles.aiBadgeText}>{ar.disclosure.badge}</Text>
-                    </View>
                     <Text style={styles.draftTitle}>اختر الصياغة اللي تريحك</Text>
                   </View>
                   <TouchableOpacity
-                    style={styles.smallBackButton}
+                    style={[button.base, button.plain, styles.backButton]}
                     onPress={() => setActiveScreen('capture')}
                     activeOpacity={0.8}
                     accessibilityRole="button"
                     accessibilityLabel="رجوع لتعديل الاختيارات"
                   >
-                    <Text style={styles.smallBackButtonText}>←</Text>
+                    <JisrIcon name="back" size={22} color={c.ink} />
                   </TouchableOpacity>
                 </View>
 
@@ -545,23 +676,85 @@ export default function App() {
                   })}
                 </View>
 
-                {/* In-Place Editable Draft */}
-                <TextInput
-                  style={styles.draftEditor}
-                  multiline
-                  value={editedDraft}
-                  onChangeText={setEditedDraft}
-                  textAlign="right"
-                  textAlignVertical="top"
-                  placeholder="اكتب رسالتك هنا..."
-                  placeholderTextColor={colors.muted}
-                  accessibilityLabel="نص الرسالة القابل للتعديل"
-                />
+                {/* Note card: the recipient strip, the editable draft, and who wrote it */}
+                <View style={styles.noteCard}>
+                  <View style={styles.noteTo}>
+                    <JisrIcon name={RECIPIENT_ICONS[selectedRecipient]} size={18} color={c.wood} />
+                    <Text style={styles.noteToText}>{ar.recipients[selectedRecipient]}</Text>
+                  </View>
 
-                {/* AI Disclosure */}
-                <View style={styles.disclosureBox}>
-                  <Text style={styles.disclosureBadge}>{ar.disclosure.badge}</Text>
-                  <Text style={styles.disclosureNotice}>{ar.disclosure.notice}</Text>
+                  {/* In-Place Editable Draft */}
+                  <TextInput
+                    style={styles.draftEditor}
+                    multiline
+                    value={editedDraft}
+                    onChangeText={setEditedDraft}
+                    textAlign="right"
+                    textAlignVertical="top"
+                    placeholder="اكتب رسالتك هنا..."
+                    placeholderTextColor={c.inkMuted}
+                    accessibilityLabel="نص الرسالة القابل للتعديل"
+                  />
+
+                  {/* Lavender only when the AI wrote it */}
+                  <View
+                    style={[
+                      styles.noteChip,
+                      draftSource === 'ai' ? styles.noteChipAi : styles.noteChipTemplate,
+                    ]}
+                  >
+                    {draftSource === 'ai' && (
+                      <JisrIcon name="suggestion" size={18} color={c.lavender} />
+                    )}
+                    <Text
+                      style={[
+                        styles.noteChipText,
+                        draftSource === 'ai'
+                          ? styles.noteChipTextAi
+                          : styles.noteChipTextTemplate,
+                      ]}
+                    >
+                      {draftSource === 'ai' ? ar.disclosure.badge : ar.disclosure.template_badge}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* AI Disclosure (R18): says plainly when the text is only a template */}
+                <View
+                  style={[
+                    styles.disclosureBox,
+                    draftSource === 'ai' ? styles.disclosureBoxAi : styles.disclosureBoxTemplate,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.disclosureBadge,
+                      draftSource === 'ai' ? styles.disclosureTextAi : styles.disclosureTextTemplate,
+                    ]}
+                  >
+                    {draftSource === 'ai' ? ar.disclosure.badge : ar.disclosure.template_badge}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.disclosureNotice,
+                      draftSource === 'ai' ? styles.disclosureTextAi : styles.disclosureTextTemplate,
+                    ]}
+                  >
+                    {draftSource === 'ai'
+                      ? ar.disclosure.notice
+                      : continuedAfterSupport
+                        ? ar.disclosure.after_support_notice
+                        : ar.disclosure.template_notice}
+                  </Text>
+                  {/* Stated limits (R23) */}
+                  <Text
+                    style={[
+                      styles.disclosureNotice,
+                      draftSource === 'ai' ? styles.disclosureTextAi : styles.disclosureTextTemplate,
+                    ]}
+                  >
+                    {statedLimits.ar_short}
+                  </Text>
                 </View>
 
                 {/* Trust & Control Toggles */}
@@ -572,6 +765,7 @@ export default function App() {
                     activeOpacity={0.8}
                     accessibilityState={{ expanded: showBaseline }}
                   >
+                    <JisrIcon name="suggestion" size={16} color={c.lavender} />
                     <Text
                       style={[styles.trustToggleText, showBaseline && styles.trustToggleTextActive]}
                     >
@@ -588,6 +782,11 @@ export default function App() {
                     activeOpacity={0.8}
                     accessibilityState={{ expanded: showFaithfulness }}
                   >
+                    <JisrIcon
+                      name="check"
+                      size={16}
+                      color={showFaithfulness ? c.green : c.ink}
+                    />
                     <Text
                       style={[
                         styles.trustToggleText,
@@ -598,26 +797,35 @@ export default function App() {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[styles.trustToggleBtn, showOutbound && styles.trustToggleBtnActive]}
-                    onPress={() => setShowOutbound(!showOutbound)}
-                    activeOpacity={0.8}
-                    accessibilityState={{ expanded: showOutbound }}
-                  >
-                    <Text
-                      style={[styles.trustToggleText, showOutbound && styles.trustToggleTextActive]}
+                  {/* Nothing left the device after the support card, so no outbound view */}
+                  {!continuedAfterSupport && (
+                    <TouchableOpacity
+                      style={[styles.trustToggleBtn, showOutbound && styles.trustToggleBtnActive]}
+                      onPress={() => setShowOutbound(!showOutbound)}
+                      activeOpacity={0.8}
+                      accessibilityState={{ expanded: showOutbound }}
                     >
-                      {showOutbound ? 'إخفاء الخصوصية' : 'فحص الخصوصية'}
-                    </Text>
-                  </TouchableOpacity>
+                      <JisrIcon
+                        name="preview"
+                        size={16}
+                        color={showOutbound ? c.green : c.ink}
+                      />
+                      <Text
+                        style={[styles.trustToggleText, showOutbound && styles.trustToggleTextActive]}
+                      >
+                        {showOutbound ? 'إخفاء الخصوصية' : 'فحص الخصوصية'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 {/* TRUST VIEW 1: Baseline Comparison */}
                 {showBaseline && (
                   <BaselineComparison
-                    aiDraft={editedDraft}
+                    aiDraft={drafts[currentTone]}
                     baselineTemplate={activeBaselineTemplate}
                     recipientLabel={ar.recipients[selectedRecipient]}
+                    aiAvailable={draftSource === 'ai'}
                     onSelectDraft={(text) => setEditedDraft(text)}
                     style={styles.trustModule}
                   />
@@ -636,7 +844,7 @@ export default function App() {
                 )}
 
                 {/* TRUST VIEW 3: Outbound PII Preview */}
-                {showOutbound && (
+                {showOutbound && !continuedAfterSupport && (
                   <OutboundPreview
                     sanitisedText={
                       sanitizedData.sanitisedText ||
@@ -651,16 +859,19 @@ export default function App() {
                 {/* Native Share Sheet */}
                 <TouchableOpacity
                   style={[
-                    styles.primaryButton,
-                    (!editedDraft || crisisDetected) && styles.primaryButtonDisabled,
+                    button.base,
+                    button.primary,
+                    styles.shareButton,
+                    !editedDraft && button.disabled,
                   ]}
                   onPress={handleShare}
-                  disabled={!editedDraft || crisisDetected}
+                  disabled={!editedDraft}
                   activeOpacity={0.85}
                   accessibilityRole="button"
                   accessibilityLabel={ar.buttons.share}
                 >
-                  <Text style={styles.primaryButtonText}>{ar.buttons.share}</Text>
+                  <JisrIcon name="share" size={20} color={c.onGreen} />
+                  <Text style={[button.label, button.labelPrimary]}>{ar.buttons.share}</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -675,7 +886,7 @@ export default function App() {
                   accessibilityLabel={ar.app_name}
                 />
                 <View style={styles.readyIcon}>
-                  <Text style={styles.readyIconText}>✓</Text>
+                  <JisrIcon name="check" size={36} color={c.green} />
                 </View>
                 <Text style={styles.readyTitle}>{ar.handoff.ready_message}</Text>
                 <Text style={styles.readyText}>
@@ -683,19 +894,21 @@ export default function App() {
                 </Text>
 
                 <TouchableOpacity
-                  style={[styles.primaryButton, styles.fullWidth]}
+                  style={[button.base, button.primary, styles.fullWidth]}
                   onPress={handleStartNew}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.primaryButtonText}>كتابة رسالة جديدة</Text>
+                  <JisrIcon name="edit" size={20} color={c.onGreen} />
+                  <Text style={[button.label, button.labelPrimary]}>كتابة رسالة جديدة</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.secondaryButton, styles.fullWidth]}
+                  style={[button.base, button.plain, styles.fullWidth]}
                   onPress={() => setActiveScreen('drafting')}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.secondaryButtonText}>رجوع</Text>
+                  <JisrIcon name="back" size={20} color={c.ink} />
+                  <Text style={[button.label, button.labelPlain]}>رجوع</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -715,6 +928,7 @@ export default function App() {
         onDismiss={handleNotNow}
       />
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -722,7 +936,10 @@ const styles = StyleSheet.create({
   // ---------- Intro ----------
   introRoot: {
     flex: 1,
-    backgroundColor: colors.introFrame,
+    backgroundColor: c.surface,
+  },
+  introFill: {
+    flex: 1,
   },
   introContent: {
     flex: 1,
@@ -733,71 +950,41 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 24,
+    bottom: space[6],
     alignItems: 'center',
-    gap: 14,
-  },
-  introHumanRoute: {
-    backgroundColor: 'rgba(250, 246, 239, 0.94)',
-    shadowColor: colors.navy,
-    shadowOpacity: 0.12,
+    gap: space[3],
   },
   introStartButton: {
     minWidth: 148,
-    paddingHorizontal: 30,
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: colors.green,
-    alignItems: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 13 },
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  introStartText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '800',
   },
 
   // ---------- Shell ----------
   safeArea: {
     flex: 1,
-    backgroundColor: colors.cream,
+    backgroundColor: c.surface,
   },
   topBar: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 8,
+    paddingHorizontal: space[4],
+    paddingTop: space[2],
+    paddingBottom: space[2],
   },
   topBarLogo: {
-    width: 75,
-    height: 23,
-    marginHorizontal: 4,
+    width: 88,
+    height: 88 / LOGO_ASPECT,
+    marginHorizontal: space[1],
   },
   topBarSpacer: {
     flex: 1,
   },
+  // "Talk to someone now": urgent, always with words and an icon
   humanRouteButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.safetyBorder,
-    backgroundColor: colors.safetySoft,
-    shadowColor: colors.safety,
-    shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 0.1,
-    shadowRadius: 11,
-    elevation: 3,
+    backgroundColor: c.urgentSoft,
+    borderColor: c.urgentSoft,
   },
   humanRouteText: {
-    color: colors.safety,
-    fontSize: 13,
-    fontWeight: '800',
+    color: c.urgent,
   },
   contentFade: {
     flex: 1,
@@ -806,260 +993,222 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 10,
-    paddingBottom: 22,
+    paddingHorizontal: space[4],
+    paddingBottom: space[6],
   },
   appCard: {
     width: '100%',
-    paddingHorizontal: 17,
-    paddingVertical: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.93)',
+    paddingHorizontal: space[4],
+    paddingVertical: space[6],
+    backgroundColor: c.surfaceRaised,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 28,
-    shadowColor: colors.brown,
-    shadowOffset: { width: 0, height: 22 },
-    shadowOpacity: 0.09,
-    shadowRadius: 32,
-    elevation: 4,
+    borderColor: c.line,
+    borderRadius: radius.lg,
+    ...shadow.sm,
   },
 
   // ---------- Drafting ----------
   draftHeader: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     alignItems: 'flex-start',
-    gap: 13,
-    marginBottom: 8,
+    gap: space[3],
+    marginBottom: space[2],
   },
   draftHeaderText: {
     flex: 1,
     alignItems: 'flex-end',
   },
-  smallBackButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(62, 43, 5, 0.18)',
-    backgroundColor: colors.white,
-  },
-  smallBackButtonText: {
-    color: colors.brown,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  aiBadge: {
-    paddingHorizontal: 11,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: colors.lavenderSoft,
-  },
-  aiBadgeText: {
-    color: colors.lavender,
-    fontSize: 12,
-    fontWeight: '800',
-  },
   draftTitle: {
-    marginTop: 7,
-    color: colors.navy,
-    fontSize: 20,
-    fontWeight: '800',
+    ...type.title,
+    color: c.ink,
     textAlign: 'right',
-    lineHeight: 32,
+  },
+  backButton: {
+    paddingHorizontal: space[3],
   },
   hint: {
-    marginBottom: 15,
-    color: colors.muted,
-    fontSize: 14,
-    lineHeight: 24,
+    ...type.bodySm,
+    marginBottom: space[4],
+    color: c.inkMuted,
     textAlign: 'right',
   },
   toneButtons: {
-    gap: 9,
-    marginTop: 7,
-    marginBottom: 22,
+    gap: space[2],
+    marginBottom: space[6],
   },
   toneButton: {
-    padding: 13,
-    gap: 5,
-    borderRadius: 20,
+    padding: space[3],
+    gap: space[1],
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(106, 88, 166, 0.18)',
-    backgroundColor: colors.white,
+    borderColor: c.line,
+    backgroundColor: c.surfaceRaised,
   },
   toneButtonSelected: {
-    backgroundColor: colors.lavenderSoft,
-    borderColor: colors.lavender,
+    backgroundColor: c.greenSoft,
+    borderColor: c.green,
   },
   toneLabel: {
-    color: colors.navy,
-    fontSize: 15,
-    fontWeight: '800',
+    ...type.label,
+    color: c.ink,
     textAlign: 'right',
   },
   toneDescription: {
-    color: colors.navy,
-    fontSize: 12,
-    lineHeight: 19,
-    opacity: 0.8,
+    ...type.caption,
+    color: c.inkMuted,
     textAlign: 'right',
   },
   toneTextSelected: {
-    color: colors.lavender,
+    color: c.green,
+  },
+  // NoteCard (docs/design-system/components/NoteCard.md)
+  noteCard: {
+    backgroundColor: c.surfaceRaised,
+    borderWidth: 1,
+    borderColor: c.line,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    ...shadow.sm,
+  },
+  noteTo: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[2],
+    backgroundColor: c.woodSoft,
+    paddingVertical: space[3],
+    paddingHorizontal: space[6],
+  },
+  noteToText: {
+    ...type.label,
+    color: c.wood,
   },
   draftEditor: {
+    ...type.body,
     minHeight: 180,
-    padding: 16,
-    borderRadius: 21,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
-    color: colors.navy,
-    fontSize: 15,
-    lineHeight: 28,
+    paddingTop: space[4],
+    paddingHorizontal: space[6],
+    paddingBottom: space[3],
+    color: c.ink,
+  },
+  noteChip: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    gap: space[2],
+    marginHorizontal: space[6],
+    marginBottom: space[6],
+    paddingVertical: space[2],
+    paddingHorizontal: space[4],
+    borderRadius: radius.full,
+  },
+  noteChipAi: {
+    backgroundColor: c.lavenderSoft,
+  },
+  noteChipTemplate: {
+    backgroundColor: c.surfaceSunken,
+  },
+  noteChipText: {
+    ...type.label,
+  },
+  noteChipTextAi: {
+    color: c.lavender,
+  },
+  noteChipTextTemplate: {
+    color: c.inkMuted,
   },
   disclosureBox: {
-    marginTop: 15,
-    padding: 16,
-    borderRadius: 19,
-    borderWidth: 1,
-    borderColor: 'rgba(106, 88, 166, 0.2)',
-    backgroundColor: colors.lavenderSoft,
+    marginTop: space[4],
+    padding: space[4],
+    gap: space[1],
+    borderRadius: radius.md,
+  },
+  disclosureBoxAi: {
+    backgroundColor: c.lavenderSoft,
+  },
+  disclosureBoxTemplate: {
+    backgroundColor: c.surfaceSunken,
   },
   disclosureBadge: {
-    color: colors.lavender,
-    fontSize: 14,
-    fontWeight: '800',
+    ...type.label,
     textAlign: 'right',
-    marginBottom: 6,
   },
   disclosureNotice: {
-    color: colors.lavender,
-    fontSize: 13,
-    lineHeight: 23,
+    ...type.bodySm,
     textAlign: 'right',
   },
+  disclosureTextAi: {
+    color: c.lavender,
+  },
+  disclosureTextTemplate: {
+    color: c.ink,
+  },
   trustControlsRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 18,
-    marginBottom: 14,
+    gap: space[2],
+    marginTop: space[4],
+    marginBottom: space[3],
   },
   trustToggleBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 999,
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[1],
+    minHeight: 40,
+    paddingHorizontal: space[3],
+    paddingVertical: space[2],
+    borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.white,
+    borderColor: c.line,
+    backgroundColor: c.surfaceRaised,
   },
   trustToggleBtnActive: {
-    backgroundColor: colors.greenSoft,
-    borderColor: colors.green,
+    backgroundColor: c.greenSoft,
+    borderColor: c.green,
   },
   trustToggleText: {
-    color: colors.navy,
-    fontSize: 12,
-    fontWeight: '700',
+    ...type.caption,
+    color: c.ink,
   },
   trustToggleTextActive: {
-    color: colors.green,
+    color: c.green,
   },
   trustModule: {
-    marginBottom: 14,
+    marginBottom: space[3],
   },
-
-  // ---------- Buttons ----------
-  primaryButton: {
-    marginTop: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: colors.green,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.36,
-    elevation: 0,
-    shadowOpacity: 0,
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  secondaryButton: {
-    marginTop: 10,
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(62, 43, 5, 0.18)',
-    backgroundColor: colors.white,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: colors.brown,
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  fullWidth: {
+  shareButton: {
+    marginTop: space[2],
     alignSelf: 'stretch',
   },
 
   // ---------- Ready ----------
   readyScreen: {
     alignItems: 'center',
-    paddingVertical: 35,
+    paddingVertical: space[8],
+    gap: space[3],
   },
   readyLogo: {
-    width: 150,
-    height: 46,
-    marginBottom: 16,
+    width: 132,
+    height: 132 / LOGO_ASPECT,
   },
   readyIcon: {
     width: 72,
     height: 72,
-    marginBottom: 19,
-    borderRadius: 26,
-    backgroundColor: colors.green,
+    borderRadius: radius.full,
+    backgroundColor: c.greenSoft,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.green,
-    shadowOffset: { width: 0, height: 13 },
-    shadowOpacity: 0.18,
-    shadowRadius: 15,
-    elevation: 4,
-  },
-  readyIconText: {
-    color: colors.white,
-    fontSize: 34,
-  },
-  readyBrand: {
-    color: colors.navy,
-    fontSize: 15,
-    fontWeight: '800',
   },
   readyTitle: {
-    marginVertical: 12,
-    color: colors.navy,
-    fontSize: 19,
-    fontWeight: '800',
-    lineHeight: 34,
+    ...type.title,
+    color: c.ink,
     textAlign: 'center',
   },
   readyText: {
-    marginBottom: 18,
-    color: colors.muted,
-    fontSize: 14,
-    lineHeight: 26,
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'center',
+  },
+  fullWidth: {
+    alignSelf: 'stretch',
   },
 });

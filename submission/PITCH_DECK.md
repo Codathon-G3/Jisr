@@ -66,7 +66,7 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
 * **Speaker Script**:
   > *"As emphasized in the Codathon guidelines, simply labeling a project 'AI-based' is not enough. In Jisr, AI performs four precise tasks that forms and rules cannot do:  
   > It restructures chaotic thoughts into clear messages; it adapts tone between talking to a close friend versus a school counsellor; it verifies faithfulness to prevent invented feelings; and it classifies natural language risk.  
-  > We even built a Baseline Comparison toggle into the app, so anyone—and any evaluator—can see the exact difference between our AI draft and a generic template."*
+  > We even built a Baseline Comparison toggle into the app, so anyone—and any evaluator—can see the exact difference between our AI draft and a generic template, and judge for themselves. If the template is better, the app lets you use it."*
 
 ---
 
@@ -75,15 +75,15 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
 * **Slide Title**: "The Guardian Layer: Safe Before Helpful"
 * **Visual Elements**:
   * Diagram of the multi-stage Guardian Layer:
-    * Pre-drafting Risk Filter (Keyword + LLM classifier).
-    * Fixed Verified Support Card (never generated).
+    * Pre-drafting Risk Filter (Keyword list on the phone + keyword list and LLM classifier on the server, before any drafting).
+    * Fixed Support Card (never generated; shows no unverified numbers).
     * Deterministic Output Check (Clinical terms blocked).
     * Persistent Human Route Button.
-  * Safety Metric Callout Box: **High-Recall Benchmark on Libyan Dialect**.
-  * Privacy Guarantee: **Zero external storage, stateless drafting, PII stripped on-device**.
+  * Safety Metric Callout Box: **On 64 sentences we never tuned on: 26/26 crisis sentences caught by the phrase list + AI model (95% CI 87–100%), 3/30 false alarms. The phrase list alone caught 6/26: the AI does the detecting on new wording. Blind test with native reviewers next.**
+  * Privacy Guarantee: **No account, nothing stored on our server, identifiers removed and shown to the user before sending, private record off by default**.
 * **Speaker Script**:
-  > *"Safety in this space cannot be an afterthought. Before any text ever reaches drafting, our Guardian Layer screens for crisis indicators across Libyan dialect, Arabic, and Latin script. If crisis is detected, drafting stops immediately, and a static, verified human support card is presented.  
-  > Furthermore, our output filter guarantees no clinical diagnoses or medication terms can ever appear. And on privacy: Jisr requires no accounts, no logins, and retains zero data on any server. A person's vulnerable moments stay strictly in their control."*
+  > *"Safety in this space cannot be an afterthought. Before any text ever reaches drafting, our Guardian Layer screens for crisis indicators across Libyan dialect, Arabic, and Latin script, on the phone and again on the server. If crisis is detected, drafting stops and a static support card is presented. On 64 sentences we never tuned on, the combined check caught all 26 crisis sentences; the keyword list alone caught only 6. That is why the AI sits in the safety path, not just the writing. We could not verify a Libyan helpline in time, so the card shows no number rather than an unchecked one: it points to a trusted person and the nearest emergency department.  
+  > Our output filter blocks clinical diagnoses and medication terms, and the 'talk to someone now' button works on every screen whatever the classifier says. On privacy: Jisr requires no accounts and our server keeps nothing. Names and numbers are removed on the phone, and the user sees exactly what will be sent before it leaves."*
 
 ---
 
@@ -94,13 +94,13 @@ Slide 5: Live Demo & Libya Fit ──► Walkthrough, Libyan Dialect, Honest Bou
   * Standalone Downloadable Android APK badge & QR Code (`builds/jisr-v1.0.0.apk`).
   * Live Mobile App Screen / Video Demonstration:
     * Inputting Libyan dialect: *"مضغوط هلبا من الامتحانات ومش قادر نركز"*.
-    * Generating the 3 drafts in sub-second response time.
+    * Generating the 3 drafts (live, with the backend running; a few seconds).
     * Tapping Native Share Sheet to WhatsApp / Messenger.
-    * Seamless offline fallback demonstration (`safety/plain-templates.json`).
+    * Seamless offline fallback demonstration (`safety/plain-templates.json`, labelled "قالب جاهز").
   * Stated Honest Limitations banner (Non-clinical, human-in-the-loop).
 * **Speaker Script**:
-  > *"Jisr was built for Libyan reality: it is packaged as a lightweight, downloadable Android APK that works on ordinary smartphones, operates with zero bandwidth using deterministic fallback templates, understands authentic Libyan dialect, respects family structures in its recipient options, and connects directly to WhatsApp and Messenger, which 90%+ of our young people use.  
-  > We are honest about our limits: Jisr is not a doctor, does not replace medical specialists, and never sends a message without user approval.  
+  > *"Jisr was built for Libyan reality: it is packaged as a downloadable Android APK that works on ordinary smartphones, keeps working offline with plain templates and the on-device safety check, is written for Libyan dialect, respects family structures in its recipient options, and connects directly to WhatsApp and Messenger, the apps young Libyans already use.  
+  > We are honest about our limits: Jisr is not a doctor, not a therapist, not an emergency service, does not replace specialists, and never sends a message without user approval.  
   > By removing the friction of the first sentence, Jisr helps young Libyans turn silence into early, life-changing human conversations. Thank you, and we welcome your questions."*
 
 ---

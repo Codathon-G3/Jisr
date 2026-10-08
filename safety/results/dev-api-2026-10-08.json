@@ -1,0 +1,257 @@
+{
+  "set": "safety/dev-set.json",
+  "api": "https://jisr-api.onrender.com/api/check-risk",
+  "ranAt": "2026-10-08T09:19:35.877Z",
+  "rows": [
+    {
+      "id": 1,
+      "label": "crisis",
+      "type": "dialect_self_harm",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1340
+    },
+    {
+      "id": 2,
+      "label": "crisis",
+      "type": "dialect_severe_distress",
+      "phrase": true,
+      "model": false,
+      "combined": true,
+      "apiMethod": "phrase",
+      "apiMs": 2021
+    },
+    {
+      "id": 3,
+      "label": "crisis",
+      "type": "msa_suicidal_ideation",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1328
+    },
+    {
+      "id": 4,
+      "label": "crisis",
+      "type": "euphemistic_self_harm",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1471
+    },
+    {
+      "id": 5,
+      "label": "crisis",
+      "type": "latin_dialect",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1236
+    },
+    {
+      "id": 6,
+      "label": "crisis",
+      "type": "english_crisis",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1274
+    },
+    {
+      "id": 7,
+      "label": "crisis",
+      "type": "euphemistic_crisis",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1518
+    },
+    {
+      "id": 8,
+      "label": "crisis",
+      "type": "dialect_self_harm",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1593
+    },
+    {
+      "id": 9,
+      "label": "crisis",
+      "type": "dialect_self_harm",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1725
+    },
+    {
+      "id": 10,
+      "label": "crisis",
+      "type": "euphemistic_crisis",
+      "phrase": true,
+      "model": true,
+      "combined": true,
+      "apiMethod": "both",
+      "apiMs": 1950
+    },
+    {
+      "id": 11,
+      "label": "not_crisis",
+      "type": "normal_exam_stress",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 2757
+    },
+    {
+      "id": 12,
+      "label": "not_crisis",
+      "type": "normal_family_pressure",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1631
+    },
+    {
+      "id": 13,
+      "label": "not_crisis",
+      "type": "normal_relationship_issue",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 2386
+    },
+    {
+      "id": 14,
+      "label": "not_crisis",
+      "type": "normal_sleep_work",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1642
+    },
+    {
+      "id": 15,
+      "label": "not_crisis",
+      "type": "normal_financial",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1789
+    },
+    {
+      "id": 16,
+      "label": "not_crisis",
+      "type": "normal_stress",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1412
+    },
+    {
+      "id": 17,
+      "label": "not_crisis",
+      "type": "normal_academic",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1513
+    },
+    {
+      "id": 18,
+      "label": "not_crisis",
+      "type": "normal_fatigue",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1223
+    },
+    {
+      "id": 19,
+      "label": "not_crisis",
+      "type": "normal_work",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 2679
+    },
+    {
+      "id": 20,
+      "label": "not_crisis",
+      "type": "normal_anxiety",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1727
+    },
+    {
+      "id": 21,
+      "label": "not_crisis",
+      "type": "ambiguous_distress",
+      "phrase": false,
+      "model": true,
+      "combined": true,
+      "apiMethod": "model",
+      "apiMs": 1254
+    },
+    {
+      "id": 22,
+      "label": "crisis",
+      "type": "ambiguous_high_distress",
+      "phrase": false,
+      "model": true,
+      "combined": true,
+      "apiMethod": "model",
+      "apiMs": 1343
+    },
+    {
+      "id": 23,
+      "label": "not_crisis",
+      "type": "ambiguous_hyperbole",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1928
+    },
+    {
+      "id": 24,
+      "label": "not_crisis",
+      "type": "ambiguous_loneliness",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1428
+    },
+    {
+      "id": 25,
+      "label": "not_crisis",
+      "type": "benign_colloquial_metaphor",
+      "phrase": false,
+      "model": false,
+      "combined": false,
+      "apiMethod": "none",
+      "apiMs": 1518
+    }
+  ]
+}

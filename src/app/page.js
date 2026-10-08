@@ -5,11 +5,134 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ar from "../i18n/ar.json";
 import templates from "../../safety/plain-templates.json";
 import supportCard from "../../safety/support-card.json";
+import statedLimits from "../../safety/stated-limits.json";
 import { checkLocalCrisis } from "../services/crisisCheck";
+import { sanitizePii } from "../services/piiSanitizer";
 
 const toneOrder = ["gentle", "direct", "formal"];
-const API_BASE = "https://jisr-api.onrender.com";
-const API_TIMEOUT_MS = 60000;
+
+// Icon per recipient, from the mapping table in jisr-brand/BRAND.md.
+const recipientIcons = {
+  friend: "person",
+  sibling: "relationships",
+  parent: "family",
+  trusted_adult: "person",
+  counsellor: "exams",
+};
+
+// Icons that point somewhere mirror in right-to-left layouts.
+const mirroredIcons = new Set(["back", "send"]);
+
+/* Jisr line icon (public/icons, from jisr-brand/icons), coloured by the text colour. */
+function Icon({ name }) {
+  return (
+    <span
+      className={mirroredIcons.has(name) ? "jisrIcon mirror" : "jisrIcon"}
+      style={{ "--icon": `url(/icons/${name}.svg)` }}
+      aria-hidden="true"
+    />
+  );
+}
+
+// The live API; set NEXT_PUBLIC_API_URL (e.g. http://localhost:8000) for backend development.
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://jisr-api.onrender.com").replace(/\/+$/, "");
+// The free Render instance can take about a minute to wake up.
+const DRAFTS_TIMEOUT_MS = 60000;
+// Longest note the API accepts (MAX_TEXT_CHARS in backend/app/schemas.py).
+const MAX_NOTE_CHARS = 4000;
+
+/*
+  Guardian, model layer: /api/check-risk before any drafting, with identifiers
+  removed. Returns true on a risk flag; false if the check passed or could not
+  run (the on-device phrase check has already passed, and /api/generate-drafts
+  checks again on servers that have the gate).
+*/
+async function fetchRisk(text, chips) {
+  if (!text.trim()) {
+    return false;
+  }
+
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), DRAFTS_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${API_URL}/api/check-risk`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: sanitizePii(text).sanitisedText,
+        chips,
+        language: "ar",
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    return data.riskDetected === true;
+  } catch (error) {
+    return false;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+/*
+  Drafts come from /api/generate-drafts, which also runs the Guardian risk check
+  before any drafting. Only identifier-free text is sent.
+  Returns { risk: true } on a risk flag, the AI drafts, or null so the caller
+  falls back to the plain templates.
+*/
+async function fetchDrafts(text, chips, recipient) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), DRAFTS_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${API_URL}/api/generate-drafts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: sanitizePii(text).sanitisedText,
+        chips,
+        recipient,
+        language: "ar",
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (data.riskDetected === true) {
+      return { risk: true };
+    }
+
+    if (!Array.isArray(data.drafts) || data.drafts.length !== 3) {
+      return null;
+    }
+
+    const byTone = {};
+    data.drafts.forEach((draft) => {
+      byTone[draft.tone] = draft.text;
+    });
+
+    return {
+      risk: false,
+      drafts: byTone,
+      source: data.usedFallbackTemplate ? "template" : "ai",
+    };
+  } catch (error) {
+    return null;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
 
 export default function Home() {
   const [screen, setScreen] = useState("intro");
@@ -25,14 +148,28 @@ export default function Home() {
   const [dismissedKey, setDismissedKey] = useState("");
 
   const [showSupport, setShowSupport] = useState(false);
+  const [supportIsCrisis, setSupportIsCrisis] = useState(false);
+  // The text the user chose to continue with after the support card
+  const [acknowledgedText, setAcknowledgedText] = useState(null);
 
   const [selectedTone, setSelectedTone] = useState("");
   const [editableDraft, setEditableDraft] = useState("");
-  const [draftsByTone, setDraftsByTone] = useState({});
-  const [usedFallback, setUsedFallback] = useState(false);
+  // AI drafts per tone, and where the drafts on screen came from
+  const [aiDrafts, setAiDrafts] = useState({});
+  const [draftSource, setDraftSource] = useState("template");
+  const [continuedAfterSupport, setContinuedAfterSupport] = useState(false);
   const [busy, setBusy] = useState(false);
+  // The model could not be reached, so the drafts are plain templates
+  const usedFallback = draftSource === "template" && !continuedAfterSupport;
 
   const [copied, setCopied] = useState(false);
+
+  // Guardian: on-device crisis phrase check, same list and rules as the mobile app
+  const textRisk = useMemo(() => checkLocalCrisis(text).riskDetected, [text]);
+  const crisisAcknowledged = acknowledgedText !== null && acknowledgedText === text;
+
+  // What would leave the device for drafting, shown before anything is sent
+  const outbound = useMemo(() => sanitizePii(text), [text]);
 
   const chipIds = Object.keys(ar.chips || {});
   const recipientIds = Object.keys(ar.recipients || {});
@@ -67,17 +204,19 @@ export default function Home() {
     }, 650);
   }
 
-  // Live on-device Guardian check with 700ms debounce
+  // Live on-device Guardian check with 700ms debounce. Opens the crisis card
+  // (with "continue to my note"), unless the user already chose to continue
+  // with this exact text.
   useEffect(() => {
     if (!text || text.trim().length === 0) return;
     const timer = window.setTimeout(() => {
       const risk = checkLocalCrisis(text);
-      if (risk?.riskDetected) {
-        setShowSupport(true);
+      if (risk?.riskDetected && acknowledgedText !== text) {
+        openSupport(true);
       }
     }, 700);
     return () => window.clearTimeout(timer);
-  }, [text]);
+  }, [text, acknowledgedText]);
 
   const selectedTopic = useMemo(() => {
     return selectedChips
@@ -104,8 +243,30 @@ export default function Home() {
     );
   }
 
+  function openSupport(isCrisis) {
+    setShowTrigger(false);
+    setSupportIsCrisis(isCrisis);
+    setShowSupport(true);
+  }
+
+  function closeSupport() {
+    setShowSupport(false);
+    setSupportIsCrisis(false);
+  }
+
   function handleContinue() {
     if (selectedChips.length === 0 || !recipient) {
+      return;
+    }
+
+    // A crisis phrase shows the support card instead of drafting. If the user
+    // already chose to continue, they get plain templates only.
+    if (crisisAcknowledged) {
+      continueWithTemplates();
+      return;
+    }
+    if (textRisk) {
+      openSupport(true);
       return;
     }
 
@@ -147,36 +308,31 @@ export default function Home() {
     return template.replaceAll("{topic}", topic).replaceAll("[topic]", topic);
   }
 
-  function chooseTone(tone, source) {
-    const map = source || draftsByTone;
+  function chooseTone(tone, drafts = aiDrafts) {
     setSelectedTone(tone);
-    setEditableDraft(map[tone] || "");
+    setEditableDraft(drafts[tone] || createFallbackDraft(tone));
   }
 
-  async function postJson(path, body) {
-    const controller = new AbortController();
-    const timer = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-    try {
-      const response = await fetch(`${API_BASE}${path}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      if (!response.ok) {
-        throw new Error(String(response.status));
-      }
-      return await response.json();
-    } finally {
-      window.clearTimeout(timer);
+  function showDrafts(drafts, source) {
+    setAiDrafts(drafts);
+    setDraftSource(source);
+    chooseTone("gentle", drafts);
+    setScreen("drafts");
+  }
+
+  // After the support card the user may still write to someone they trust.
+  // Plain templates only: the flagged text is never sent for drafting.
+  function continueWithTemplates() {
+    setContinuedAfterSupport(true);
+    showDrafts({}, "template");
+  }
+
+  function handleContinueAfterSupport() {
+    setAcknowledgedText(text);
+    closeSupport();
+    if (screen !== "drafts") {
+      continueWithTemplates();
     }
-  }
-
-  function applyDraftMap(map, fallback) {
-    setDraftsByTone(map);
-    setUsedFallback(fallback);
-    setSelectedTone("gentle");
-    setEditableDraft(map.gentle || "");
   }
 
   async function handleStartDrafting() {
@@ -185,50 +341,35 @@ export default function Home() {
     }
 
     setShowTrigger(false);
+
+    if (textRisk && !crisisAcknowledged) {
+      openSupport(true);
+      return;
+    }
+
+    setContinuedAfterSupport(false);
     setBusy(true);
     setScreen("drafts");
     setSelectedTone("");
     setEditableDraft("");
 
-    try {
-      const risk = await postJson("/api/check-risk", {
-        text,
-        chips: selectedChips,
-        language: "ar",
-      });
+    // Risk check first, then drafting (which checks again on the server).
+    // Both requests carry only identifier-free text.
+    const risky = await fetchRisk(text, selectedChips);
+    const result = risky ? { risk: true } : await fetchDrafts(text, selectedChips, recipient);
 
-      if (risk?.riskDetected) {
-        setShowSupport(true);
-        setScreen("form");
-        return;
-      }
+    setBusy(false);
 
-      const data = await postJson("/api/generate-drafts", {
-        text,
-        chips: selectedChips,
-        recipient,
-        language: "ar",
-      });
-      const map = {};
-      for (const draft of data?.drafts || []) {
-        map[draft.tone] = draft.text;
-      }
-      if (!map.gentle || !map.direct || !map.formal) {
-        throw new Error("drafts");
-      }
-      applyDraftMap(map, Boolean(data.usedFallbackTemplate));
-    } catch (error) {
-      console.error("Draft request failed, using templates:", error);
-      applyDraftMap(
-        {
-          gentle: createFallbackDraft("gentle"),
-          direct: createFallbackDraft("direct"),
-          formal: createFallbackDraft("formal"),
-        },
-        true
-      );
-    } finally {
-      setBusy(false);
+    if (result && result.risk) {
+      setScreen("form");
+      openSupport(true);
+      return;
+    }
+
+    if (result) {
+      showDrafts(result.drafts, result.source);
+    } else {
+      showDrafts({}, "template");
     }
   }
 
@@ -281,6 +422,7 @@ export default function Home() {
     setScreen("form");
     setSelectedTone("");
     setEditableDraft("");
+    setAiDrafts({});
   }
 
   return (
@@ -299,11 +441,12 @@ export default function Home() {
         type="button"
         className={
           screen === "intro"
-            ? "humanRouteButton introHumanRoute"
-            : "humanRouteButton"
+            ? "humanRouteButton introHumanRoute withIcon"
+            : "humanRouteButton withIcon"
         }
-        onClick={() => setShowSupport(true)}
+        onClick={() => openSupport(textRisk && !crisisAcknowledged)}
       >
+        <Icon name="talk" />
         {ar.triggers?.persistent_human_route}
       </button>
 
@@ -346,9 +489,13 @@ export default function Home() {
           {screen === "form" && (
             <div className="screenPanel">
               <div className="brand">
-                <div className="miniBridgeMark">
-                  <img src="/brand/jisr-logo.png" alt="جسر" />
-                </div>
+                <img
+                  className="wordmark"
+                  src="/brand/wordmark.png"
+                  alt=""
+                  width="1583"
+                  height="388"
+                />
 
                 <h1>{ar.app_name}</h1>
 
@@ -371,11 +518,12 @@ export default function Home() {
                       type="button"
                       className={
                         selectedChips.includes(id)
-                          ? "chip selected"
-                          : "chip"
+                          ? "chip selected withIcon"
+                          : "chip withIcon"
                       }
                       onClick={() => toggleChip(id)}
                     >
+                      <Icon name={id} />
                       {ar.chips[id]}
                     </button>
                   ))}
@@ -390,12 +538,47 @@ export default function Home() {
                 <textarea
                   id="message"
                   rows="4"
+                  maxLength={MAX_NOTE_CHARS}
                   value={text}
                   onChange={(event) =>
                     setText(event.target.value)
                   }
                   placeholder={ar.placeholders?.user_input}
                 />
+
+                {/* Guardian: a crisis phrase routes to the support card, not to drafting */}
+                {textRisk && (
+                  <p className="hint">
+                    {supportCard.title_ar}
+                  </p>
+                )}
+
+                {/* What would leave the device, shown before anything is sent */}
+                {!textRisk && text.trim() !== "" && (
+                  <div className="disclosureBox outboundBox">
+                    <strong>
+                      {ar.trust?.outbound_preview_title}
+                    </strong>
+
+                    <p>
+                      {ar.trust?.outbound_preview_desc}
+                    </p>
+
+                    <p>
+                      {outbound.sanitisedText}
+                    </p>
+
+                    {outbound.identifiersRemoved.length === 0 && (
+                      <p>
+                        {ar.trust?.outbound_clean}
+                      </p>
+                    )}
+
+                    <p>
+                      {ar.trust?.outbound_server_note}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="section">
@@ -410,11 +593,12 @@ export default function Home() {
                       type="button"
                       className={
                         recipient === id
-                          ? "recipient selected"
-                          : "recipient"
+                          ? "recipient selected withIcon"
+                          : "recipient withIcon"
                       }
                       onClick={() => setRecipient(id)}
                     >
+                      <Icon name={recipientIcons[id]} />
                       {ar.recipients[id]}
                     </button>
                   ))}
@@ -426,15 +610,21 @@ export default function Home() {
                 className="continueButton"
                 disabled={
                   selectedChips.length === 0 ||
-                  recipient === ""
+                  recipient === "" ||
+                  busy
                 }
                 onClick={handleContinue}
               >
-                {ar.buttons?.start_drafting}
+                {busy ? "..." : ar.buttons?.start_drafting}
               </button>
 
               <p className="limits">
-                {ar.limits?.notice}
+                {statedLimits.ar}
+              </p>
+
+              {/* Minors and consent (product definition Q5) */}
+              <p className="limits">
+                {statedLimits.minors_ar}
               </p>
             </div>
           )}
@@ -448,15 +638,18 @@ export default function Home() {
               <div className="draftHeader">
                 <button
                   type="button"
-                  className="smallBackButton"
+                  className="smallBackButton withIcon"
                   onClick={goBackToForm}
+                  aria-label="رجوع"
                 >
-                  ←
+                  <Icon name="back" />
                 </button>
 
                 <div>
-                  <span className="aiBadge">
-                    {ar.disclosure?.badge}
+                  <span className={draftSource === "ai" ? "aiBadge" : "aiBadge isTemplate"}>
+                    {draftSource === "ai"
+                      ? ar.disclosure?.badge
+                      : ar.disclosure?.template_badge}
                   </span>
 
                   <h2>
@@ -503,39 +696,59 @@ export default function Home() {
 
               {selectedTone && (
                 <div className="editorSection">
-                  <textarea
-                    className="draftEditor"
-                    rows="8"
-                    value={editableDraft}
-                    onChange={(event) =>
-                      setEditableDraft(event.target.value)
-                    }
-                  />
+                  {/* Note card: the recipient strip and the editable draft */}
+                  <div className="noteCard">
+                    <div className="noteTo">
+                      <Icon name={recipientIcons[recipient] || "person"} />
+                      {ar.recipients?.[recipient]}
+                    </div>
 
-                  <div className="disclosureBox">
+                    <textarea
+                      className="draftEditor"
+                      rows="8"
+                      value={editableDraft}
+                      onChange={(event) =>
+                        setEditableDraft(event.target.value)
+                      }
+                    />
+                  </div>
+
+                  <div className={draftSource === "ai" ? "disclosureBox" : "disclosureBox isTemplate"}>
                     <strong>
-                      {ar.disclosure?.badge}
+                      {draftSource === "ai"
+                        ? ar.disclosure?.badge
+                        : ar.disclosure?.template_badge}
                     </strong>
 
                     <p>
-                      {ar.disclosure?.notice}
+                      {draftSource === "ai"
+                        ? ar.disclosure?.notice
+                        : continuedAfterSupport
+                          ? ar.disclosure?.after_support_notice
+                          : ar.disclosure?.template_notice}
+                    </p>
+
+                    <p>
+                      {statedLimits.ar_short}
                     </p>
                   </div>
 
                   <div className="draftActions">
                     <button
                       type="button"
-                      className="secondaryButton"
+                      className="secondaryButton withIcon"
                       onClick={handleCopy}
                     >
+                      <Icon name="copy" />
                       {ar.buttons?.copy}
                     </button>
 
                     <button
                       type="button"
-                      className="primaryButton"
+                      className="primaryButton withIcon"
                       onClick={handleShare}
                     >
+                      <Icon name="share" />
                       {ar.buttons?.share}
                     </button>
                   </div>
@@ -556,12 +769,16 @@ export default function Home() {
 
           {screen === "ready" && (
             <div className="screenPanel readyScreen">
-              <div className="miniBridgeMark" style={{ marginBottom: "16px" }}>
-                <img src="/brand/jisr-logo.png" alt="جسر" style={{ maxWidth: "140px" }} />
-              </div>
+              <img
+                className="wordmark"
+                src="/brand/wordmark.png"
+                alt="جسر"
+                width="1583"
+                height="388"
+              />
 
               <div className="readyIcon">
-                ✓
+                <Icon name="check" />
               </div>
 
               <h2>
@@ -597,11 +814,11 @@ export default function Home() {
               aria-label="إغلاق"
               onClick={() => setShowTrigger(false)}
             >
-              ×
+              <Icon name="close" />
             </button>
 
             <div className="modalIcon greenIcon">
-              
+              <Icon name="edit" />
             </div>
 
             <p className="triggerText">
@@ -643,13 +860,13 @@ export default function Home() {
               type="button"
               className="modalClose"
               aria-label="إغلاق"
-              onClick={() => setShowSupport(false)}
+              onClick={closeSupport}
             >
-              ×
+              <Icon name="close" />
             </button>
 
             <div className="modalIcon safetyIcon">
-              !
+              <Icon name="alert" />
             </div>
 
             <h2>
@@ -691,10 +908,21 @@ export default function Home() {
               {supportCard.guidance_ar}
             </p>
 
+            {/* After a risk flag the user may still write to someone they trust */}
+            {supportIsCrisis && (
+              <button
+                type="button"
+                className="primaryButton fullButton"
+                onClick={handleContinueAfterSupport}
+              >
+                {ar.buttons?.continue_note}
+              </button>
+            )}
+
             <button
               type="button"
               className="secondaryButton fullButton"
-              onClick={() => setShowSupport(false)}
+              onClick={closeSupport}
             >
               إغلاق
             </button>

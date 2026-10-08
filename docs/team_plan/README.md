@@ -1,5 +1,7 @@
 # Jisr (جِسر) — Team Execution Kit (Ai4LY Codathon 2026)
 
+> **This is the original plan, written before the build.** Some of it changed during the build (for example, there is no Groq/Llama fallback, and the client waits up to 60 seconds, not 2.5). For what the code does now, read [`REPORT.md`](../../REPORT.md) and [`docs/REVIEW_REPORT.md`](../REVIEW_REPORT.md).
+
 > **Submission Deadline**: Wednesday, October 7, 2026 at 11:50 PM  
 > **Presentation / Evaluation**: Thursday, October 8, 2026 after noon prayer (Online, ~5 min presentation + ~5 min Q&A)  
 > **Team**: Mohamed Thabet (Team Leader), Rayan, Muatz, Shima

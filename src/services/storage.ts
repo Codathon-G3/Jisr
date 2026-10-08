@@ -1,18 +1,27 @@
 /**
- * Sandboxed On-Device Storage Service (Privacy & Pattern Tracking)
+ * Private On-Device Record (product definition §8, requirement R5)
  *
- * Provides completely local, sandboxed tracking of chip selections using
- * AsyncStorage. Zero network telemetry. Used for:
- * 1. Detecting pattern recurrence (>=3 taps on the same stress chip)
- *    to trigger gentle check-ins.
- * 2. Instant one-tap history wipe.
+ * - Off by default: nothing is remembered until the user turns it on.
+ * - Chips and time only: no free text, drafts, recipient or sharing data.
+ * - Time-limited: entries expire after the window the user picks (1, 7 or 30 days).
+ * - Visible and deletable: the capture screen shows the counts and erases all in one tap;
+ *   turning the record off also erases it.
+ * - Never transmitted, and excluded from Android backup (app.json allowBackup: false).
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Chip, HistoryItem, Recipient } from '../types';
+import { Chip, HistoryItem } from '../types';
+import {
+  RetentionDays,
+  countByChip,
+  isRecurring,
+  parseRetentionDays,
+  pruneExpired,
+} from './historyLogic';
 
 const HISTORY_KEY = '@jisr_chip_history';
 const SETTINGS_KEY = '@jisr_history_enabled';
+const RETENTION_KEY = '@jisr_history_retention_days';
 
 // In-memory fallback if AsyncStorage is unavailable or throws
 const memoryStore = new Map<string, string>();
@@ -52,89 +61,89 @@ async function removeStoredValue(key: string): Promise<void> {
 }
 
 /**
- * Checks whether on-device history tracking is currently enabled.
- * Defaults to true for local recurrence detection unless disabled by user.
+ * Whether the private record is on. Off unless the user has turned it on.
  */
 export async function isHistoryEnabled(): Promise<boolean> {
-  try {
-    const raw = await getStoredValue(SETTINGS_KEY);
-    if (raw === null) return true;
-    return raw === 'true';
-  } catch {
-    return true;
-  }
+  return (await getStoredValue(SETTINGS_KEY)) === 'true';
 }
 
 /**
- * Toggles on-device history tracking.
+ * Turns the private record on or off. Turning it off erases what was stored.
  */
 export async function setHistoryEnabled(enabled: boolean): Promise<void> {
   await setStoredValue(SETTINGS_KEY, String(enabled));
-}
-
-/**
- * Retrieves the full list of locally recorded chip selections.
- */
-export async function getHistory(): Promise<HistoryItem[]> {
-  try {
-    const raw = await getStoredValue(HISTORY_KEY);
-    if (!raw) return [];
-    const items = JSON.parse(raw);
-    return Array.isArray(items) ? items : [];
-  } catch {
-    return [];
+  if (!enabled) {
+    await clearHistory();
   }
 }
 
+export async function getRetentionDays(): Promise<RetentionDays> {
+  return parseRetentionDays(await getStoredValue(RETENTION_KEY));
+}
+
 /**
- * Records a chip selection to local device storage if history is enabled.
+ * Changes how long entries are kept; entries outside the new window are erased now.
  */
-export async function recordChipSelection(
-  chip: Chip,
-  recipient?: Recipient
-): Promise<HistoryItem | null> {
-  const enabled = await isHistoryEnabled();
-  if (!enabled) return null;
+export async function setRetentionDays(days: RetentionDays): Promise<void> {
+  await setStoredValue(RETENTION_KEY, String(days));
+  await getHistory();
+}
 
-  const newItem: HistoryItem = {
-    id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    chip,
-    recipient,
-    timestamp: Date.now(),
-  };
+/**
+ * Returns the remembered chip selections inside the retention window, and erases
+ * anything older from the device.
+ */
+export async function getHistory(): Promise<HistoryItem[]> {
+  let raw: unknown = [];
+  try {
+    const stored = await getStoredValue(HISTORY_KEY);
+    raw = stored ? JSON.parse(stored) : [];
+  } catch {
+    raw = [];
+  }
+  const kept = pruneExpired(raw, Date.now(), await getRetentionDays());
+  if (Array.isArray(raw) && kept.length !== raw.length) {
+    await setStoredValue(HISTORY_KEY, JSON.stringify(kept));
+  }
+  return kept;
+}
 
+/**
+ * Remembers the chips of one writing session, if the user turned the record on.
+ */
+export async function recordChipSelections(chips: Chip[]): Promise<void> {
+  if (chips.length === 0 || !(await isHistoryEnabled())) return;
+
+  const now = Date.now();
   const history = await getHistory();
-  history.push(newItem);
-
-  // Keep last 100 entries to prevent unbounded growth
-  const trimmed = history.slice(-100);
-  await setStoredValue(HISTORY_KEY, JSON.stringify(trimmed));
-
-  return newItem;
+  for (const chip of chips) {
+    history.push({
+      id: `${now}_${Math.random().toString(36).substring(2, 7)}`,
+      chip,
+      timestamp: now,
+    });
+  }
+  // Keep the last 100 entries to prevent unbounded growth
+  await setStoredValue(HISTORY_KEY, JSON.stringify(history.slice(-100)));
 }
 
 /**
- * Counts how many times a given chip has been selected in local history.
+ * How many times each chip is remembered, for the capture screen's record view.
  */
-export async function getChipCount(chip: Chip): Promise<number> {
-  const history = await getHistory();
-  return history.filter((item) => item.chip === chip).length;
+export async function getHistorySummary(): Promise<Partial<Record<Chip, number>>> {
+  return countByChip(await getHistory());
 }
 
 /**
- * Checks if a chip meets the recurrence threshold (default: >= 3 selections).
+ * Whether a chip came up often enough inside the window to offer the pattern invitation.
  */
-export async function checkChipRecurrence(
-  chip: Chip,
-  threshold = 3
-): Promise<boolean> {
-  const count = await getChipCount(chip);
-  return count >= threshold;
+export async function checkChipRecurrence(chip: Chip): Promise<boolean> {
+  if (!(await isHistoryEnabled())) return false;
+  return isRecurring(await getHistory(), chip);
 }
 
 /**
- * One-tap history wipe. Irreversibly deletes all stored history records
- * from both AsyncStorage and in-memory cache with zero network traces.
+ * One-tap wipe of every stored entry.
  */
 export async function clearHistory(): Promise<void> {
   await removeStoredValue(HISTORY_KEY);

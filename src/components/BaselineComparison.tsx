@@ -7,6 +7,10 @@ import {
   ViewStyle,
   I18nManager,
 } from 'react-native';
+import ar from '../i18n/ar.json';
+import { radius, shadow, space, type } from '../theme/tokens';
+import { button, c, rowRtl } from '../theme/ui';
+import { JisrIcon } from './JisrIcon';
 
 export interface BaselineComparisonProps {
   /** The AI-generated, tone-adapted message draft */
@@ -15,6 +19,8 @@ export interface BaselineComparisonProps {
   baselineTemplate: string;
   /** Label for the recipient (e.g. 'صاحبي / صاحبتي') */
   recipientLabel?: string;
+  /** False when the drafts are templates (AI unavailable), so the view says so */
+  aiAvailable?: boolean;
   /** Optional callback when the user picks which version to send */
   onSelectDraft?: (selectedText: string, isAi: boolean) => void;
   /** Optional container style override */
@@ -24,14 +30,16 @@ export interface BaselineComparisonProps {
 /**
  * BaselineComparison Component (Layer 4: Trust & Transparency)
  *
- * Demonstrates the tangible value of the AI drafting engine by allowing
- * the user and evaluators to compare the personalized, tone-softened AI note
- * directly against a static, generic, non-AI baseline template.
+ * Lets the user and evaluators compare the AI draft with the plain template and
+ * judge for themselves. Product definition §4.4: if the AI output is not better,
+ * the toggle must show that too, so the labels stay neutral and the view says
+ * plainly when the "AI" draft is only the template.
  */
 export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
   aiDraft,
   baselineTemplate,
   recipientLabel,
+  aiAvailable = true,
   onSelectDraft,
   style,
 }) => {
@@ -47,9 +55,12 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
     <View style={[styles.container, style]}>
       {/* Header & Purpose Badge */}
       <View style={styles.headerRow}>
-        <Text style={styles.title}>مقارنة المحتوى</Text>
+        <View style={styles.titleRow}>
+          <JisrIcon name="suggestion" size={20} color={c.lavender} />
+          <Text style={styles.title}>{ar.trust.comparison_title}</Text>
+        </View>
         <View style={styles.trustBadge}>
-          <Text style={styles.trustBadgeText}>إثبات دور الذكاء الاصطناعي</Text>
+          <Text style={styles.trustBadgeText}>الذكاء الاصطناعي مقابل القالب</Text>
         </View>
       </View>
 
@@ -111,10 +122,9 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
         ]}
       >
         <View style={styles.cardHeader}>
-          <Text style={styles.cardIndicator}>
-            {activeTab === 'ai'
-              ? 'كلام مهذب ومخصص لمشاعرك'
-              : 'نص جاهز وجامد'}
+          {activeTab === 'ai' && <JisrIcon name="suggestion" size={16} color={c.lavender} />}
+          <Text style={[styles.cardIndicator, activeTab === 'ai' && styles.cardIndicatorAi]}>
+            {activeTab === 'ai' ? ar.trust.ai_draft_label : ar.trust.baseline_template_label}
           </Text>
         </View>
 
@@ -124,20 +134,19 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
       {/* Insight Footer */}
       <View style={styles.insightBox}>
         <Text style={styles.insightText}>
-          {activeTab === 'ai'
-            ? 'الذكاء الاصطناعي يساعدك تكسر حاجز البداية بدون إحراج وبلهجة طبيعية يفهمها قريبك.'
-            : 'القالب الثابت كلام عام جداً وقد يبدو بارداً أو غير معبر عن حالتك الحقيقية.'}
+          {aiAvailable ? ar.trust.why_different : ar.trust.template_only}
         </Text>
       </View>
 
       {/* Select / Use Button */}
       {onSelectDraft && (
         <TouchableOpacity
-          style={styles.actionButton}
+          style={[button.base, button.plain, styles.actionButton]}
           onPress={handleSelect}
           activeOpacity={0.85}
         >
-          <Text style={styles.actionButtonText}>
+          <JisrIcon name="check" size={20} color={c.ink} />
+          <Text style={[button.label, button.labelPlain]}>
             {activeTab === 'ai' ? 'اعتمد صياغة الذكاء الاصطناعي' : 'اعتمد القالب الثابت'}
           </Text>
         </TouchableOpacity>
@@ -148,141 +157,124 @@ export const BaselineComparison: React.FC<BaselineComparisonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 18,
-    marginVertical: 12,
+    backgroundColor: c.surfaceRaised,
+    borderRadius: radius.lg,
+    padding: space[4],
+    marginVertical: space[3],
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    borderColor: c.line,
     writingDirection: 'rtl',
+    ...shadow.sm,
   },
   headerRow: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: rowRtl,
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: space[2],
+    gap: space[2],
+  },
+  titleRow: {
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[2],
   },
   title: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#0F172A',
+    ...type.heading,
+    color: c.ink,
     textAlign: 'right',
   },
   trustBadge: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
+    backgroundColor: c.surfaceSunken,
+    paddingHorizontal: space[3],
+    paddingVertical: space[1],
+    borderRadius: radius.full,
   },
   trustBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
+    ...type.caption,
+    color: c.inkMuted,
   },
   subtitle: {
-    fontSize: 13,
-    color: '#64748B',
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'right',
-    marginBottom: 14,
-    lineHeight: 19,
+    marginBottom: space[3],
   },
   segmentedControl: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 14,
+    backgroundColor: c.surfaceSunken,
+    borderRadius: radius.md,
+    padding: space[1],
+    marginBottom: space[3],
   },
   segmentButton: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 6,
-    borderRadius: 8,
+    minHeight: 40,
+    paddingVertical: space[2],
+    paddingHorizontal: space[2],
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
   segmentButtonActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: c.surfaceRaised,
+    ...shadow.sm,
   },
   segmentText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#64748B',
+    ...type.caption,
+    color: c.inkMuted,
     textAlign: 'center',
   },
   segmentTextActive: {
-    color: '#0F172A',
-    fontWeight: '700',
+    color: c.green,
   },
   messageCard: {
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1.5,
+    borderRadius: radius.md,
+    padding: space[4],
+    borderWidth: 1,
     minHeight: 110,
     justifyContent: 'center',
   },
   messageCardAi: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#86EFAC',
+    backgroundColor: c.lavenderSoft,
+    borderColor: c.lavenderSoft,
   },
   messageCardBaseline: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#CBD5E1',
+    backgroundColor: c.surfaceSunken,
+    borderColor: c.line,
   },
   cardHeader: {
-    marginBottom: 8,
-    alignItems: 'flex-start',
+    flexDirection: rowRtl,
+    alignItems: 'center',
+    gap: space[1],
+    marginBottom: space[2],
   },
   cardIndicator: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
+    ...type.caption,
+    color: c.inkMuted,
     textAlign: 'right',
   },
+  cardIndicatorAi: {
+    color: c.lavender,
+  },
   messageText: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: '#1E293B',
+    ...type.body,
+    color: c.ink,
     textAlign: 'right',
   },
   insightBox: {
-    marginTop: 12,
-    padding: 10,
-    backgroundColor: '#FFFBEB',
-    borderRadius: 8,
+    marginTop: space[3],
+    padding: space[3],
+    backgroundColor: c.surface,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: c.line,
   },
   insightText: {
-    fontSize: 12,
-    color: '#92400E',
+    ...type.bodySm,
+    color: c.inkMuted,
     textAlign: 'right',
-    lineHeight: 18,
   },
   actionButton: {
-    marginTop: 14,
-    backgroundColor: '#0284C7',
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  actionButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+    marginTop: space[3],
   },
 });

@@ -49,7 +49,8 @@ Jisr/
    * Each teammate opens their numbered guide in `docs/team_plan/` and builds their components independently without blocking each other.
    * Integration happens at Hour 8 using `docs/team_plan/05_INTEGRATION_AND_TESTING_PROTOCOL.md`.
 2. **For Submission (Wednesday 11:50 PM)**:
-   * Source code lives in `app/` and `api/`.
+   * Source code lives in `App.tsx` and `src/` (mobile app, with the Next.js web showcase in `src/app/`), `backend/` (FastAPI) and `safety/` (Guardian Layer data and checks).
+   * The product definition every requirement traces back to is [`Bridge_Note_Product_Definition.pdf`](Bridge_Note_Product_Definition.pdf); the code review against it is [`REVIEW_REPORT.md`](REVIEW_REPORT.md).
    * `README.md` at the root serves as the repository entry point.
    * `REPORT.md` at the root satisfies the detailed technical report requirement.
    * `CITATIONS.md` satisfies the third-party models and tools disclosure rule [T§4].

@@ -8,10 +8,12 @@ Tone = Literal["gentle", "direct", "formal"]
 RiskMethod = Literal["none", "phrase", "model", "both"]
 Placeholder = Literal["[name]", "[phone]", "[email]"]
 DRAFT_ORDER: tuple[Tone, ...] = ("gentle", "direct", "formal")
+# Longest note the API accepts; the app and web text boxes use the same limit.
+MAX_TEXT_CHARS = 4000
 
 
 class CheckRiskRequest(BaseModel):
-    text: str = ""
+    text: str = Field(default="", max_length=MAX_TEXT_CHARS)
     chips: list[Chip] = Field(default_factory=list)
     language: Literal["ar"] = "ar"
 
@@ -30,7 +32,7 @@ class CheckRiskResponse(BaseModel):
 
 
 class GenerateDraftsRequest(BaseModel):
-    text: str = ""
+    text: str = Field(default="", max_length=MAX_TEXT_CHARS)
     chips: list[Chip] = Field(default_factory=list)
     recipient: Recipient
     language: Literal["ar"] = "ar"
@@ -52,18 +54,26 @@ class GenerateDraftsResponse(BaseModel):
     drafts: list[Draft]
     outputCheckPassed: bool
     usedFallbackTemplate: bool
+    riskDetected: bool = False
+    riskMethod: RiskMethod = "none"
 
     @model_validator(mode="after")
     def drafts_are_three_tones_in_order(self) -> "GenerateDraftsResponse":
         tones = [draft.tone for draft in self.drafts]
+        if self.riskDetected:
+            if tones:
+                raise ValueError("no drafts may be returned when risk is detected")
+            if self.riskMethod == "none":
+                raise ValueError("riskMethod cannot be none when risk is detected")
+            return self
         if tones != list(DRAFT_ORDER):
             raise ValueError("drafts must be exactly gentle, direct, then formal")
         return self
 
 
 class FaithfulnessRequest(BaseModel):
-    originalText: str
-    draft: str
+    originalText: str = Field(max_length=MAX_TEXT_CHARS)
+    draft: str = Field(max_length=MAX_TEXT_CHARS)
 
 
 class Alignment(BaseModel):

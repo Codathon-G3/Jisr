@@ -7,23 +7,32 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FAF6EF"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "com.ai4ly.jisr",
+      "allowBackup": false,
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FAF6EF"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

@@ -73,3 +73,36 @@ def test_fenced_json_is_parsed(monkeypatch) -> None:
     monkeypatch.setattr(httpx, "Client", JsonClient)
     assert generate_json("system", "اكتب") == {"text": "تمام"}
     get_settings.cache_clear()
+
+
+def test_key_is_sent_in_a_header_not_the_url(monkeypatch) -> None:
+    monkeypatch.setenv("GEMINI_API_KEY", "secret-test-key")
+    get_settings.cache_clear()
+    sent = {}
+
+    class RecordingClient:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args) -> bool:
+            return False
+
+        def post(self, url, **kwargs):
+            sent["url"] = url
+            sent.update(kwargs)
+            request = httpx.Request("POST", url)
+            return httpx.Response(
+                200,
+                json={"candidates": [{"content": {"parts": [{"text": '{"text": "تمام"}'}]}}]},
+                request=request,
+            )
+
+    monkeypatch.setattr(httpx, "Client", RecordingClient)
+    generate_json("system", "اكتب")
+    assert sent["headers"] == {"x-goog-api-key": "secret-test-key"}
+    assert "params" not in sent
+    assert "secret-test-key" not in sent["url"]
+    get_settings.cache_clear()
